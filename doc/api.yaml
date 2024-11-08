@@ -53,11 +53,51 @@ paths:
           description: Username updated successfully
           content:
             application/json:
-              schema:
+              schema: 
                 $ref: "#/components/schemas/User"
-        "404":
+        "404": 
           description: User not found
-
+          
+  /session/{Username}/profilePicture:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+    put:
+      summary: Set Profile Picture
+      description: "Sets the profile picture of the user"
+      operationId: setMyPhoto
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+            description: Profile Picture updated successfully
+            content:
+              application/json:
+                schema: 
+                  $ref: "#/components/schemas/User"
+        "404": 
+          description: User not found
+        
+  /session/{Username}/myConversations:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+    get:
+      summary: get all of my conversations
+      description: "Get all the conversations of the user"
+      operationId: getMyConversations
+      responses:
+        "200":
+          description: "My conversations fetched successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyConversations"
+        "404":
+           description: User not found
+          
 components:
   schemas:
     User:
@@ -71,9 +111,46 @@ components:
           pattern: 'ˆ.*?$'
           minLength: 3
           maxLength: 16
-        ProfilePicture:
+        Profile Picture:
           description: "the profile picture of the user"
-            
+    
+    Group:
+      description: "Object representing a Group of users"
+      type: object
+      properties:
+        Group name:
+          description: "name of the group"
+          type: string
+          example: Acsai Group
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
+        Group Picture:
+          description: "the picture of the group"
+    
+    Conversation:
+      description: "Object representing a conversation"
+      type: object
+      properties:
+        id:
+          description: "unique identifier of a conversation"
+          type: integer
+        Conversation Type:
+          description: "type of conversation, either with a single person or a group"
+          type: string
+          enum:
+            - user
+            - group
+        Data:
+          description: "content of the conversation -> a list of messages"
+          type: object
+          
+    MyConversations:
+      description: "Object representing all of my conversations"
+      type: array
+      items:
+        $ref: "#/components/schemas/Conversation"
+    
   parameters:
     Username:
       schema:
