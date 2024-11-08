@@ -90,7 +90,7 @@ paths:
       operationId: getMyConversations
       responses:
         "200":
-          description: "My conversations fetched successfully"
+          description: "My conversations were fetched successfully"
           content:
             application/json:
               schema:
@@ -98,10 +98,184 @@ paths:
         "404":
            description: User not found
           
-          
-          
-          
-          
+  /session/{Username}/{ConversationID}:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+      - $ref: "#/components/parameters/ConversationID"
+    get:
+      summary: get the selected conversation
+      description: "Get the selected conversations"
+      operationId: getConversation
+      responses:
+        "200":
+          description: "The selected conversation was fetched successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "404":
+           description: User or Conversation not found
+    post:
+      summary: send a message to the conversation
+      description: "The user sends a message to the conversation"
+      operationId: sendMessage
+      requestBody:
+        description: "The message to send to the conversation"
+        content:
+          application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+      responses:
+        "200":
+          description: "The message to the conversation was sent successfully"
+        "404":
+           description: User or Conversation not found
+    put:
+      summary: set the group name
+      description: "Set the group name"
+      operationId: setGroupName
+      requestBody:
+        description: Group Details
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Group"
+      responses:
+        "200":
+          description: Group Details set successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "404":
+           description: User or Conversation not found
+    delete:
+      summary: leave group
+      description: "Leave from the group"
+      operationId: leaveGroup
+      responses:
+        "200":
+          description: Left from the group successfully
+        "404":
+           description: User or Conversation not found
+   
+  /session/{Username}/{ConversationID}/add:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+      - $ref: "#/components/parameters/ConversationID"
+    put:
+      summary: Add Someone To Group
+      description: "Add the specified user to the group"
+      operationId: addToGroup
+      requestBody:
+        description: User to Add
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: User has been added to the Group successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Group"
+        "404":
+           description: User or Conversation not found
+   
+  /session/{Username}/{ConversationID}/{MessageID}:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+      - $ref: "#/components/parameters/ConversationID"
+      - $ref: "#/components/parameters/MessageID"
+    delete:
+      summary: delete message
+      description: "delete the message from the conversation"
+      operationId: deleteMessage
+      responses:
+        "200":
+          description: Message deleted successfully
+        "404":
+           description: User, Conversation or Message not found
+  
+  /session/{Username}/{ConversationID}/{MessageID}/comment:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+      - $ref: "#/components/parameters/ConversationID"
+      - $ref: "#/components/parameters/MessageID"
+    post:
+      summary: Forward a Message
+      description: "Forward the message to someone"
+      operationId: forwardMessage
+      requestBody:
+        description: Forward The Message
+        content:
+          application/json:
+            schema:
+              properties:
+                Recipient:
+                  description: "the recipient of the message to be forwarded"
+                  type: string
+              $ref: "#/components/schemas/Message"
+      responses:
+        "200":
+            description: Message forwarded successfully
+        "404": 
+          description: User, Conversation or Message not found
+    put:
+      summary: React to Message
+      description: "Send a reaction or comment to a message"
+      operationId: commentMessage
+      requestBody:
+        description: Comment The Message
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Reaction"
+      responses:
+        "200":
+            description: Message reaction sent successfully
+            content:
+              application/json:
+                schema: 
+                  $ref: "#/components/schemas/Message"
+        "404": 
+          description: User, Conversation or Message not found
+    delete:
+      summary: uncomment message
+      description: "delete the comment or reaction from the message"
+      operationId: uncommentMessage
+      responses:
+        "200":
+          description: Message reaction deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "404":
+           description: User, Conversation or Message not found
+  
+  
+  /session/{Username}/{ConversationID}/groupPicture:
+    parameters:
+      - $ref: "#/components/parameters/Username"
+      - $ref: "#/components/parameters/ConversationID"
+    put:
+      summary: set the picture of the group
+      description: "Set the picture of the group"
+      operationId: setGroupPhoto
+      requestBody:
+        description: Group Picture
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: "The group picture was set successfully"
+        "404":
+           description: User or Conversation not found
+    
 components:
   schemas:
     User:
@@ -117,11 +291,16 @@ components:
           maxLength: 16
         Profile Picture:
           description: "the profile picture of the user"
-    
+          type: string
+          format: binary
+            
     Message:
       description: "Object representing a single message"
       type: object
       properties:
+        Message ID:
+          description: "message id that is unique in the scope of a conversation"
+          type: integer
         Sender:
           description: "the user of the person who sent the message"
           $ref: "#/components/schemas/User"
@@ -177,7 +356,9 @@ components:
           maxLength: 16
         Group Picture:
           description: "the picture of the group"
-    
+          type: string
+          format: binary
+          
     Conversation:
       description: "Object representing a conversation"
       type: object
@@ -187,7 +368,7 @@ components:
             "identifier of a conversation, which is either
             the unique username of the other person or
             the unique Group ID of the group"
-          type: integer
+          type: string
         Conversation Type:
           description: "type of conversation, either with a single person or a group"
           type: string
@@ -220,4 +401,22 @@ components:
       in: path
       required: true
       description: Unique Username
-
+    ConversationID:
+      schema:
+        type: string
+        example: "abcdef012345"
+        readOnly: true
+      name: ConversationID
+      in: path
+      required: true
+      description: Unique ID for a conversation
+    MessageID:
+      schema:
+        type: integer
+        readOnly: true
+      name: MessageID
+      in: path
+      required: true
+      description: Message ID that is unique in the scope of a conversation
+                      
+      
