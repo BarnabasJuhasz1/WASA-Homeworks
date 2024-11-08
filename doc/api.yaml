@@ -98,6 +98,10 @@ paths:
         "404":
            description: User not found
           
+          
+          
+          
+          
 components:
   schemas:
     User:
@@ -114,10 +118,56 @@ components:
         Profile Picture:
           description: "the profile picture of the user"
     
+    Message:
+      description: "Object representing a single message"
+      type: object
+      properties:
+        Sender:
+          description: "the user of the person who sent the message"
+          $ref: "#/components/schemas/User"
+        Content:
+          description: "the content of the message"
+          type: string
+          minLength: 1 #the message has to be at least one character
+          maxLength: 2000 #limiting the max message length
+        Timestamp:
+          description: "the timestamp of the message"
+          type: string
+          format: date-time
+        Status:
+          description: "the status of the message"
+          type: string
+          enum:
+            - oneCheckMark
+            - doubleCheckMark
+            - username
+        Reactions:
+          description: "all reactions to this message"
+          type: array
+          items:
+            $ref: "#/components/schemas/Reaction" 
+          
+    Reaction:
+      description: "Object representing a reaction to a message"
+      type: object
+      properties:
+        UserWhoReacted:
+          description: "the user who made the reaction"
+          $ref: "#/components/schemas/User"
+        ReactionType:
+          description: "the type of reaction, can be either emoji or message"
+          type: string
+          enum:
+            - emoji
+            - message
+          
     Group:
       description: "Object representing a Group of users"
       type: object
       properties:
+        Group ID:
+          description: "unique ID for the group"
+          type: integer
         Group name:
           description: "name of the group"
           type: string
@@ -133,7 +183,10 @@ components:
       type: object
       properties:
         id:
-          description: "unique identifier of a conversation"
+          description: |
+            "identifier of a conversation, which is either
+            the unique username of the other person or
+            the unique Group ID of the group"
           type: integer
         Conversation Type:
           description: "type of conversation, either with a single person or a group"
@@ -146,10 +199,16 @@ components:
           type: object
           
     MyConversations:
-      description: "Object representing all of my conversations"
+      description: "Object storing all of my conversations"
       type: array
       items:
         $ref: "#/components/schemas/Conversation"
+    
+    UserBase:
+      description: "Object storing all registered users"
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
     
   parameters:
     Username:
@@ -161,6 +220,4 @@ components:
       in: path
       required: true
       description: Unique Username
-        
-                      
-      
+
