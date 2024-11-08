@@ -1,9 +1,8 @@
 openapi: 3.0.3
 info:
-  title: Simplified login API specification
+  title: WasaText OpenAPI
   description: |-
-    This OpenAPI document describes the simplified login API.
-    Copy and paste the API from the `paths` key to your OpenAPI document.
+    This OpenAPI document describes the WasaText API.
   version: "1"
 paths:
   /session:
@@ -347,6 +346,11 @@ components:
         Group ID:
           description: "unique ID for the group"
           type: integer
+        Participants:
+          description: "users in the group"
+          type: array
+          items: 
+            $ref: "#/components/schemas/User"
         Group name:
           description: "name of the group"
           type: string
@@ -369,6 +373,14 @@ components:
             the unique username of the other person or
             the unique Group ID of the group"
           type: string
+        ConversationGroup:
+          description: |
+            "the group that has this conversation,
+            if this is a single one-to-one conversation,
+            then the group will only be consisting of two people.
+            The group name, picture, and participants returned by backend
+            will match the person that the client has a conversation with." 
+          $ref: "#/components/schemas/Conversation"
         Conversation Type:
           description: "type of conversation, either with a single person or a group"
           type: string
@@ -378,6 +390,7 @@ components:
         Data:
           description: "content of the conversation -> a list of messages"
           type: object
+
           
     MyConversations:
       description: "Object storing all of my conversations"
