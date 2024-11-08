@@ -138,14 +138,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Group"
+              $ref: "#/components/schemas/Conversation"
       responses:
         "200":
           description: Group Details set successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/Conversation"
         "404":
            description: User or Conversation not found
     delete:
@@ -178,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
+                $ref: "#/components/schemas/Conversation"
         "404":
            description: User or Conversation not found
    
@@ -380,7 +380,7 @@ components:
             then the group will only be consisting of two people.
             The group name, picture, and participants returned by backend
             will match the person that the client has a conversation with." 
-          $ref: "#/components/schemas/Conversation"
+          $ref: "#/components/schemas/Group"
         Conversation Type:
           description: "type of conversation, either with a single person or a group"
           type: string
