@@ -47,6 +47,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+        required: true
       responses:
         "200":
           description: Username updated successfully
@@ -70,6 +71,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/User"
+        required: true
       responses:
         "200":
             description: Profile Picture updated successfully
@@ -124,6 +126,7 @@ paths:
           application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+        required: true
       responses:
         "200":
           description: "The message to the conversation was sent successfully"
@@ -139,6 +142,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Conversation"
+        required: true
       responses:
         "200":
           description: Group Details set successfully
@@ -146,8 +150,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Conversation"
+        "403":
+          description: "Forbidden request, cannot set group name of one-on-one conversation"
         "404":
-           description: User or Conversation not found
+          description: User or Conversation not found
+          
     delete:
       summary: leave group
       description: "Leave from the group"
@@ -171,7 +178,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              properties:
+                Conversation:
+                  $ref: "#/components/schemas/Conversation"
+                UserToAdd:
+                  $ref: "#/components/schemas/User"
+        required: true
       responses:
         "200":
           description: User has been added to the Group successfully
@@ -231,6 +243,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/Reaction"
+        required: true
       responses:
         "200":
             description: Message reaction sent successfully
@@ -268,12 +281,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              $ref: "#/components/schemas/Conversation"
+        required: true
       responses:
         "200":
           description: "The group picture was set successfully"
+        "403":
+          description: "Forbidden request, cannot set picture of one-on-one conversation"
         "404":
-           description: User or Conversation not found
+           description: "User or Conversation not found"
     
 components:
   schemas:
