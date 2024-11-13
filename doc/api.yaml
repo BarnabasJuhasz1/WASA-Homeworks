@@ -3,6 +3,9 @@ info:
   title: WasaText OpenAPI
   description: |-
     This OpenAPI document describes the WasaText API.
+    Note: One-on-one conversations are implemented as "Groups" with 2 person.
+    To distinguish between group conversations (also 2 people),
+    the enum field "Conversation Type" is used.
   version: "1"
 paths:
   /session:
@@ -419,7 +422,12 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/User"
-    
+
+  securitySchemes:
+    bearerAuth: # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+  
   parameters:
     Username:
       schema:
@@ -447,5 +455,7 @@ components:
       in: path
       required: true
       description: Message ID that is unique in the scope of a conversation
-                      
       
+security:
+  - bearerAuth: []
+                      
