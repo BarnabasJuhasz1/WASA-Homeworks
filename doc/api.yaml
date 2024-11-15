@@ -103,9 +103,9 @@ paths:
         "404":
            description: User not found
           
-  /{Username}/{ConversationID}:
+  /{ConversationID}:
     parameters:
-      - $ref: "#/components/parameters/Username"
+#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     get:
       summary: get the selected conversation
@@ -177,9 +177,9 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /{Username}/{ConversationID}/add:
+  /{ConversationID}/add:
     parameters:
-      - $ref: "#/components/parameters/Username"
+#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
       summary: Add Someone To Group
@@ -206,10 +206,10 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /{Username}/{ConversationID}/{MessageID}:
+  /{MessageID}:
     parameters:
-      - $ref: "#/components/parameters/Username"
-      - $ref: "#/components/parameters/ConversationID"
+#      - $ref: "#/components/parameters/Username"
+#      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     delete:
       summary: delete message
@@ -225,10 +225,10 @@ paths:
         "404":
            description: User, Conversation or Message not found
   
-  /{Username}/{ConversationID}/{MessageID}/comment:
+  /{MessageID}/comment:
     parameters:
-      - $ref: "#/components/parameters/Username"
-      - $ref: "#/components/parameters/ConversationID"
+#      - $ref: "#/components/parameters/Username"
+#      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     post:
       summary: Forward a Message
@@ -239,11 +239,17 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                Recipient:
-                  description: "the recipient of the message to be forwarded"
-                  type: string
-              $ref: "#/components/schemas/Message"
+              allOf:
+                - $ref: "#/components/schemas/Message"
+                - type: object
+                  properties:
+                    Recipient:
+                      description: "The recipient of the message to be forwarded"
+                      type: string
+                      example: "user123"
+                      pattern: 'ˆ.*?$'
+                      minLength: 3
+                      maxLength: 16
       responses:
         "200":
             description: Message forwarded successfully
@@ -288,9 +294,9 @@ paths:
            description: User, Conversation or Message not found
   
   
-  /{Username}/{ConversationID}/groupPicture:
+  /{ConversationID}/groupPicture:
     parameters:
-      - $ref: "#/components/parameters/Username"
+#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
       summary: set the picture of the group
@@ -337,7 +343,7 @@ components:
           description: "message id that is unique in the scope of a conversation"
           type: integer
         Sender:
-          description: "the user of the person who sent the message"
+          #description: "the user of the person who sent the message"
           $ref: "#/components/schemas/User"
         Content:
           description: "the content of the message"
@@ -372,7 +378,6 @@ components:
       type: object
       properties:
         UserWhoReacted:
-          description: "the user who made the reaction"
           $ref: "#/components/schemas/User"
         ReactionType:
           description: "the type of reaction, can be either emoji or message"
@@ -422,14 +427,15 @@ components:
           minLength: 1
           maxLength: 10000
         ConversationGroup:
-          description: |
-            "the group that has this conversation,
-            if this is a single one-to-one conversation,
-            then the group will only be consisting of two people.
-            The group name, picture, and participants returned by backend
-            will match the person that the client has a conversation with." 
-          $ref: "#/components/schemas/Group"
-        Conversation Type:
+          allOf:
+            - $ref: "#/components/schemas/Group"
+            - description: |
+                "the group that has this conversation,
+                if this is a single one-to-one conversation,
+                then the group will only be consisting of two people.
+                The group name, picture, and participants returned by backend
+                will match the person that the client has a conversation with." 
+        ConversationType:
           description: "type of conversation, either with a single person or a group"
           type: string
           enum:
@@ -449,11 +455,11 @@ components:
       items:
         $ref: "#/components/schemas/Conversation"
     
-    UserBase:
-      description: "Object storing all registered users"
-      type: array
-      items:
-        $ref: "#/components/schemas/User"
+#    UserBase:
+#      description: "Object storing all registered users"
+#      type: array
+#      items:
+#        $ref: "#/components/schemas/User"
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
@@ -494,3 +500,4 @@ components:
       
 security:
   - bearerAuth: []
+                      
