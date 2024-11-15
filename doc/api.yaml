@@ -36,8 +36,9 @@ paths:
                     # or any other type of identifier
                     type: string
                     example: "abcdef012345"
+                    pattern: 'ˆ.*?$'
                     
-  /session/{Username}:
+  /{Username}:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -61,7 +62,7 @@ paths:
         "404": 
           description: User not found
           
-  /session/{Username}/profilePicture:
+  /{Username}/profilePicture:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -85,7 +86,7 @@ paths:
         "404": 
           description: User not found
         
-  /session/{Username}/myConversations:
+  /{Username}/myConversations:
     parameters:
       - $ref: "#/components/parameters/Username"
     get:
@@ -102,7 +103,7 @@ paths:
         "404":
            description: User not found
           
-  /session/{Username}/{ConversationID}:
+  /{Username}/{ConversationID}:
     parameters:
       - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -133,6 +134,10 @@ paths:
       responses:
         "200":
           description: "The message to the conversation was sent successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
         "404":
            description: User or Conversation not found
     put:
@@ -165,10 +170,14 @@ paths:
       responses:
         "200":
           description: Left from the group successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyConversations"
         "404":
            description: User or Conversation not found
    
-  /session/{Username}/{ConversationID}/add:
+  /{Username}/{ConversationID}/add:
     parameters:
       - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -197,7 +206,7 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /session/{Username}/{ConversationID}/{MessageID}:
+  /{Username}/{ConversationID}/{MessageID}:
     parameters:
       - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -209,10 +218,14 @@ paths:
       responses:
         "200":
           description: Message deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
         "404":
            description: User, Conversation or Message not found
   
-  /session/{Username}/{ConversationID}/{MessageID}/comment:
+  /{Username}/{ConversationID}/{MessageID}/comment:
     parameters:
       - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -234,6 +247,10 @@ paths:
       responses:
         "200":
             description: Message forwarded successfully
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/Message"
         "404": 
           description: User, Conversation or Message not found
     put:
@@ -271,7 +288,7 @@ paths:
            description: User, Conversation or Message not found
   
   
-  /session/{Username}/{ConversationID}/groupPicture:
+  /{Username}/{ConversationID}/groupPicture:
     parameters:
       - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -325,12 +342,15 @@ components:
         Content:
           description: "the content of the message"
           type: string
+          pattern: 'ˆ.*?$'
           minLength: 1 #the message has to be at least one character
           maxLength: 2000 #limiting the max message length
+          
         Timestamp:
           description: "the timestamp of the message"
           type: string
           format: date-time
+          
         Status:
           description: "the status of the message"
           type: string
@@ -338,6 +358,9 @@ components:
             - oneCheckMark
             - doubleCheckMark
             - username
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 10000
         Reactions:
           description: "all reactions to this message"
           type: array
@@ -357,6 +380,9 @@ components:
           enum:
             - emoji
             - message
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 10000
           
     Group:
       description: "Object representing a Group of users"
@@ -376,7 +402,7 @@ components:
           example: Acsai Group
           pattern: 'ˆ.*?$'
           minLength: 3
-          maxLength: 16
+          maxLength: 20
         Group Picture:
           description: "the picture of the group"
           type: string
@@ -392,6 +418,9 @@ components:
             the unique username of the other person or
             the unique Group ID of the group"
           type: string
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 10000
         ConversationGroup:
           description: |
             "the group that has this conversation,
@@ -406,6 +435,9 @@ components:
           enum:
             - user
             - group
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 10000
         Data:
           description: "content of the conversation -> a list of messages"
           type: object
@@ -432,7 +464,9 @@ components:
     Username:
       schema:
         type: string
-        example: "abcdef012345"
+        pattern: 'ˆ.*?$'
+        minLength: 3
+        maxLength: 20
         readOnly: true
       name: Username
       in: path
@@ -441,7 +475,9 @@ components:
     ConversationID:
       schema:
         type: string
-        example: "abcdef012345"
+        pattern: 'ˆ.*?$'
+        minLength: 1
+        maxLength: 10000
         readOnly: true
       name: ConversationID
       in: path
@@ -458,4 +494,3 @@ components:
       
 security:
   - bearerAuth: []
-                      
