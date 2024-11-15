@@ -42,6 +42,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
+      tags: ["User Management"]
       summary: Set Username
       description: "Sets the username of the user"
       operationId: setMyUserName
@@ -66,6 +67,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
+      tags: ["User Management"]
       summary: Set Profile Picture
       description: "Sets the profile picture of the user"
       operationId: setMyPhoto
@@ -90,6 +92,7 @@ paths:
     parameters:
       - $ref: "#/components/parameters/Username"
     get:
+      tags: ["Conversation Management"]
       summary: get all of my conversations
       description: "Get all the conversations of the user"
       operationId: getMyConversations
@@ -108,6 +111,7 @@ paths:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     get:
+      tags: ["Conversation Management"]
       summary: get the selected conversation
       description: "Get the selected conversations"
       operationId: getConversation
@@ -121,6 +125,7 @@ paths:
         "404":
            description: User or Conversation not found
     post:
+      tags: ["Conversation Management"]
       summary: send a message to the conversation
       description: "The user sends a message to the conversation"
       operationId: sendMessage
@@ -141,6 +146,7 @@ paths:
         "404":
            description: User or Conversation not found
     put:
+      tags: ["Conversation Management"]
       summary: set the group name
       description: "Set the group name"
       operationId: setGroupName
@@ -164,6 +170,7 @@ paths:
           description: User or Conversation not found
           
     delete:
+      tags: ["Conversation Management"]
       summary: leave group
       description: "Leave from the group"
       operationId: leaveGroup
@@ -182,6 +189,7 @@ paths:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
+      tags: ["Conversation Management"]
       summary: Add Someone To Group
       description: "Add the specified user to the group"
       operationId: addToGroup
@@ -212,6 +220,7 @@ paths:
 #      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     delete:
+      tags: ["Message Management"]
       summary: delete message
       description: "delete the message from the conversation"
       operationId: deleteMessage
@@ -231,6 +240,7 @@ paths:
 #      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     post:
+      tags: ["Message Management"]
       summary: Forward a Message
       description: "Forward the message to someone"
       operationId: forwardMessage
@@ -260,6 +270,7 @@ paths:
         "404": 
           description: User, Conversation or Message not found
     put:
+      tags: ["Message Management"]
       summary: React to Message
       description: "Send a reaction or comment to a message"
       operationId: commentMessage
@@ -280,6 +291,7 @@ paths:
         "404": 
           description: User, Conversation or Message not found
     delete:
+      tags: ["Message Management"]
       summary: uncomment message
       description: "delete the comment or reaction from the message"
       operationId: uncommentMessage
@@ -299,6 +311,7 @@ paths:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
+      tags: ["Conversation Management"]
       summary: set the picture of the group
       description: "Set the picture of the group"
       operationId: setGroupPhoto
@@ -343,8 +356,9 @@ components:
           description: "message id that is unique in the scope of a conversation"
           type: integer
         Sender:
-          #description: "the user of the person who sent the message"
-          $ref: "#/components/schemas/User"
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - description: "the user of the person who sent the message"
         Content:
           description: "the content of the message"
           type: string
@@ -372,13 +386,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Reaction" 
+          minItems: 0
           
     Reaction:
       description: "Object representing a reaction to a message"
       type: object
       properties:
         UserWhoReacted:
-          $ref: "#/components/schemas/User"
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - description: "The user who made the reaction"
         ReactionType:
           description: "the type of reaction, can be either emoji or message"
           type: string
@@ -401,6 +418,7 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/User"
+          minItems: 2
         Group name:
           description: "name of the group"
           type: string
@@ -454,6 +472,7 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/Conversation"
+      minItems: 0
     
 #    UserBase:
 #      description: "Object storing all registered users"
