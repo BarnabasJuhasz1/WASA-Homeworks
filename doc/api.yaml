@@ -38,7 +38,7 @@ paths:
                     example: "abcdef012345"
                     pattern: 'ˆ.*?$'
                     
-  /{Username}:
+  /user/{Username}:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -63,7 +63,7 @@ paths:
         "404": 
           description: User not found
           
-  /{Username}/profilePicture:
+  /user/{Username}/profilePicture:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -88,7 +88,7 @@ paths:
         "404": 
           description: User not found
         
-  /{Username}/myConversations:
+  /user/{Username}/myConversations:
     parameters:
       - $ref: "#/components/parameters/Username"
     get:
@@ -106,7 +106,7 @@ paths:
         "404":
            description: User not found
           
-  /{ConversationID}:
+  /conversation/{ConversationID}:
     parameters:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -184,7 +184,7 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /{ConversationID}/add:
+  /conversation/{ConversationID}/add:
     parameters:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -214,7 +214,7 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /{MessageID}:
+  /message/{MessageID}:
     parameters:
 #      - $ref: "#/components/parameters/Username"
 #      - $ref: "#/components/parameters/ConversationID"
@@ -234,7 +234,7 @@ paths:
         "404":
            description: User, Conversation or Message not found
   
-  /{MessageID}/comment:
+  /message/{MessageID}/comment:
     parameters:
 #      - $ref: "#/components/parameters/Username"
 #      - $ref: "#/components/parameters/ConversationID"
@@ -306,7 +306,7 @@ paths:
            description: User, Conversation or Message not found
   
   
-  /{ConversationID}/groupPicture:
+  /conversation/{ConversationID}/groupPicture:
     parameters:
 #      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
@@ -325,6 +325,10 @@ paths:
       responses:
         "200":
           description: "The group picture was set successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
         "403":
           description: "Forbidden request, cannot set picture of one-on-one conversation"
         "404":
