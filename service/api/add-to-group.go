@@ -46,7 +46,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	userToAdd, userExists := Users[requestBody.UserNameToAdd]
+	userToAdd, userExists := AllUsers[requestBody.UserNameToAdd]
 	if !userExists {
 		fmt.Println("User ", requestBody.UserNameToAdd, " is not in the database!")
 		w.WriteHeader(http.StatusNotFound)
@@ -69,7 +69,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
 
 	//update users map by reassigning the struct
-	Users[requestBody.UserNameToAdd] = userToAdd
+	AllUsers[requestBody.UserNameToAdd] = userToAdd
 	//update conversations map by reassigning the struct
 	AllConversations[conversationID] = Conversation
 

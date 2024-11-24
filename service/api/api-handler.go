@@ -9,11 +9,11 @@ func (rt *_router) Handler() http.Handler {
 	// Register routes
 	rt.router.POST("/session", rt.doLogin)
 
-	rt.router.PUT("/user/:Username", rt.setUsername)
+	rt.router.PUT("/user", rt.setUsername)
 
-	rt.router.PUT("/user/:Username/profilePicture", rt.setMyPhoto)
+	rt.router.PUT("/user/profilePicture", rt.setMyPhoto)
 
-	rt.router.GET("/user/:Username/myConversations", rt.getMyConversations)
+	rt.router.GET("/user/myConversations", rt.getMyConversations)
 
 	rt.router.GET("/conversation/:ConversationID", rt.getConversation)
 	rt.router.POST("/conversation/:ConversationID", rt.sendMessage)

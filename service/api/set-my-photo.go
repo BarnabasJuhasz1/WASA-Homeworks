@@ -17,7 +17,13 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("Func setMyPhoto Called")
 
-	username := ps.ByName("Username")
+	//username := ps.ByName("Username")
+
+	if UserLoggedIn == nil {
+		fmt.Println("User is not logged in!")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 
 	// Read the request body
 	var requestBody struct {
@@ -30,25 +36,25 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	fmt.Println("User: ", username, " is trying to change profile picture to: ", requestBody.ProfilePicture)
+	fmt.Println("User: ", UserLoggedIn.Username, " is trying to change profile picture to: ", requestBody.ProfilePicture)
 
-	oldUser, oldExists := Users[username]
-	if !oldExists {
-		fmt.Println("User ", username, " is not in the database!")
+	// oldUser, oldExists := AllUsers[username]
+	// if !oldExists {
+	// 	fmt.Println("User ", username, " is not in the database!")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+
+	if UserLoggedIn.ProfilePicture == requestBody.ProfilePicture {
+		fmt.Println("Your profile picture is already ", UserLoggedIn.ProfilePicture)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if oldUser.ProfilePicture == requestBody.ProfilePicture {
-		fmt.Println("Your profile picture is already ", oldUser.ProfilePicture)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	UserLoggedIn.ProfilePicture = requestBody.ProfilePicture
 
-	oldUser.ProfilePicture = requestBody.ProfilePicture
+	fmt.Println("User ", UserLoggedIn.Username, " set its profile picture sucessfully to ", requestBody.ProfilePicture, "!")
 
-	fmt.Println("User ", username, " set its profile picture sucessfully to ", requestBody.ProfilePicture, "!")
-
-	json.NewEncoder(w).Encode(Users[username])
+	json.NewEncoder(w).Encode(UserLoggedIn)
 
 }

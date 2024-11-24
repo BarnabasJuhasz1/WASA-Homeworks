@@ -34,7 +34,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	for _, userNameAtI := range requestBody.Participants {
 
 		//check if all the users exist, if so, add them to a list
-		userToAdd, userExists := Users[userNameAtI]
+		userToAdd, userExists := AllUsers[userNameAtI]
 		if !userExists {
 			fmt.Println("User ", userNameAtI, " is not in the database!")
 			w.WriteHeader(http.StatusNotFound)
@@ -62,7 +62,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		userToAddAtI.MyConversations = append(userToAddAtI.MyConversations, conversation.Id)
 
 		//update users map by reassigning the struct
-		Users[userToAddAtI.Username] = userToAddAtI
+		AllUsers[userToAddAtI.Username] = userToAddAtI
 	}
 	//add new conversation to conversations map
 	AllConversations[conversation.Id] = conversation

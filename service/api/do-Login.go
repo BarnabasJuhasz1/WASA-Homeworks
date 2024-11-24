@@ -17,8 +17,8 @@ type User struct {
 	MyConversations []int
 }
 
-// var Users = []User{}
-var Users = make(map[string]User)
+// var AllUsers = []User{}
+var AllUsers = make(map[string]User)
 
 type Group struct {
 	//Id int
@@ -103,17 +103,17 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	// 	Username: user,
 	// })
 
-	user, exists := Users[requestBody.Username]
+	user, exists := AllUsers[requestBody.Username]
 
 	if exists {
 		fmt.Println("User ", user, " logged in sucessfully!")
 
 	} else {
 		//create a new user
-		Users[requestBody.Username] = User{
+		AllUsers[requestBody.Username] = User{
 			Username: requestBody.Username,
 		}
-		user = Users[requestBody.Username]
+		user = AllUsers[requestBody.Username]
 
 		fmt.Println("User ", requestBody.Username, " created sucessfully!")
 	}

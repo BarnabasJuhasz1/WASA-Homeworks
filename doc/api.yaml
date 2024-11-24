@@ -47,7 +47,7 @@ paths:
                     example: "abcdef012345"
                     pattern: 'ˆ.*?$'
                     
-  /user/{Username}:
+  /user:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -80,7 +80,7 @@ paths:
         "404": 
           description: User not found
           
-  /user/{Username}/profilePicture:
+  /user/profilePicture:
     parameters:
       - $ref: "#/components/parameters/Username"
     put:
@@ -110,7 +110,7 @@ paths:
         "404": 
           description: User not found
         
-  /user/{Username}/myConversations:
+  /user/myConversations:
     parameters:
       - $ref: "#/components/parameters/Username"
     get:

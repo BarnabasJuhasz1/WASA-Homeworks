@@ -17,7 +17,13 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("Func setUsername Called")
 
-	oldUsername := ps.ByName("Username")
+	//oldUsername := ps.ByName("Username")
+
+	if UserLoggedIn == nil {
+		fmt.Println("User is not logged in!")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 
 	// Read the request body
 	var requestBody struct {
@@ -30,17 +36,17 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	fmt.Println("User: ", oldUsername, " is trying to change name to: ", requestBody.NewUsername)
+	fmt.Println("User: ", UserLoggedIn.Username, " is trying to change name to: ", requestBody.NewUsername)
 
-	oldUser, oldExists := Users[oldUsername]
-	if !oldExists {
-		fmt.Println("User ", oldUsername, " is not in the database!")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// oldUser, oldExists := AllUsers[UserLoggedIn.Username]
+	// if !oldExists {
+	// 	fmt.Println("User ", UserLoggedIn.Username, " is not in the database!")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
-	if oldUsername == requestBody.NewUsername {
-		fmt.Println("Your username is already ", oldUsername)
+	if UserLoggedIn.Username == requestBody.NewUsername {
+		fmt.Println("Your username is already ", UserLoggedIn.Username)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -51,23 +57,27 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	_, newExists := Users[requestBody.NewUsername]
+	_, newExists := AllUsers[requestBody.NewUsername]
 
 	if newExists {
 		fmt.Println("Username ", requestBody.NewUsername, " occupied by someone else!")
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	} else {
-		//delete old entry in users
-		delete(Users, oldUsername)
-		//rename old user's name to new value
-		oldUser.Username = requestBody.NewUsername
-		//add same user with the new name
-		Users[requestBody.NewUsername] = oldUser
+		// //delete old entry in users
+		// delete(Users, oldUsername)
+		// //rename old user's name to new value
+		// oldUser.Username = requestBody.NewUsername
+		// //add same user with the new name
+		// Users[requestBody.NewUsername] = oldUser
 
-		fmt.Println("User ", oldUsername, " renamed sucessfully to ", requestBody.NewUsername, "!")
+		//update the username of the user logged in
+		//Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
+		UserLoggedIn.Username = requestBody.NewUsername
+
+		fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
-	json.NewEncoder(w).Encode(Users[requestBody.NewUsername])
+	json.NewEncoder(w).Encode(AllUsers[requestBody.NewUsername])
 
 }
