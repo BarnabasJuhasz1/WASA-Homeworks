@@ -12,8 +12,6 @@ import (
 	//"math/rand"
 )
 
-// Start a new game generating the secret number
-// and return the created game id
 func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
@@ -21,21 +19,6 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	conversationIDString := ps.ByName("ConversationID")
 
-	// user, exists := Users[username]
-	// if !exists {
-	// 	fmt.Println("User ", username, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
-	//get the conversation with a specific ID
-	// var myConversations []Conversation
-	// for _, conversationId := range user.MyConversations {
-
-	// 	myConversations = append(myConversations, AllConversations[conversationId])
-	// }
-
-	//fmt.Println("User ", username, " sucessfully received its conversations!")
 	conversationID, err := strconv.Atoi(conversationIDString)
 	if err != nil || conversationID < 0 {
 		fmt.Println("Invalid conversationID in path! ", err)
@@ -47,6 +30,13 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	if !existsConv {
 		fmt.Println("Invalid conversationID in path! ", err)
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//make sure the user asks for a conversation it is part of
+	if !contains(UserLoggedIn.MyConversations, conversationID) {
+		fmt.Println("User tried to send a message to a conversation it is not part of! ", err)
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 

@@ -11,8 +11,6 @@ import (
 	//"math/rand"
 )
 
-// Start a new game generating the secret number
-// and return the created game id
 func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")

@@ -10,6 +10,9 @@ import (
 	//"math/rand"
 )
 
+//we should not store info of which conversation a user is part of inside the user struct
+//instead, in a separate map that maps from username (string) to conversationIds ([]int)
+
 type User struct {
 	//Id int
 	Username        string
@@ -68,8 +71,6 @@ var AllConversations = make(map[int]Conversation) //keys grow incrementally
 
 var UserLoggedIn *User
 
-// Start a new game generating the secret number
-// and return the created game id
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")

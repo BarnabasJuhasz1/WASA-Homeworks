@@ -11,28 +11,12 @@ import (
 	//"math/rand"
 )
 
-// Start a new game generating the secret number
-// and return the created game id
 func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("Func getConversation Called")
 
 	conversationIDString := ps.ByName("ConversationID")
-
-	// user, exists := Users[username]
-	// if !exists {
-	// 	fmt.Println("User ", username, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
-	//get the conversation with a specific ID
-	// var myConversations []Conversation
-	// for _, conversationId := range user.MyConversations {
-
-	// 	myConversations = append(myConversations, AllConversations[conversationId])
-	// }
 
 	//fmt.Println("User ", username, " sucessfully received its conversations!")
 	conversationID, err := strconv.Atoi(conversationIDString)
@@ -42,6 +26,23 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
+	//make sure the user asks for a conversation it is part of
+	if !contains(UserLoggedIn.MyConversations, conversationID) {
+		fmt.Println("User tried to read a conversation it is not part of! ", err)
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	json.NewEncoder(w).Encode(AllConversations[conversationID])
 
+}
+
+// function to check if an int ID is present in a list of int IDs
+func contains(userConversationIds []int, conversationId int) bool {
+	for _, item := range userConversationIds {
+		if item == conversationId {
+			return true
+		}
+	}
+	return false
 }

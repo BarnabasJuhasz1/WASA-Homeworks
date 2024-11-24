@@ -10,8 +10,6 @@ import (
 	//"math/rand"
 )
 
-// Start a new game generating the secret number
-// and return the created game id
 func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
@@ -64,20 +62,18 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	} else {
-		// //delete old entry in users
-		// delete(Users, oldUsername)
-		// //rename old user's name to new value
-		// oldUser.Username = requestBody.NewUsername
-		// //add same user with the new name
-		// Users[requestBody.NewUsername] = oldUser
-
+		oldUserName := UserLoggedIn.Username
 		//update the username of the user logged in
 		//Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
 		UserLoggedIn.Username = requestBody.NewUsername
+		//add same user with the new name
+		AllUsers[requestBody.NewUsername] = *UserLoggedIn
+		//delete old entry in users
+		delete(AllUsers, oldUserName)
 
-		fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
+		//fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
-	json.NewEncoder(w).Encode(AllUsers[requestBody.NewUsername])
+	json.NewEncoder(w).Encode(UserLoggedIn)
 
 }
