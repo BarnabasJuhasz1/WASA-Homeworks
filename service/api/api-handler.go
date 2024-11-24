@@ -22,6 +22,8 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.PUT("/conversation/:ConversationID/add", rt.addToGroup)
 
+	rt.router.POST("/create/conversation", rt.createConversation)
+
 	//rt.router.GET("/", rt.getHelloWorld)
 	//rt.router.GET("/context", rt.wrap(rt.getContextReply))
 

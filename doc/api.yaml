@@ -383,7 +383,7 @@ paths:
         "404":
            description: "User or Conversation not found"
            
-  /conversation/create:
+  /create/conversation:
     post:
       tags: ["Conversation Management"]
       summary: create a new conversation

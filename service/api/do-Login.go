@@ -21,7 +21,7 @@ type User struct {
 var Users = make(map[string]User)
 
 type Group struct {
-	Id           int
+	//Id int
 	Participants []User
 	GroupName    string
 	GroupPicture string
@@ -44,7 +44,7 @@ const (
 )
 
 type Message struct {
-	Id        int
+	Id        int //Id grows incrementally
 	Sender    User
 	Content   string
 	Timestamp string
@@ -58,13 +58,13 @@ type Reaction struct {
 }
 
 type Conversation struct {
-	Id                int
+	Id                int //Id corresponding to the key in AllConversations
 	ConversationGroup Group
 	Type              ConversationType
 	Messages          []Message
 }
 
-var AllConversations = make(map[int]Conversation)
+var AllConversations = make(map[int]Conversation) //keys grow incrementally
 
 var UserLoggedIn *User
 
