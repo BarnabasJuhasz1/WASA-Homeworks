@@ -60,7 +60,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                NewUsername: 
+                  type: string
+                  description: "a unique identifier of the user"
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
         required: true
       responses:
         "200":
@@ -85,7 +93,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/User"
+              type: object
+              properties:
+                ProfilePicture:
+                  description: "the profile picture of the user"
+                  type: string
+                  format: binary
         required: true
       responses:
         "200":
@@ -142,8 +155,23 @@ paths:
         description: "The message to send to the conversation"
         content:
           application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
+            schema:
+              type: object
+              properties:
+                SenderUsername: 
+                  type: string
+                  description: "a unique identifier of the user"
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+                MessageContent:
+                  type: string
+                  description: "the content of the message"
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 1
+                  maxLength: 10000
         required: true
       responses:
         "200":
@@ -164,7 +192,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Conversation"
+              type: object
+              properties:
+                GroupName: 
+                  type: string
+                  description: "new name for the group"
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
         required: true
       responses:
         "200":
@@ -475,9 +511,12 @@ components:
           pattern: 'ˆ.*?$'
           minLength: 1
           maxLength: 10000
-        Data:
+        Messages:
           description: "content of the conversation -> a list of messages"
-          type: object
+          type: array
+          items: 
+            $ref: "#/components/schemas/Message"
+          minItems: 1
 
           
     MyConversations:
