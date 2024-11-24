@@ -20,9 +20,11 @@ For the project requirements, the following API operations were defined:
 • setMyPhoto
 • setGroupPhoto
 
+• createConversation
+
 -----------Examples-----------
 doLogin:
-curl -X POST http://localhost:3000/session -H "Content-Type: application/json" -d '{"Username": "Juhasz"}' -v
+curl -X POST http://localhost:3000/session -H "Content-Type: application/json" -d '{"Username": "Juhasz"}'
 
 setMyUserName:
 curl -X PUT http://localhost:3000/user/Juhasz -H "Content-Type: application/json" -d '{"Username": "NewJuhasz"}'
@@ -37,13 +39,18 @@ getConversation:
 curl http://localhost:3000/conversation/0
 
 sendMessage:
-curl -X POST http://localhost:3000/conversation/0 -H "Content-Type: application/json" -d '{"SenderUsername": Juhasz, "MessageContent": "Hello, World!"}'
+curl -X POST http://localhost:3000/conversation/0 -H "Content-Type: application/json" -d '{"SenderUsername": "Juhasz", "MessageContent": "Hello, World!"}'
 
 setGroupName:
 curl -X POST http://localhost:3000/conversation/:0 -H "Content-Type: application/json" -d '{"GroupName": "New Group Name"}'
 
 leaveGroup
 curl -X DELETE http://localhost:3000/conversation/:0
+
+addToGroup:
+curl -X PUT http://localhost:3000/conversation/:0/add -H "Content-Type: application/json" -d '{"UserNameToAdd": "Natali"}'
+
+createConversation:
 
 
 
