@@ -52,7 +52,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// Read the request body
 	var requestBody struct {
-		SenderUsername string `json:"SenderUsername"`
+		//SenderUsername string `json:"SenderUsername"`
 		MessageContent string `json:"MessageContent"`
 	}
 
@@ -67,19 +67,20 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	SenderUser, existsUser := Users[requestBody.SenderUsername]
-	if !existsUser {
-		fmt.Println("User ", requestBody.SenderUsername, " is not in the database!")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// SenderUser, existsUser := Users[requestBody.SenderUsername]
+	// if !existsUser {
+	// 	fmt.Println("User ", requestBody.SenderUsername, " is not in the database!")
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
 	var emptyReactions []Reaction
 
 	//modify conversation by adding the new message
 	Conversation.Messages = append(Conversation.Messages, Message{
-		Id:        len(Conversation.Messages),
-		Sender:    SenderUser,
+		Id: len(Conversation.Messages),
+		//Sender:    SenderUser,
+		Sender:    *UserLoggedIn,
 		Content:   requestBody.MessageContent,
 		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
 		Status:    UserName,

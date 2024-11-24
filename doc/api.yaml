@@ -158,13 +158,13 @@ paths:
             schema:
               type: object
               properties:
-                SenderUsername: 
-                  type: string
-                  description: "a unique identifier of the user"
-                  example: Maria
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
+                # SenderUsername: 
+                #   type: string
+                #   description: "a unique identifier of the user"
+                #   example: Maria
+                #   pattern: 'ˆ.*?$'
+                #   minLength: 3
+                #   maxLength: 16
                 MessageContent:
                   type: string
                   description: "the content of the message"
@@ -243,11 +243,15 @@ paths:
         content:
           application/json:
             schema:
+              type: object
               properties:
-                Conversation:
-                  $ref: "#/components/schemas/Conversation"
-                UserToAdd:
-                  $ref: "#/components/schemas/User"
+                UserNameToAdd: 
+                  type: string
+                  description: "User to add to the group"
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
         required: true
       responses:
         "200":
@@ -378,6 +382,49 @@ paths:
           description: "Forbidden request, cannot set picture of one-on-one conversation"
         "404":
            description: "User or Conversation not found"
+           
+  /conversation/create:
+    post:
+      tags: ["Conversation Management"]
+      summary: create a new conversation
+      description: "creates either a one-on-one conversation or a group conversation"
+      operationId: createConversation
+      requestBody:
+        description: Details of conversation to create
+        content:
+          application/json:
+            schema:
+              properties:
+                ConversationType:
+                  description: "type of conversation, either with a single person or a group"
+                  type: string
+                  enum:
+                    - user
+                    - group
+                  pattern: 'ˆ.*?$'
+                  minLength: 1
+                  maxLength: 5
+                Participants:
+                  description: "users to create the conversation with"
+                  type: array
+                  items: 
+                    description: "a list of usernames"
+                    type: string
+                    example: Maria
+                    pattern: 'ˆ.*?$'
+                    minLength: 1
+                    maxLength: 16
+                  minItems: 1
+        required: true
+      responses:
+        "200":
+          description: "The conversation was created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "403":
+           description: "Forbidden request, either you tried to create a one-on-one conversation with more multiple users at the same time, or this one-on-one conversation already exist."
     
 components:
   schemas:
@@ -510,7 +557,7 @@ components:
             - group
           pattern: 'ˆ.*?$'
           minLength: 1
-          maxLength: 10000
+          maxLength: 5
         Messages:
           description: "content of the conversation -> a list of messages"
           type: array
@@ -525,12 +572,6 @@ components:
       items:
         $ref: "#/components/schemas/Conversation"
       minItems: 0
-    
-#    UserBase:
-#      description: "Object storing all registered users"
-#      type: array
-#      items:
-#        $ref: "#/components/schemas/User"
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme

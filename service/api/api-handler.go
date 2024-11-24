@@ -18,6 +18,9 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/conversation/:ConversationID", rt.getConversation)
 	rt.router.POST("/conversation/:ConversationID", rt.sendMessage)
 	rt.router.PUT("/conversation/:ConversationID", rt.setGroupName)
+	rt.router.DELETE("/conversation/:ConversationID", rt.leaveGroup)
+
+	rt.router.PUT("/conversation/:ConversationID/add", rt.addToGroup)
 
 	//rt.router.GET("/", rt.getHelloWorld)
 	//rt.router.GET("/context", rt.wrap(rt.getContextReply))

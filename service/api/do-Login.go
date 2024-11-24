@@ -66,6 +66,8 @@ type Conversation struct {
 
 var AllConversations = make(map[int]Conversation)
 
+var UserLoggedIn *User
+
 // Start a new game generating the secret number
 // and return the created game id
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -101,17 +103,22 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	// 	Username: user,
 	// })
 
-	value, exists := Users[requestBody.Username]
+	user, exists := Users[requestBody.Username]
 
 	if exists {
-		fmt.Println("User ", value, " logged in sucessfully!")
+		fmt.Println("User ", user, " logged in sucessfully!")
+
 	} else {
 		//create a new user
 		Users[requestBody.Username] = User{
 			Username: requestBody.Username,
 		}
+		user = Users[requestBody.Username]
+
 		fmt.Println("User ", requestBody.Username, " created sucessfully!")
 	}
+
+	UserLoggedIn = &user
 
 	json.NewEncoder(w).Encode(requestBody.Username)
 
