@@ -24,10 +24,10 @@ For the project requirements, the following API operations were defined:
 To Log In:
 curl -X POST http://localhost:3000/session -H "Content-Type: application/json" -d '{"Username": "Juhasz"}' -v
 
-To Change Username:
+To Set Username:
 curl -X PUT http://localhost:3000/user/Juhasz -H "Content-Type: application/json" -d '{"Username": "NewJuhasz"}'
 
-To Change Profile Picture:
+To Set Profile Picture:
 curl -X PUT http://localhost:3000/user/Juhasz -H "Content-Type: application/json" -d '{"ProfilePicture": "000.."}'
 
 To Get My Conversations List:
