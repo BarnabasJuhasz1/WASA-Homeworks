@@ -1,49 +1,40 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func setGroupName Called")
+	fmt.Println("-----Func setGroupName Called-----")
 
-	conversationIDString := ps.ByName("ConversationID")
-
-	// user, exists := Users[username]
-	// if !exists {
-	// 	fmt.Println("User ", username, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
-	//get the conversation with a specific ID
-	// var myConversations []Conversation
-	// for _, conversationId := range user.MyConversations {
-
-	// 	myConversations = append(myConversations, AllConversations[conversationId])
-	// }
-
-	//fmt.Println("User ", username, " sucessfully received its conversations!")
-	conversationID, err := strconv.Atoi(conversationIDString)
-	if err != nil || conversationID < 0 {
-		fmt.Println("Invalid conversationID in path! ", err)
-		w.WriteHeader(http.StatusBadRequest)
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
 		return
 	}
 
-	Conversation, existsConv := AllConversations[conversationID]
-	if !existsConv {
-		fmt.Println("Invalid conversationID in path! ", err)
-		w.WriteHeader(http.StatusBadRequest)
+	//get the conversation from path
+	Conversation, convErr := getConversationFromPath(w, ps)
+	if convErr {
+
+		return
+	}
+
+	//make sure the logged in user belongs to the conversation
+	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
+		fmt.Println("User is not in the conversation!")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
+	if Conversation.Type == UserType {
+		fmt.Println("Cannot change name of one-on-one conversations!")
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
@@ -73,8 +64,9 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	//modify conversation by changing the group name
 	Conversation.ConversationGroup.GroupName = requestBody.GroupName
 	//update the allConversations map by reassigning the struct
-	AllConversations[conversationID] = Conversation
+	AllConversations[Conversation.Id] = Conversation
 
-	json.NewEncoder(w).Encode(AllConversations[conversationID])
+	fmt.Println("-----Func setGroupName Finished-----")
+	json.NewEncoder(w).Encode(Conversation)
 
 }

@@ -1,25 +1,22 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func getMyConversations Called")
+	fmt.Println("-----Func getMyConversations Called-----")
 
 	//username := ps.ByName("Username")
 
-	if UserLoggedIn == nil {
-		fmt.Println("User is not logged in!")
-		w.WriteHeader(http.StatusForbidden)
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
 		return
 	}
 
@@ -38,6 +35,8 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	fmt.Println("User ", UserLoggedIn.Username, " sucessfully received its conversations!")
+
+	fmt.Println("-----Func getMyConversations Finished-----")
 	json.NewEncoder(w).Encode(myConversations)
 
 }

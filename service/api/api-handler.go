@@ -24,6 +24,14 @@ func (rt *_router) Handler() http.Handler {
 
 	rt.router.POST("/create/conversation", rt.createConversation)
 
+	rt.router.DELETE("/conversation/:ConversationID/message/:MessageID", rt.deleteMessage)
+
+	rt.router.POST("/conversation/:ConversationID/message/:MessageID/comment", rt.forwardMessage)
+	rt.router.PUT("/conversation/:ConversationID/message/:MessageID/comment", rt.commentMessage)
+	rt.router.DELETE("/conversation/:ConversationID/message/:MessageID/comment", rt.uncommentMessage)
+
+	rt.router.PUT("/conversation/:ConversationID/groupPicture", rt.setGroupPhoto)
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 	//rt.router.GET("/context", rt.wrap(rt.getContextReply))

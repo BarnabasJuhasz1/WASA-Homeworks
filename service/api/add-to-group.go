@@ -1,35 +1,50 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func addToGroup Called")
+	fmt.Println("-----Func addToGroup Called-----")
 
-	conversationIDString := ps.ByName("ConversationID")
-
-	conversationID, convErr := strconv.Atoi(conversationIDString)
-	if convErr != nil || conversationID < 0 {
-		fmt.Println("Invalid conversationID in path! ", convErr)
-		w.WriteHeader(http.StatusBadRequest)
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
 		return
 	}
 
-	Conversation, existsConv := AllConversations[conversationID]
-	//if the conversation does not exist
-	if !existsConv {
-		fmt.Println("Invalid conversationID in path! ", existsConv)
-		w.WriteHeader(http.StatusBadRequest)
+	// conversationIDString := ps.ByName("ConversationID")
+
+	// conversationID, convErr := strconv.Atoi(conversationIDString)
+	// if convErr != nil || conversationID < 0 {
+	// 	fmt.Println("Invalid conversationID in path! ", convErr)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+
+	// Conversation, existsConv := AllConversations[conversationID]
+	// //if the conversation does not exist
+	// if !existsConv {
+	// 	fmt.Println("Invalid conversationID in path! ", existsConv)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+
+	//get the conversation from path
+	Conversation, convErr := getConversationFromPath(w, ps)
+	if convErr {
+		return
+	}
+
+	//make sure the logged in user belongs to the conversation
+	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
+		fmt.Println("User is not in the conversation!")
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
@@ -52,12 +67,19 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	//check if the person already belongs to the group or not
-	if isUserFound(Conversation.ConversationGroup.Participants, requestBody.UserNameToAdd) {
+	// if isUserFoundInList(Conversation.ConversationGroup.Participants, requestBody.UserNameToAdd) {
 
-		fmt.Println("User ", requestBody.UserNameToAdd, " is already in the group!")
+	// 	fmt.Println("User ", requestBody.UserNameToAdd, " is already in the group!")
+	// 	w.WriteHeader(http.StatusForbidden)
+	// 	return
+
+	// }
+
+	//make sure user to add does not already belong to the conversation
+	if userBelongsToConversation(w, Conversation, userToAdd) {
+		fmt.Println("User is already in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
-
 	}
 
 	//add user to the group (group's perspective)
@@ -69,18 +91,9 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	//update users map by reassigning the struct
 	AllUsers[requestBody.UserNameToAdd] = userToAdd
 	//update conversations map by reassigning the struct
-	AllConversations[conversationID] = Conversation
+	AllConversations[Conversation.Id] = Conversation
 
+	fmt.Println("-----Func addToGroup Finished-----")
 	json.NewEncoder(w).Encode(Conversation)
 
-}
-
-// Function to check if a user is found in a list of users
-func isUserFound(users []User, userNameToCheck string) bool {
-	for _, user := range users {
-		if user.Username == userNameToCheck {
-			return true
-		}
-	}
-	return false
 }

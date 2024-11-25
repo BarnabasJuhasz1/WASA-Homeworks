@@ -1,34 +1,49 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func leaveGroup Called")
+	fmt.Println("-----Func leaveGroup Called-----")
 
-	conversationIDString := ps.ByName("ConversationID")
-
-	//Check conversationID in path
-	conversationID, err := strconv.Atoi(conversationIDString)
-	if err != nil || conversationID < 0 {
-		fmt.Println("Invalid conversationID in path! ", err)
-		w.WriteHeader(http.StatusBadRequest)
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
 		return
 	}
-	Conversation, existsConv := AllConversations[conversationID]
-	if !existsConv {
-		fmt.Println("Invalid conversationID in path! ", err)
-		w.WriteHeader(http.StatusBadRequest)
+
+	// conversationIDString := ps.ByName("ConversationID")
+
+	// //Check conversationID in path
+	// conversationID, err := strconv.Atoi(conversationIDString)
+	// if err != nil || conversationID < 0 {
+	// 	fmt.Println("Invalid conversationID in path! ", err)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+	// Conversation, existsConv := AllConversations[conversationID]
+	// if !existsConv {
+	// 	fmt.Println("Invalid conversationID in path! ", err)
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
+
+	//get the conversation from path
+	Conversation, convErr := getConversationFromPath(w, ps)
+	if convErr {
+		return
+	}
+
+	//make sure the logged in user belongs to the conversation
+	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
+		fmt.Println("User is not in the conversation!")
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
@@ -37,13 +52,13 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	//delete user from group (users's perspective)
 	//Remark: since "UserLoggedIn" holds a pointer, the "Users" map is also updated
-	UserLoggedIn.MyConversations = deleteConversationIdFromList(UserLoggedIn.MyConversations, conversationID)
+	UserLoggedIn.MyConversations = deleteConversationIdFromList(UserLoggedIn.MyConversations, Conversation.Id)
 
 	//update the allConversations map by reassigning the struct
-	AllConversations[conversationID] = Conversation
+	AllConversations[Conversation.Id] = Conversation
 
+	fmt.Println("-----Func leaveGroup Finished-----")
 	json.NewEncoder(w).Encode(UserLoggedIn.MyConversations)
-
 }
 
 // Function to delete a user from a list of users

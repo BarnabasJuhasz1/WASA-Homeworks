@@ -1,25 +1,22 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func setUsername Called")
+	fmt.Println("-----Func setUsername Called-----")
 
 	//oldUsername := ps.ByName("Username")
 
-	if UserLoggedIn == nil {
-		fmt.Println("User is not logged in!")
-		w.WriteHeader(http.StatusForbidden)
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
 		return
 	}
 
@@ -74,6 +71,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		//fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
+	fmt.Println("-----Func setUsername Finished-----")
 	json.NewEncoder(w).Encode(UserLoggedIn)
 
 }

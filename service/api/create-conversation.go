@@ -1,19 +1,22 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func createConversation Called")
+	fmt.Println("-----Func createConversation Called-----")
+
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
+		return
+	}
 
 	// Read the request body
 	var requestBody struct {
@@ -65,6 +68,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	//add new conversation to conversations map
 	AllConversations[conversation.Id] = conversation
 
+	fmt.Println("-----Func createConversation Finished-----")
 	json.NewEncoder(w).Encode(conversation)
 
 }

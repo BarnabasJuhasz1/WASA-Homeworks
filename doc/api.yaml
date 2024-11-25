@@ -48,8 +48,8 @@ paths:
                     pattern: 'ˆ.*?$'
                     
   /user:
-    parameters:
-      - $ref: "#/components/parameters/Username"
+    #parameters:
+    #  - $ref: "#/components/parameters/Username"
     put:
       tags: ["User Management"]
       summary: Set Username
@@ -81,8 +81,8 @@ paths:
           description: User not found
           
   /user/profilePicture:
-    parameters:
-      - $ref: "#/components/parameters/Username"
+    #parameters:
+    #  - $ref: "#/components/parameters/Username"
     put:
       tags: ["User Management"]
       summary: Set Profile Picture
@@ -111,8 +111,8 @@ paths:
           description: User not found
         
   /user/myConversations:
-    parameters:
-      - $ref: "#/components/parameters/Username"
+    #parameters:
+    #  - $ref: "#/components/parameters/Username"
     get:
       tags: ["Conversation Management"]
       summary: get all of my conversations
@@ -130,7 +130,6 @@ paths:
           
   /conversation/{ConversationID}:
     parameters:
-#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     get:
       tags: ["Conversation Management"]
@@ -231,7 +230,6 @@ paths:
    
   /conversation/{ConversationID}/add:
     parameters:
-#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
       tags: ["Conversation Management"]
@@ -263,10 +261,9 @@ paths:
         "404":
            description: User or Conversation not found
    
-  /message/{MessageID}:
+  /conversation/{ConversationID}/message/{MessageID}:
     parameters:
-#      - $ref: "#/components/parameters/Username"
-#      - $ref: "#/components/parameters/ConversationID"
+      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     delete:
       tags: ["Message Management"]
@@ -283,10 +280,9 @@ paths:
         "404":
            description: User, Conversation or Message not found
   
-  /message/{MessageID}/comment:
+  /conversation/{ConversationID}/message/{MessageID}/comment:
     parameters:
-#      - $ref: "#/components/parameters/Username"
-#      - $ref: "#/components/parameters/ConversationID"
+      - $ref: "#/components/parameters/ConversationID"
       - $ref: "#/components/parameters/MessageID"
     post:
       tags: ["Message Management"]
@@ -298,17 +294,15 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - $ref: "#/components/schemas/Message"
-                - type: object
-                  properties:
-                    Recipient:
-                      description: "The recipient of the message to be forwarded"
-                      type: string
-                      example: "user123"
-                      pattern: 'ˆ.*?$'
-                      minLength: 3
-                      maxLength: 16
+              type: object
+              properties:
+                RecipientUsername:
+                  description: "The recipient of the message to be forwarded"
+                  type: string
+                  example: "user123"
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
       responses:
         "200":
             description: Message forwarded successfully
@@ -328,7 +322,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Reaction"
+              type: object
+              properties:
+                ReactionType:
+                  description: "the type of reaction, can be either emoji or message"
+                  type: string
+                  enum:
+                    - emoji
+                    - message
+                  pattern: 'ˆ.*?$'
+                  minLength: 1
+                  maxLength: 7
+                Content: 
+                  type: string
+                  description: "The content of the reaction. if the reaction is a message, this is a reply and so the content is the message content. || 
+                                If the reaction is an emoji, this is the encoding of the emoji."
+                  example: Maria
+                  pattern: 'ˆ.*?$'
+                  minLength: 1
+                  maxLength: 10000
         required: true
       responses:
         "200":
@@ -357,7 +369,6 @@ paths:
   
   /conversation/{ConversationID}/groupPicture:
     parameters:
-#      - $ref: "#/components/parameters/Username"
       - $ref: "#/components/parameters/ConversationID"
     put:
       tags: ["Conversation Management"]
@@ -369,7 +380,12 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Conversation"
+              type: object
+              properties:
+                GroupPicture:
+                  description: "the group picture"
+                  type: string
+                  format: binary
         required: true
       responses:
         "200":
@@ -501,7 +517,14 @@ components:
           pattern: 'ˆ.*?$'
           minLength: 1
           maxLength: 10000
-          
+        Content:
+          description: "the content of reaction, can be either a message or the encoding of an emoji"
+          type: string
+          example: :)
+          pattern: 'ˆ.*?$'
+          minLength: 1
+          maxLength: 10000
+        
     Group:
       description: "Object representing a Group of users"
       type: object
@@ -515,6 +538,7 @@ components:
           items: 
             $ref: "#/components/schemas/User"
           minItems: 2
+          maxItems: 10000
         Group name:
           description: "name of the group"
           type: string
@@ -564,6 +588,7 @@ components:
           items: 
             $ref: "#/components/schemas/Message"
           minItems: 1
+          maxItems: 10000
 
           
     MyConversations:

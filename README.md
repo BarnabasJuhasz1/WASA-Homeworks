@@ -24,33 +24,52 @@ For the project requirements, the following API operations were defined:
 
 -----------Examples-----------
 doLogin:
-curl -X POST http://localhost:3000/session -H "Content-Type: application/json" -d '{"Username": "Juhasz"}'
+curl.exe -X POST http://localhost:3000/session -H "Content-Type: application/json" -d '{\"Username\": \"Juhasz\"}'
 
 setMyUserName:
-curl -X PUT http://localhost:3000/user/Juhasz -H "Content-Type: application/json" -d '{"Username": "NewJuhasz"}'
+curl.exe -X PUT http://localhost:3000/user -H "Content-Type: application/json" -d '{\"NewUsername\": \"NewJuhasz\"}'
 
 setMyPhoto:
-curl -X PUT http://localhost:3000/user/Juhasz -H "Content-Type: application/json" -d '{"ProfilePicture": "000.."}'
+curl.exe -X PUT http://localhost:3000/user -H "Content-Type: application/json" -d '{\"ProfilePicture\": \"0000\"}'
 
 getMyConversations:
-curl http://localhost:3000/user/Juhasz/myConversations
+curl.exe http://localhost:3000/user/myConversations
 
 getConversation:
-curl http://localhost:3000/conversation/0
+curl.exe http://localhost:3000/conversation/0
 
 sendMessage:
-curl -X POST http://localhost:3000/conversation/0 -H "Content-Type: application/json" -d '{"SenderUsername": "Juhasz", "MessageContent": "Hello, World!"}'
+curl.exe -X POST http://localhost:3000/conversation/0 -H "Content-Type: application/json" -d '{\"SenderUsername\": \"Juhasz\", \"MessageContent\": \"Hello, World!\"}'
 
 setGroupName:
-curl -X POST http://localhost:3000/conversation/:0 -H "Content-Type: application/json" -d '{"GroupName": "New Group Name"}'
+curl.exe -X POST http://localhost:3000/conversation/0 -H "Content-Type: application/json" -d '{\"GroupName\": \"New Group Name\"}'
 
-leaveGroup
-curl -X DELETE http://localhost:3000/conversation/:0
+leaveGroup:
+curl.exe -X DELETE http://localhost:3000/conversation/0
 
 addToGroup:
-curl -X PUT http://localhost:3000/conversation/:0/add -H "Content-Type: application/json" -d '{"UserNameToAdd": "Natali"}'
+curl.exe -X PUT http://localhost:3000/conversation/0/add -H "Content-Type: application/json" -d '{\"UserNameToAdd\": \"Natali\"}'
+
+deleteMessage:
+curl.exe -X DELETE http://localhost:3000/conversation/0/message/0
+
+forwardMessage:
+curl.exe -X POST http://localhost:3000/conversation/0/message/0/comment -H "Content-Type: application/json" -d '{\"RecipientUsername\": \"Natali\"}'
+
+commentMessage:
+curl.exe -X PUT http://localhost:3000/conversation/0/message/0/comment -H "Content-Type: application/json" -d '{\"ReactionType\": \"EmojiReaction\", \"Content\": \":)\"}'
+curl.exe -X PUT http://localhost:3000/conversation/0/message/0/comment -H "Content-Type: application/json" -d '{\"ReactionType\": \"MessageReaction\", \"Content\": \"This is a reply message :) \"}'
+
+uncommentMessage:
+curl.exe -X DELETE http://localhost:3000/conversation/0/message/0/comment
+
+setGroupPhoto:
+curl.exe -X PUT http://localhost:3000/conversation/:ConversationID/groupPicture -H "Content-Type: application/json" -d '{\"GroupPicture\": \"0000\"}'
 
 createConversation:
+curl.exe -X POST http://localhost:3000/create/conversation -H "Content-Type: application/json" -d '{\"ConversationType\": \"UserType\", \"Participants\": [\"Juhasz\", \"Natali\"]}'
+
+
 
 
 

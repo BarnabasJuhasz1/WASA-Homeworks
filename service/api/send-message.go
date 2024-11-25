@@ -1,21 +1,24 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
-
-	"encoding/json"
-	//"math/rand"
 )
 
 func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("Func sendMessage Called")
+	fmt.Println("-----Func sendMessage Called-----")
+
+	//make sure user is logged in
+	if !isUserLoggedIn(w) {
+		return
+	}
 
 	conversationIDString := ps.ByName("ConversationID")
 
@@ -70,15 +73,17 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	Conversation.Messages = append(Conversation.Messages, Message{
 		Id: len(Conversation.Messages),
 		//Sender:    SenderUser,
-		Sender:    *UserLoggedIn,
-		Content:   requestBody.MessageContent,
-		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
-		Status:    UserName,
-		Reactions: emptyReactions,
+		Sender:          *UserLoggedIn,
+		Content:         requestBody.MessageContent,
+		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
+		Status:          UserName,
+		EmojiReactions:  emptyReactions,
+		OriginMessageId: -1,
 	})
 	//update the allConversations map by reassigning the struct
 	AllConversations[conversationID] = Conversation
 
+	fmt.Println("-----Func sendMessage Finished-----")
 	json.NewEncoder(w).Encode(AllConversations[conversationID])
 
 }
