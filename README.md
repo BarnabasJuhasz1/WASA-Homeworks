@@ -70,6 +70,3 @@ createConversation:
 curl.exe -X POST http://localhost:3000/create/conversation -H "Content-Type: application/json" -d '{\"ConversationType\": \"UserType\", \"Participants\": [\"Juhasz\", \"Natali\"]}'
 
 
-
-
-

@@ -7,6 +7,15 @@ info:
     To distinguish between group conversations (also 2 people),
     the enum field "Conversation Type" is used.
   version: "1"
+tags:
+  - name: "login"
+    description: "Operations related to user login"
+  - name: "User Management"
+    description: "Manage user data such as username and profile picture"
+  - name: "Conversation Management"
+    description: "Manage conversations and groups"
+  - name: "Message Management"
+    description: "Operations related to messages in conversations"
 paths:
   /session:
     post:
@@ -18,10 +27,11 @@ paths:
         If the user exists, the user identifier is returned.
       operationId: doLogin
       requestBody:
-        description: User details
+        description: "User details"
         content:
           application/json:
             schema:
+              description: "The Username, which is a unique identifier"
               type: object
               properties:
                 Username: 
@@ -34,10 +44,11 @@ paths:
         required: true
       responses:
         '201':
-          description: User log-in action successful
+          description: "User log-in action successful"
           content:
             application/json:
               schema:
+                description: "The login identifier"
                 type: object
                 properties:
                   identifier:
@@ -46,6 +57,8 @@ paths:
                     type: string
                     example: "abcdef012345"
                     pattern: 'ˆ.*?$'
+                    minLength: 1
+                    maxLength: 100
                     
   /user:
     #parameters:
@@ -56,10 +69,11 @@ paths:
       description: "Sets the username of the user"
       operationId: setMyUserName
       requestBody:
-        description: User details
+        description: "User details"
         content:
           application/json:
             schema:
+              description: "The new Username"
               type: object
               properties:
                 NewUsername: 
@@ -72,13 +86,13 @@ paths:
         required: true
       responses:
         "200":
-          description: Username updated successfully
+          description: "Username updated successfully"
           content:
             application/json:
               schema: 
                 $ref: "#/components/schemas/User"
         "404": 
-          description: User not found
+          description: "User not found"
           
   /user/profilePicture:
     #parameters:
@@ -89,10 +103,11 @@ paths:
       description: "Sets the profile picture of the user"
       operationId: setMyPhoto
       requestBody:
-        description: User details
+        description: "User details"
         content:
           application/json:
             schema:
+              description: "The profile picture"
               type: object
               properties:
                 ProfilePicture:
@@ -108,7 +123,7 @@ paths:
                 schema: 
                   $ref: "#/components/schemas/User"
         "404": 
-          description: User not found
+          description: "User not found"
         
   /user/myConversations:
     #parameters:
@@ -126,7 +141,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/MyConversations"
         "404":
-           description: User not found
+           description: "User not found"
           
   /conversation/{ConversationID}:
     parameters:
@@ -144,7 +159,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: User or Conversation not found
+           description: "User or Conversation not found"
     post:
       tags: ["Conversation Management"]
       summary: send a message to the conversation
@@ -155,15 +170,9 @@ paths:
         content:
           application/json:
             schema:
+              description: "The content of the message"
               type: object
               properties:
-                # SenderUsername: 
-                #   type: string
-                #   description: "a unique identifier of the user"
-                #   example: Maria
-                #   pattern: 'ˆ.*?$'
-                #   minLength: 3
-                #   maxLength: 16
                 MessageContent:
                   type: string
                   description: "the content of the message"
@@ -180,17 +189,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: User or Conversation not found
+           description: "User or Conversation not found"
     put:
       tags: ["Conversation Management"]
       summary: set the group name
       description: "Set the group name"
       operationId: setGroupName
       requestBody:
-        description: Group Details
+        description: "Group Details"
         content:
           application/json:
             schema:
+              description: "The new GroupName"
               type: object
               properties:
                 GroupName: 
@@ -203,7 +213,7 @@ paths:
         required: true
       responses:
         "200":
-          description: Group Details set successfully
+          description: "Group Details set successfully"
           content:
             application/json:
               schema:
@@ -211,7 +221,7 @@ paths:
         "403":
           description: "Forbidden request, cannot set group name of one-on-one conversation"
         "404":
-          description: User or Conversation not found
+          description: "User or Conversation not found"
           
     delete:
       tags: ["Conversation Management"]
@@ -220,13 +230,13 @@ paths:
       operationId: leaveGroup
       responses:
         "200":
-          description: Left from the group successfully
+          description: "Left from the group successfully"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/MyConversations"
         "404":
-           description: User or Conversation not found
+           description: "User or Conversation not found"
    
   /conversation/{ConversationID}/add:
     parameters:
@@ -237,10 +247,11 @@ paths:
       description: "Add the specified user to the group"
       operationId: addToGroup
       requestBody:
-        description: User to Add
+        description: "User to Add"
         content:
           application/json:
             schema:
+              description: "The user to add to the group"
               type: object
               properties:
                 UserNameToAdd: 
@@ -253,13 +264,13 @@ paths:
         required: true
       responses:
         "200":
-          description: User has been added to the Group successfully
+          description: "User has been added to the Group successfully"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: User or Conversation not found
+           description: "User or Conversation not found"
    
   /conversation/{ConversationID}/message/{MessageID}:
     parameters:
@@ -272,13 +283,13 @@ paths:
       operationId: deleteMessage
       responses:
         "200":
-          description: Message deleted successfully
+          description: "Message deleted successfully"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: User, Conversation or Message not found
+           description: "User, Conversation or Message not found"
   
   /conversation/{ConversationID}/message/{MessageID}/comment:
     parameters:
@@ -290,10 +301,11 @@ paths:
       description: "Forward the message to someone"
       operationId: forwardMessage
       requestBody:
-        description: Forward The Message
+        description: "Forward The Message"
         content:
           application/json:
             schema:
+              description: "The recipient Username"
               type: object
               properties:
                 RecipientUsername:
@@ -305,23 +317,24 @@ paths:
                   maxLength: 16
       responses:
         "200":
-            description: Message forwarded successfully
+            description: "Message forwarded successfully"
             content:
               application/json:
                 schema:
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: User, Conversation or Message not found
+          description: "User, Conversation or Message not found"
     put:
       tags: ["Message Management"]
       summary: React to Message
       description: "Send a reaction or comment to a message"
       operationId: commentMessage
       requestBody:
-        description: Comment The Message
+        description: "Comment The Message"
         content:
           application/json:
             schema:
+              description: "The type of reaction and the content of the reaction"
               type: object
               properties:
                 ReactionType:
@@ -335,8 +348,9 @@ paths:
                   maxLength: 7
                 Content: 
                   type: string
-                  description: "The content of the reaction. if the reaction is a message, this is a reply and so the content is the message content. || 
-                                If the reaction is an emoji, this is the encoding of the emoji."
+                  description: "The content of the reaction; if the reaction is a message |
+                                this is a reply and so the content is the message content; |
+                                If the reaction is an emoji, this is the encoding of the emoji"
                   example: Maria
                   pattern: 'ˆ.*?$'
                   minLength: 1
@@ -344,13 +358,13 @@ paths:
         required: true
       responses:
         "200":
-            description: Message reaction sent successfully
+            description: "Message reaction sent successfully"
             content:
               application/json:
                 schema: 
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: User, Conversation or Message not found
+          description: "User, Conversation or Message not found"
     delete:
       tags: ["Message Management"]
       summary: uncomment message
@@ -358,13 +372,13 @@ paths:
       operationId: uncommentMessage
       responses:
         "200":
-          description: Message reaction deleted successfully
+          description: "Message reaction deleted successfully"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
         "404":
-           description: User, Conversation or Message not found
+           description: "User, Conversation or Message not found"
   
   
   /conversation/{ConversationID}/groupPicture:
@@ -376,16 +390,19 @@ paths:
       description: "Set the picture of the group"
       operationId: setGroupPhoto
       requestBody:
-        description: Group Picture
+        description: "Group Picture"
         content:
           application/json:
             schema:
+              description: "The group picture in binary format"
               type: object
               properties:
                 GroupPicture:
                   description: "the group picture"
                   type: string
                   format: binary
+                  minLength: 1
+                  maxLength: 100000
         required: true
       responses:
         "200":
@@ -406,10 +423,11 @@ paths:
       description: "creates either a one-on-one conversation or a group conversation"
       operationId: createConversation
       requestBody:
-        description: Details of conversation to create
+        description: "Details of conversation to create"
         content:
           application/json:
             schema:
+              description: "The type of conversation and the participants"
               properties:
                 ConversationType:
                   description: "type of conversation, either with a single person or a group"
@@ -431,6 +449,7 @@ paths:
                     minLength: 1
                     maxLength: 16
                   minItems: 1
+                  maxItems: 1000
         required: true
       responses:
         "200":
@@ -459,6 +478,8 @@ components:
           description: "the profile picture of the user"
           type: string
           format: binary
+          minLength: 1
+          maxLength: 100000
             
     Message:
       description: "Object representing a single message"
@@ -482,6 +503,8 @@ components:
           description: "the timestamp of the message"
           type: string
           format: date-time
+          minLength: 1
+          maxLength: 100
           
         Status:
           description: "the status of the message"
@@ -499,6 +522,7 @@ components:
           items:
             $ref: "#/components/schemas/Reaction" 
           minItems: 0
+          maxItems: 10000
           
     Reaction:
       description: "Object representing a reaction to a message"
@@ -550,6 +574,8 @@ components:
           description: "the picture of the group"
           type: string
           format: binary
+          minLength: 1
+          maxLength: 100
           
     Conversation:
       description: "Object representing a conversation"
@@ -597,6 +623,7 @@ components:
       items:
         $ref: "#/components/schemas/Conversation"
       minItems: 0
+      maxItems: 10000
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
@@ -604,18 +631,19 @@ components:
       scheme: bearer
   
   parameters:
-    Username:
-      schema:
-        type: string
-        pattern: 'ˆ.*?$'
-        minLength: 3
-        maxLength: 20
-        readOnly: true
-      name: Username
-      in: path
-      required: true
-      description: Unique Username
+    #Username:
+    #  description: "Unique Username"
+    #  schema:
+    #    type: string
+    #    pattern: 'ˆ.*?$'
+    #    minLength: 3
+    #    maxLength: 20
+    #    readOnly: true
+    #  name: Username
+    #  in: path
+    #  required: true
     ConversationID:
+      description: "Unique ID for the conversation"
       schema:
         type: string
         pattern: 'ˆ.*?$'
@@ -625,15 +653,14 @@ components:
       name: ConversationID
       in: path
       required: true
-      description: Unique ID for a conversation
     MessageID:
+      description: "Message ID that is unique in the scope of a conversation"
       schema:
         type: integer
         readOnly: true
       name: MessageID
       in: path
       required: true
-      description: Message ID that is unique in the scope of a conversation
       
 security:
   - bearerAuth: []
