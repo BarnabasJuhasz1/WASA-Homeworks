@@ -2,26 +2,22 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func createConversation Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func createConversation Called-----")
 
 	// Read the request body
 	var requestBody struct {
-		ConvType     ConversationType `json:"ConversationType"`
-		Participants []string         `json:"Participants"`
+		ConvType     util.ConversationType `json:"ConversationType"`
+		Participants []string              `json:"Participants"`
 	}
 
 	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
@@ -31,24 +27,25 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	// check all the userNames provided are in the database
-	var ConversationUsers []User
+	var ConversationUsers []util.User
 	for _, userNameAtI := range requestBody.Participants {
 
 		// check if all the users exist, if so, add them to a list
-		userToAdd, userExists := AllUsers[userNameAtI]
+		userToAdd, userExists := util.AllUsers[userNameAtI]
 		if !userExists {
-			fmt.Println("User ", userNameAtI, " is not in the database!")
+			ctx.Logger.Debugln("User ", userNameAtI, " is not in the database!")
+
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		ConversationUsers = append(ConversationUsers, userToAdd)
 	}
 
-	var emptyMessages []Message
+	var emptyMessages []util.Message
 	// create the conversation with all the users
-	conversation := Conversation{
-		Id: len(AllConversations),
-		ConversationGroup: Group{
+	conversation := util.Conversation{
+		Id: len(util.AllConversations),
+		ConversationGroup: util.Group{
 			Participants: ConversationUsers,
 			GroupName:    "New Group",
 		},
@@ -63,12 +60,12 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		userToAddAtI.MyConversations = append(userToAddAtI.MyConversations, conversation.Id)
 
 		// update users map by reassigning the struct
-		AllUsers[userToAddAtI.Username] = userToAddAtI
+		util.AllUsers[userToAddAtI.Username] = userToAddAtI
 	}
 	// add new conversation to conversations map
-	AllConversations[conversation.Id] = conversation
+	util.AllConversations[conversation.Id] = conversation
 
-	fmt.Println("-----Func createConversation Finished-----")
+	ctx.Logger.Debugln("-----Func createConversation Finished-----")
 	json.NewEncoder(w).Encode(conversation)
 
 }

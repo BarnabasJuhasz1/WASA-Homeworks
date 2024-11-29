@@ -33,7 +33,8 @@ setMyPhoto:
 curl.exe -X PUT http://localhost:3000/user -H "Content-Type: application/json" -d '{\"ProfilePicture\": \"0000\"}'
 
 getMyConversations:
-curl.exe http://localhost:3000/user/myConversations
+//curl.exe http://localhost:3000/user/myConversations
+curl.exe -H "Authorization: Bearer abc123" http://localhost:3000/user/myConversations
 
 getConversation:
 curl.exe http://localhost:3000/conversation/0

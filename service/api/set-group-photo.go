@@ -2,40 +2,35 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func setGroupPhoto Called-----")
-
-	// username := ps.ByName("Username")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func setGroupPhoto Called-----")
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
-
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	if Conversation.Type == UserType {
-		fmt.Println("Cannot change photo of one-on-one conversations!")
+	if Conversation.Type == util.UserType {
+		ctx.Logger.Debugln("Cannot change photo of one-on-one conversations!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -52,7 +47,8 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	if Conversation.ConversationGroup.GroupPicture == requestBody.GroupPicture {
-		fmt.Println("The group picture is already set to this picture.")
+		ctx.Logger.Debugln("The group picture is already set to this picture.")
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -61,9 +57,10 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	Conversation.ConversationGroup.GroupPicture = requestBody.GroupPicture
 
 	// update conversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func setGroupPhoto Finished-----")
+	ctx.Logger.Debugln("-----Func setGroupPhoto Finished-----")
+
 	json.NewEncoder(w).Encode(Conversation)
 
 }

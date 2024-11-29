@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/ardanlabs/conf"
@@ -36,6 +37,7 @@ type WebAPIConfiguration struct {
 // So, CLI parameters will override the environment, and configuration file will override everything.
 // Note that the configuration file can be specified only via CLI or environment variable.
 func loadConfiguration() (WebAPIConfiguration, error) {
+
 	var cfg WebAPIConfiguration
 
 	// Try to load configuration from environment variables and command line switches
@@ -51,11 +53,15 @@ func loadConfiguration() (WebAPIConfiguration, error) {
 		return cfg, fmt.Errorf("parsing config: %w", err)
 	}
 
+	cwd, _ := os.Getwd()
+	configPath := filepath.Join(filepath.Dir(filepath.Dir(cwd)), cfg.Config.Path)
+
 	// Override values from YAML if specified and if it exists (useful in k8s/compose)
-	fp, err := os.Open(cfg.Config.Path)
+	fp, err := os.Open(configPath)
 	if err != nil && !os.IsNotExist(err) {
 		return cfg, fmt.Errorf("can't read the config file, while it exists: %w", err)
 	} else if err == nil {
+
 		yamlFile, err := io.ReadAll(fp)
 		if err != nil {
 			return cfg, fmt.Errorf("can't read config file: %w", err)

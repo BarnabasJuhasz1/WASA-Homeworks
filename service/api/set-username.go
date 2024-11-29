@@ -2,23 +2,18 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func setUsername Called-----")
-
-	// oldUsername := ps.ByName("Username")
- 
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func setUsername Called-----")
 
 	// Read the request body
 	var requestBody struct {
@@ -31,31 +26,26 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	fmt.Println("User: ", UserLoggedIn.Username, " is trying to change name to: ", requestBody.NewUsername)
+	if util.GetLoggedInUser(w, ctx).Username == requestBody.NewUsername {
+		ctx.Logger.Debugln("Your username is already ", util.GetLoggedInUser(w, ctx).Username)
 
-	// oldUser, oldExists := AllUsers[UserLoggedIn.Username]
-	// if !oldExists {
-	// 	fmt.Println("User ", UserLoggedIn.Username, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
-	if UserLoggedIn.Username == requestBody.NewUsername {
-		fmt.Println("Your username is already ", UserLoggedIn.Username)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if len(requestBody.NewUsername) < 3 || len(requestBody.NewUsername) > 16 {
-		fmt.Println("Username too short or too long ", requestBody.NewUsername)
+		ctx.Logger.Debugln("Username too short or too long ", requestBody.NewUsername)
+
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
-	_, newExists := AllUsers[requestBody.NewUsername]
+	_, newExists := util.AllUsers[requestBody.NewUsername]
+	UserLoggedIn := util.GetLoggedInUser(w, ctx)
 
 	if newExists {
-		fmt.Println("Username ", requestBody.NewUsername, " occupied by someone else!")
+		ctx.Logger.Debugln("Username ", requestBody.NewUsername, " occupied by someone else!")
+
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	} else {
@@ -63,15 +53,17 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		// update the username of the user logged in
 		// Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
 		UserLoggedIn.Username = requestBody.NewUsername
+		ctx.UserID = requestBody.NewUsername
 		// add same user with the new name
-		AllUsers[requestBody.NewUsername] = *UserLoggedIn
+		util.AllUsers[requestBody.NewUsername] = UserLoggedIn
 		// delete old entry in users
-		delete(AllUsers, oldUserName)
+		delete(util.AllUsers, oldUserName)
 
 		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
-	fmt.Println("-----Func setUsername Finished-----")
+	ctx.Logger.Debugln("-----Func setUsername Finished-----")
+
 	json.NewEncoder(w).Encode(UserLoggedIn)
 
 }

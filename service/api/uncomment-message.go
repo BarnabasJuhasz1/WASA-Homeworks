@@ -2,33 +2,29 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 // Handles the request to uncomment a message (remove the emoji reaction you placed on a message)
-func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func uncommentMessage Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func uncommentMessage Called-----")
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -38,7 +34,8 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	// make sure the messageID is correct
 	messageID, messageErr := strconv.Atoi(messageIDString)
 	if messageErr != nil || messageID < 0 || messageID >= len(Conversation.Messages) {
-		fmt.Println("Invalid MessageID in path! ", messageErr)
+		ctx.Logger.Debugln("Invalid MessageID in path! ", messageErr)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -47,7 +44,7 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 		// if the user has a reaction to this message already, replace that reaction with the new one
-		if ReactionAti.UserWhoReacted.Username == UserLoggedIn.Username {
+		if ReactionAti.UserWhoReacted.Username == util.GetLoggedInUser(w, ctx).Username {
 
 			// remove your emoji reactions from the list of emoji reactions
 			Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions[:i], Conversation.Messages[messageID].EmojiReactions[i+1:]...)
@@ -56,16 +53,18 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 			// if we checked all the reactions and none of them were created by the user
 		} else if i == len(Conversation.Messages[messageID].EmojiReactions)-1 {
 
-			fmt.Println("There is no emoji reaction placed by user on the specified message!")
+			ctx.Logger.Debugln("There is no emoji reaction placed by user on the specified message!")
+
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
 
 	// update conversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func uncommentMessage Finished-----")
+	ctx.Logger.Debugln("-----Func uncommentMessage Finished-----")
+
 	json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
 
 }

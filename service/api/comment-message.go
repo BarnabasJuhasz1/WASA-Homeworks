@@ -2,33 +2,31 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
+
 	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func commentMessage Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func commentMessage Called-----")
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -38,15 +36,16 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	// make sure the messageID is correct
 	messageID, messageErr := strconv.Atoi(messageIDString)
 	if messageErr != nil || messageID < 0 || messageID >= len(Conversation.Messages) {
-		fmt.Println("Invalid MessageID in path! ", messageErr)
+		ctx.Logger.Debugln("Invalid MessageID in path! ", messageErr)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// Read the request body
 	var requestBody struct {
-		TypeOfReaction    ReactionType `json:"ReactionType"`
-		ContentOfReaction string       `json:"Content"`
+		TypeOfReaction    util.ReactionType `json:"ReactionType"`
+		ContentOfReaction string            `json:"Content"`
 	}
 	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if requestErr != nil {
@@ -55,20 +54,20 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// create the instance of the reaction struct
-	ReactionToMake := Reaction{
-		UserWhoReacted: *UserLoggedIn,
+	ReactionToMake := util.Reaction{
+		UserWhoReacted: util.GetLoggedInUser(w, ctx),
 		Type:           requestBody.TypeOfReaction,
 		Content:        requestBody.ContentOfReaction,
 	}
 
 	// if the reaction is an emoji reaction, just append it to the list of reactions on the message
-	if ReactionToMake.Type == EmojiReaction {
+	if ReactionToMake.Type == util.EmojiReaction {
 
 		// loop through all the emoji reactions to this message
 		for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 			// if the user has a reaction to this message already, replace that reaction with the new one
-			if ReactionAti.UserWhoReacted.Username == UserLoggedIn.Username {
+			if ReactionAti.UserWhoReacted.Username == util.GetLoggedInUser(w, ctx).Username {
 
 				// replace old reaction content with new one
 				ReactionAti.Content = ReactionToMake.Content
@@ -84,26 +83,27 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		}
 
 		// if the reaction is a reply (=comment), then create a new message
-	} else if ReactionToMake.Type == MessageReaction {
+	} else if ReactionToMake.Type == util.MessageReaction {
 
-		var emptyReactions []Reaction
+		var emptyReactions []util.Reaction
 		// create a new message with the content of the reaction,
 		// and add it to the conversation
-		Conversation.Messages = append(Conversation.Messages, Message{
+		Conversation.Messages = append(Conversation.Messages, util.Message{
 			Id:              len(Conversation.Messages),
-			Sender:          *UserLoggedIn,
+			Sender:          util.GetLoggedInUser(w, ctx),
 			Content:         ReactionToMake.Content,
 			Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-			Status:          UserName,
+			Status:          util.UserName,
 			EmojiReactions:  emptyReactions,
 			OriginMessageId: messageID,
 		})
 	}
 
 	// update conversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func commentMessage Finished-----")
+	ctx.Logger.Debugln("-----Func commentMessage Finished-----")
+
 	json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
 
 }

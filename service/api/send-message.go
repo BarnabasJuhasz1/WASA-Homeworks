@@ -2,43 +2,41 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func sendMessage Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func sendMessage Called-----")
 
 	conversationIDString := ps.ByName("ConversationID")
 
 	conversationID, err := strconv.Atoi(conversationIDString)
 	if err != nil || conversationID < 0 {
-		fmt.Println("Invalid conversationID in path! ", err)
+		ctx.Logger.Debugln("Invalid conversationID in path! ", err)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	Conversation, existsConv := AllConversations[conversationID]
+	Conversation, existsConv := util.AllConversations[conversationID]
 	if !existsConv {
-		fmt.Println("Invalid conversationID in path! ", err)
+		ctx.Logger.Debugln("Invalid conversationID in path! ", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// make sure the user asks for a conversation it is part of
-	if !contains(UserLoggedIn.MyConversations, conversationID) {
-		fmt.Println("User tried to send a message to a conversation it is not part of! ", err)
+	if !contains(util.GetLoggedInUser(w, ctx).MyConversations, conversationID) {
+		ctx.Logger.Debugln("User tried to send a message to a conversation it is not part of! ", err)
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -55,7 +53,8 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 	if len(requestBody.MessageContent) == 0 || len(requestBody.MessageContent) > 10000 {
-		fmt.Println("Message too long or too short!")
+		ctx.Logger.Debugln("Message too long or too short!")
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -67,23 +66,24 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	// 	return
 	// }
 
-	var emptyReactions []Reaction
+	var emptyReactions []util.Reaction
 
 	// modify conversation by adding the new message
-	Conversation.Messages = append(Conversation.Messages, Message{
+	Conversation.Messages = append(Conversation.Messages, util.Message{
 		Id: len(Conversation.Messages),
 		// Sender:    SenderUser,
-		Sender:          *UserLoggedIn,
+		Sender:          util.GetLoggedInUser(w, ctx),
 		Content:         requestBody.MessageContent,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-		Status:          UserName,
+		Status:          util.UserName,
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 	})
 	// update the allConversations map by reassigning the struct
-	AllConversations[conversationID] = Conversation
+	util.AllConversations[conversationID] = Conversation
 
-	fmt.Println("-----Func sendMessage Finished-----")
-	json.NewEncoder(w).Encode(AllConversations[conversationID])
+	ctx.Logger.Debugln("-----Func sendMessage Finished-----")
+
+	json.NewEncoder(w).Encode(util.AllConversations[conversationID])
 
 }

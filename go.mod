@@ -1,4 +1,4 @@
-module hilo.uniroma1.it/hilo
+module sapienza/wasatext
 
 go 1.17
 

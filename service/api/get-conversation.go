@@ -2,21 +2,17 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func getConversation Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func getConversation Called-----")
 
 	// conversationIDString := ps.ByName("ConversationID")
 
@@ -36,20 +32,22 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	fmt.Println("-----Func getConversation Finished-----")
-	json.NewEncoder(w).Encode(AllConversations[Conversation.Id])
+	ctx.Logger.Debugln("-----Func getConversation Finished-----")
+
+	json.NewEncoder(w).Encode(util.AllConversations[Conversation.Id])
 }
 
 // function to check if an int ID is present in a list of int IDs

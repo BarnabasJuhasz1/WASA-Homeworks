@@ -2,38 +2,36 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func setGroupName Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func setGroupName Called-----")
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	if Conversation.Type == UserType {
-		fmt.Println("Cannot change name of one-on-one conversations!")
+	if Conversation.Type == util.UserType {
+		ctx.Logger.Debugln("Cannot change name of one-on-one conversations!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -50,13 +48,15 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	if len(requestBody.GroupName) < 3 || len(requestBody.GroupName) > 16 {
-		fmt.Println("Group name too short or too long ", requestBody.GroupName)
+		ctx.Logger.Debugln("Group name too short or too long ", requestBody.GroupName)
+
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
 	if Conversation.ConversationGroup.GroupName == requestBody.GroupName {
-		fmt.Println("New Group name matches old one! ", requestBody.GroupName)
+		ctx.Logger.Debugln("New Group name matches old one! ", requestBody.GroupName)
+
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
@@ -64,9 +64,10 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	// modify conversation by changing the group name
 	Conversation.ConversationGroup.GroupName = requestBody.GroupName
 	// update the allConversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func setGroupName Finished-----")
+	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
+
 	json.NewEncoder(w).Encode(Conversation)
 
 }

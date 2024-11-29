@@ -2,41 +2,26 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func getMyConversations Called-----")
-
-	// username := ps.ByName("Username")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
-
-	// user, exists := AllUsers[username]
-	// if !exists {
-	// 	fmt.Println("User ", username, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
+	ctx.Logger.Debugln("-----Func getMyConversations Called-----")
 
 	// get the conversations of a user
-	var myConversations []Conversation
-	for _, conversationId := range UserLoggedIn.MyConversations {
+	var myConversations []util.Conversation
+	for _, conversationId := range util.GetLoggedInUser(w, ctx).MyConversations {
 
-		myConversations = append(myConversations, AllConversations[conversationId])
+		myConversations = append(myConversations, util.AllConversations[conversationId])
 	}
 
-	fmt.Println("User ", UserLoggedIn.Username, " sucessfully received its conversations!")
-
-	fmt.Println("-----Func getMyConversations Finished-----")
+	ctx.Logger.Debugln("-----Func getMyConversations Finished-----")
 	json.NewEncoder(w).Encode(myConversations)
 
 }

@@ -2,23 +2,17 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func setMyPhoto Called-----")
-
-	// username := ps.ByName("Username")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func setMyPhoto Called-----")
 
 	// Read the request body
 	var requestBody struct {
@@ -31,19 +25,19 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	fmt.Println("User: ", UserLoggedIn.Username, " is trying to change profile picture to: ", requestBody.ProfilePicture)
-
+	UserLoggedIn := util.GetLoggedInUser(w, ctx)
 	if UserLoggedIn.ProfilePicture == requestBody.ProfilePicture {
-		fmt.Println("Your profile picture is already ", UserLoggedIn.ProfilePicture)
+		ctx.Logger.Debugln("Your profile picture is already ", UserLoggedIn.ProfilePicture)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	UserLoggedIn.ProfilePicture = requestBody.ProfilePicture
+	util.AllUsers[UserLoggedIn.Username] = UserLoggedIn
 
-	fmt.Println("User ", UserLoggedIn.Username, " set its profile picture sucessfully to ", requestBody.ProfilePicture, "!")
+	ctx.Logger.Debugln("-----Func setMyPhoto Finished-----")
 
-	fmt.Println("-----Func setMyPhoto Finished-----")
 	json.NewEncoder(w).Encode(UserLoggedIn)
 
 }

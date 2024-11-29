@@ -2,21 +2,17 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func addToGroup Called-----")
-
-	//make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func addToGroup Called-----")
 
 	// conversationIDString := ps.ByName("ConversationID")
 
@@ -36,14 +32,15 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -59,9 +56,10 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	userToAdd, userExists := AllUsers[requestBody.UserNameToAdd]
+	userToAdd, userExists := util.AllUsers[requestBody.UserNameToAdd]
 	if !userExists {
-		fmt.Println("User ", requestBody.UserNameToAdd, " is not in the database!")
+		ctx.Logger.Debugln("User ", requestBody.UserNameToAdd, " is not in the database!")
+
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -76,8 +74,9 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// make sure user to add does not already belong to the conversation
-	if userBelongsToConversation(w, Conversation, userToAdd) {
-		fmt.Println("User is already in the conversation!")
+	if util.UserBelongsToConversation(Conversation, userToAdd) {
+		ctx.Logger.Debugln("User is already in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -89,11 +88,11 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
 
 	// update users map by reassigning the struct
-	AllUsers[requestBody.UserNameToAdd] = userToAdd
+	util.AllUsers[requestBody.UserNameToAdd] = userToAdd
 	// update conversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func addToGroup Finished-----")
+	ctx.Logger.Debugln("-----Func addToGroup Finished-----")
 	json.NewEncoder(w).Encode(Conversation)
 
 }

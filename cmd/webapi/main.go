@@ -34,12 +34,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"sapienza/wasatext/service/api"
+	"sapienza/wasatext/service/database"
+	"sapienza/wasatext/service/globaltime"
+
 	"github.com/ardanlabs/conf"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
-	"hilo.uniroma1.it/hilo/service/api"
-	"hilo.uniroma1.it/hilo/service/database"
-	"hilo.uniroma1.it/hilo/service/globaltime"
 )
 
 // main is the program entry point. The only purpose of this function is to call run() and set the exit code if there is

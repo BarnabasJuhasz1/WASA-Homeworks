@@ -2,21 +2,17 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func leaveGroup Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func leaveGroup Called-----")
 
 	// conversationIDString := ps.ByName("ConversationID")
 
@@ -35,36 +31,39 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := getConversationFromPath(w, ps)
+	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
 	// delete user from group (group's perspective)
-	Conversation.ConversationGroup.Participants = deleteUserFromList(Conversation.ConversationGroup.Participants, *UserLoggedIn)
+	Conversation.ConversationGroup.Participants = deleteUserFromList(Conversation.ConversationGroup.Participants, util.GetLoggedInUser(w, ctx))
 
 	// delete user from group (users's perspective)
-	// Remark: since "UserLoggedIn" holds a pointer, the "Users" map is also updated
+	UserLoggedIn := util.GetLoggedInUser(w, ctx)
 	UserLoggedIn.MyConversations = deleteConversationIdFromList(UserLoggedIn.MyConversations, Conversation.Id)
+	util.AllUsers[util.GetLoggedInUser(w, ctx).Username] = UserLoggedIn
 
 	// update the allConversations map by reassigning the struct
-	AllConversations[Conversation.Id] = Conversation
+	util.AllConversations[Conversation.Id] = Conversation
 
-	fmt.Println("-----Func leaveGroup Finished-----")
-	json.NewEncoder(w).Encode(UserLoggedIn.MyConversations)
+	ctx.Logger.Debugln("-----Func leaveGroup Finished-----")
+
+	json.NewEncoder(w).Encode(util.GetLoggedInUser(w, ctx).MyConversations)
 }
 
 // Function to delete a user from a list of users
-func deleteUserFromList(users []User, userToDelete User) []User {
+func deleteUserFromList(users []util.User, userToDelete util.User) []util.User {
 
-	var updatedUsers []User
+	var updatedUsers []util.User
 
 	for _, user := range users {
 		// we only add the user to the new list if it has a different name then the user to delete

@@ -2,34 +2,31 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 	"strconv"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	fmt.Println("-----Func forwardMessage Called-----")
-
-	// make sure user is logged in
-	if !isUserLoggedIn(w) {
-		return
-	}
+	ctx.Logger.Debugln("-----Func forwardMessage Called-----")
 
 	// get the conversation from path
-	OriginalConversation, convErr := getConversationFromPath(w, ps)
+	OriginalConversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
 
 		return
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !userBelongsToConversation(w, OriginalConversation, *UserLoggedIn) {
-		fmt.Println("User is not in the conversation!")
+	if !util.UserBelongsToConversation(OriginalConversation, util.GetLoggedInUser(w, ctx)) {
+		ctx.Logger.Debugln("User is not in the conversation!")
+
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -39,7 +36,8 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	// make sure the messageID is correct
 	messageID, messageErr := strconv.Atoi(messageIDString)
 	if messageErr != nil || messageID < 0 || messageID >= len(OriginalConversation.Messages) {
-		fmt.Println("Invalid MessageID in path! ", messageErr)
+		ctx.Logger.Debugln("Invalid MessageID in path! ", messageErr)
+
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -55,54 +53,59 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// make sure the recipient exists in the database as a user
-	Recipient, userExists := AllUsers[requestBody.RecipientUsername]
+	Recipient, userExists := util.AllUsers[requestBody.RecipientUsername]
 	if !userExists {
-		fmt.Println("User ", requestBody.RecipientUsername, " is not in the database!")
+		ctx.Logger.Debugln("User ", requestBody.RecipientUsername, " is not in the database!")
+
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
 	// find the one-on-one conversation you have with the recipient
-	ConvWithRecipient, exists := getOneOnOneConversationWithUser(*UserLoggedIn, Recipient)
+	ConvWithRecipient, exists := util.GetOneOnOneConversationWithUser(util.GetLoggedInUser(w, ctx), Recipient)
 	if !exists {
 
-		fmt.Println("New conversation created between: ", UserLoggedIn.Username, " and ", Recipient.Username)
+		ctx.Logger.Debugln("New conversation created between: ", util.GetLoggedInUser(w, ctx).Username, " and ", Recipient.Username)
 
 		// if no such conversation exist, then create a one-on-one conversation with the person (or you cannot forward the message?)
-		var emptyMessages []Message
+		var emptyMessages []util.Message
 		// create the conversation with the recipient
-		ConvWithRecipient = Conversation{
-			Id: len(AllConversations),
-			ConversationGroup: Group{
-				Participants: []User{Recipient},
+		ConvWithRecipient = util.Conversation{
+			Id: len(util.AllConversations),
+			ConversationGroup: util.Group{
+				Participants: []util.User{Recipient},
 				GroupName:    "New Conversation",
 			},
-			Type:     UserType,
+			Type:     util.UserType,
 			Messages: emptyMessages,
 		}
 
 		// add the new conversation to the users
-		UserLoggedIn.MyConversations = append(UserLoggedIn.MyConversations, ConvWithRecipient.Id)
+		UserLoggedIn := util.GetLoggedInUser(w, ctx)
+		UserLoggedIn.MyConversations = append(util.GetLoggedInUser(w, ctx).MyConversations, ConvWithRecipient.Id)
+		util.AllUsers[util.GetLoggedInUser(w, ctx).Username] = UserLoggedIn
+
 		Recipient.MyConversations = append(Recipient.MyConversations, ConvWithRecipient.Id)
 	}
 
-	var emptyReactions []Reaction
+	var emptyReactions []util.Reaction
 	// send the message to the recipient by creating a new message with the same content of the original message
 	// and modify one-on-one conversation by adding the new message
-	ConvWithRecipient.Messages = append(OriginalConversation.Messages, Message{
+	ConvWithRecipient.Messages = append(OriginalConversation.Messages, util.Message{
 		Id:              len(ConvWithRecipient.Messages),
-		Sender:          *UserLoggedIn,
+		Sender:          util.GetLoggedInUser(w, ctx),
 		Content:         OriginalConversation.Messages[messageID].Content,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-		Status:          UserName,
+		Status:          util.UserName,
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 	})
 
 	// update conversations map by reassigning the struct
-	AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
+	util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
 
-	fmt.Println("-----Func forwardMessage Finished-----")
+	ctx.Logger.Debugln("-----Func forwardMessage Finished-----")
+
 	json.NewEncoder(w).Encode(OriginalConversation.Messages[messageID])
 
 }
