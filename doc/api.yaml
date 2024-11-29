@@ -38,7 +38,7 @@ paths:
                   type: string
                   description: "a unique identifier of the user"
                   example: Maria
-                  pattern: 'ˆ.*?$'
+                  pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -56,7 +56,7 @@ paths:
                     # or any other type of identifier
                     type: string
                     example: "abcdef012345"
-                    pattern: 'ˆ.*?$'
+                    pattern: "ˆ.*?$"
                     minLength: 1
                     maxLength: 100
                     
@@ -80,7 +80,7 @@ paths:
                   type: string
                   description: "a unique identifier of the user"
                   example: Maria
-                  pattern: 'ˆ.*?$'
+                  pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -176,8 +176,8 @@ paths:
                 MessageContent:
                   type: string
                   description: "the content of the message"
-                  example: Maria
-                  pattern: 'ˆ.*?$'
+                  example: "Maria"
+                  pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 10000
         required: true
@@ -206,8 +206,8 @@ paths:
                 GroupName: 
                   type: string
                   description: "new name for the group"
-                  example: Maria
-                  pattern: 'ˆ.*?$'
+                  example: "Maria"
+                  pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -257,8 +257,8 @@ paths:
                 UserNameToAdd: 
                   type: string
                   description: "User to add to the group"
-                  example: Maria
-                  pattern: 'ˆ.*?$'
+                  example: "Maria"
+                  pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -312,7 +312,7 @@ paths:
                   description: "The recipient of the message to be forwarded"
                   type: string
                   example: "user123"
-                  pattern: 'ˆ.*?$'
+                  pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
       responses:
@@ -341,9 +341,10 @@ paths:
                   description: "the type of reaction, can be either emoji or message"
                   type: string
                   enum:
-                    - emoji
-                    - message
-                  pattern: 'ˆ.*?$'
+                    - EmojiReaction
+                    - MessageReaction
+                  example: "MessageReaction"
+                  pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 7
                 Content: 
@@ -351,8 +352,8 @@ paths:
                   description: "The content of the reaction; if the reaction is a message |
                                 this is a reply and so the content is the message content; |
                                 If the reaction is an emoji, this is the encoding of the emoji"
-                  example: Maria
-                  pattern: 'ˆ.*?$'
+                  example: "Maria"
+                  pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 10000
         required: true
@@ -433,9 +434,10 @@ paths:
                   description: "type of conversation, either with a single person or a group"
                   type: string
                   enum:
-                    - user
-                    - group
-                  pattern: 'ˆ.*?$'
+                    - UserType
+                    - GroupType
+                  example: "GroupType"
+                  pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 5
                 Participants:
@@ -444,8 +446,8 @@ paths:
                   items: 
                     description: "a list of usernames"
                     type: string
-                    example: Maria
-                    pattern: 'ˆ.*?$'
+                    example: "Maria"
+                    pattern: "ˆ.*?$"
                     minLength: 1
                     maxLength: 16
                   minItems: 1
@@ -470,8 +472,8 @@ components:
         Username:
           description: "a unique identifier of the user"
           type: string
-          example: Maria
-          pattern: 'ˆ.*?$'
+          example: "Maria"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 16
         Profile Picture:
@@ -495,7 +497,8 @@ components:
         Content:
           description: "the content of the message"
           type: string
-          pattern: 'ˆ.*?$'
+          example: "Hello World!"
+          pattern: "ˆ.*?$"
           minLength: 1 #the message has to be at least one character
           maxLength: 2000 #limiting the max message length
           
@@ -510,10 +513,11 @@ components:
           description: "the status of the message"
           type: string
           enum:
-            - oneCheckMark
-            - doubleCheckMark
-            - username
-          pattern: 'ˆ.*?$'
+            - SingleCheckmark
+            - DoubleCheckmark
+            - Username
+          example: "Hello World!"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
         Reactions:
@@ -536,16 +540,17 @@ components:
           description: "the type of reaction, can be either emoji or message"
           type: string
           enum:
-            - emoji
-            - message
-          pattern: 'ˆ.*?$'
+            - EmojiReaction
+            - MessageReaction
+          example: "EmojiReaction"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
         Content:
           description: "the content of reaction, can be either a message or the encoding of an emoji"
           type: string
-          example: :)
-          pattern: 'ˆ.*?$'
+          example: ":)"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
         
@@ -566,8 +571,8 @@ components:
         Group name:
           description: "name of the group"
           type: string
-          example: Acsai Group
-          pattern: 'ˆ.*?$'
+          example: "Acsai Group"
+          pattern: "ˆ.*?$"
           minLength: 3
           maxLength: 20
         Group Picture:
@@ -587,7 +592,8 @@ components:
             the unique username of the other person or
             the unique Group ID of the group"
           type: string
-          pattern: 'ˆ.*?$'
+          example: "42"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
         ConversationGroup:
@@ -603,9 +609,10 @@ components:
           description: "type of conversation, either with a single person or a group"
           type: string
           enum:
-            - user
-            - group
-          pattern: 'ˆ.*?$'
+            - UserType
+            - GroupType
+          example: "UserType"
+          pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 5
         Messages:
@@ -646,7 +653,8 @@ components:
       description: "Unique ID for the conversation"
       schema:
         type: string
-        pattern: 'ˆ.*?$'
+        example: "42"
+        pattern: "ˆ.*?$"
         minLength: 1
         maxLength: 10000
         readOnly: true
