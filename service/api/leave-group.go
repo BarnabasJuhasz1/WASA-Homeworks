@@ -13,7 +13,7 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func leaveGroup Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
@@ -34,27 +34,27 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// 	return
 	// }
 
-	//get the conversation from path
+	// get the conversation from path
 	Conversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	//delete user from group (group's perspective)
+	// delete user from group (group's perspective)
 	Conversation.ConversationGroup.Participants = deleteUserFromList(Conversation.ConversationGroup.Participants, *UserLoggedIn)
 
-	//delete user from group (users's perspective)
-	//Remark: since "UserLoggedIn" holds a pointer, the "Users" map is also updated
+	// delete user from group (users's perspective)
+	// Remark: since "UserLoggedIn" holds a pointer, the "Users" map is also updated
 	UserLoggedIn.MyConversations = deleteConversationIdFromList(UserLoggedIn.MyConversations, Conversation.Id)
 
-	//update the allConversations map by reassigning the struct
+	// update the allConversations map by reassigning the struct
 	AllConversations[Conversation.Id] = Conversation
 
 	fmt.Println("-----Func leaveGroup Finished-----")
@@ -67,7 +67,7 @@ func deleteUserFromList(users []User, userToDelete User) []User {
 	var updatedUsers []User
 
 	for _, user := range users {
-		//we only add the user to the new list if it has a different name then the user to delete
+		// we only add the user to the new list if it has a different name then the user to delete
 		if !(user.Username == userToDelete.Username) {
 			updatedUsers = append(updatedUsers, user)
 		}
@@ -80,7 +80,7 @@ func deleteConversationIdFromList(conversationsOfUser []int, conversationToLeave
 	var updatedConversations []int
 
 	for _, conversationId := range conversationsOfUser {
-		//we only add the user to the new list if it has a different name then the user to delete
+		// we only add the user to the new list if it has a different name then the user to delete
 		if conversationId != conversationToLeave {
 			updatedConversations = append(updatedConversations, conversationId)
 		}

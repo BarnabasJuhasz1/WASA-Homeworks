@@ -13,9 +13,9 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func setUsername Called-----")
 
-	//oldUsername := ps.ByName("Username")
-
-	//make sure user is logged in
+	// oldUsername := ps.ByName("Username")
+ 
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
@@ -60,15 +60,15 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	} else {
 		oldUserName := UserLoggedIn.Username
-		//update the username of the user logged in
-		//Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
+		// update the username of the user logged in
+		// Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
 		UserLoggedIn.Username = requestBody.NewUsername
-		//add same user with the new name
+		// add same user with the new name
 		AllUsers[requestBody.NewUsername] = *UserLoggedIn
-		//delete old entry in users
+		// delete old entry in users
 		delete(AllUsers, oldUserName)
 
-		//fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
+		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
 	fmt.Println("-----Func setUsername Finished-----")

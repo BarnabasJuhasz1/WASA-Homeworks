@@ -13,21 +13,21 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func setGroupPhoto Called-----")
 
-	//username := ps.ByName("Username")
+	// username := ps.ByName("Username")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
 
-	//get the conversation from path
+	// get the conversation from path
 	Conversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
@@ -57,10 +57,10 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	//change the group picture to the payload picture
+	// change the group picture to the payload picture
 	Conversation.ConversationGroup.GroupPicture = requestBody.GroupPicture
 
-	//update conversations map by reassigning the struct
+	// update conversations map by reassigning the struct
 	AllConversations[Conversation.Id] = Conversation
 
 	fmt.Println("-----Func setGroupPhoto Finished-----")

@@ -46,33 +46,33 @@ const (
 )
 
 type Message struct {
-	Id        int //Id grows incrementally. if a message gets deleted, the content gets deleted, and the message is flagged.
+	Id        int // Id grows incrementally. if a message gets deleted, the content gets deleted, and the message is flagged.
 	Sender    User
 	Content   string
 	Timestamp string
 	Status    MessageStatus
-	//only stores reactions of type "EmojiReaction", as "MessageReaction"s will just create a message that has originMessageId set
+	// only stores reactions of type "EmojiReaction", as "MessageReaction"s will just create a message that has originMessageId set
 	EmojiReactions []Reaction
-	//stores the id of the message this is a reply to. if this is not a reply message, the value is initialized to -1.
+	// stores the id of the message this is a reply to. if this is not a reply message, the value is initialized to -1.
 	OriginMessageId int
 }
 
 type Reaction struct {
 	UserWhoReacted User
 	Type           ReactionType
-	//the content of the reaction. if the reaction is a message, this is a reply and so the content is the message content.
-	//if the reaction is an emoji, this is the encoding of the emoji
+	// the content of the reaction. if the reaction is a message, this is a reply and so the content is the message content.
+	// if the reaction is an emoji, this is the encoding of the emoji
 	Content string
 }
 
 type Conversation struct {
-	Id                int //Id corresponding to the key in AllConversations
+	Id                int // Id corresponding to the key in AllConversations
 	ConversationGroup Group
 	Type              ConversationType
 	Messages          []Message
 }
 
-var AllConversations = make(map[int]Conversation) //keys grow incrementally
+var AllConversations = make(map[int]Conversation) // keys grow incrementally
 
 var UserLoggedIn *User
 
@@ -102,7 +102,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	// 	return
 	// }
 
-	//id := len(Users)
+	// id := len(Users)
 
 	// Users = append(Users, User{
 	// 	//Id: id,
@@ -115,7 +115,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		fmt.Println("User ", user, " logged in sucessfully!")
 
 	} else {
-		//create a new user
+		// create a new user
 		AllUsers[requestBody.Username] = User{
 			Username: requestBody.Username,
 		}
@@ -146,7 +146,7 @@ func getConversationFromPath(w http.ResponseWriter, ps httprouter.Params) (Conve
 
 	conversationIDString := ps.ByName("ConversationID")
 
-	//make sure the conversationID is correct
+	// make sure the conversationID is correct
 	conversationID, convErr := strconv.Atoi(conversationIDString)
 	if convErr != nil || conversationID < 0 { //|| messageID > len() {
 		fmt.Println("Invalid conversationID in path! ", convErr)
@@ -154,7 +154,7 @@ func getConversationFromPath(w http.ResponseWriter, ps httprouter.Params) (Conve
 		return Conversation{}, true
 	}
 
-	//make sure the conversation exists
+	// make sure the conversation exists
 	ConversationStruct, existsConv := AllConversations[conversationID]
 	if !existsConv {
 		fmt.Println("Invalid conversationID in path! ", existsConv)
@@ -176,7 +176,7 @@ func isUserFoundInList(users []User, userNameToCheck string) bool {
 }
 
 func userBelongsToConversation(w http.ResponseWriter, conv Conversation, user User) bool {
-	//check if the person already belongs to the group or not
+	// check if the person already belongs to the group or not
 	if isUserFoundInList(conv.ConversationGroup.Participants, user.Username) {
 		return true
 	}
@@ -187,18 +187,18 @@ func userBelongsToConversation(w http.ResponseWriter, conv Conversation, user Us
 // if the conversation is found, the second value of the tuple will be set to true
 func getOneOnOneConversationWithUser(userA User, userB User) (Conversation, bool) {
 
-	//loop through all the conversations of userA
+	// loop through all the conversations of userA
 	for _, userAconvIDi := range userA.MyConversations {
 
 		ConversationAti, existsConv := AllConversations[userAconvIDi]
 
-		//make sure conversation exists
+		// make sure conversation exists
 		if existsConv {
 
-			//if it is a one on one conversation
+			// if it is a one on one conversation
 			if ConversationAti.Type == UserType {
 
-				//if the other user matches with userB
+				// if the other user matches with userB
 				if ConversationAti.ConversationGroup.Participants[0].Username == userB.Username {
 					return ConversationAti, true
 				}

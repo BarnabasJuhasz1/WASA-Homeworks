@@ -34,7 +34,7 @@ func (rt *_router) Handler() http.Handler {
 
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
-	//rt.router.GET("/context", rt.wrap(rt.getContextReply))
+	// rt.router.GET("/context", rt.wrap(rt.getContextReply))
 
 	return rt.router
 }

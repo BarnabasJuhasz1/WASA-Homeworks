@@ -13,9 +13,9 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func setMyPhoto Called-----")
 
-	//username := ps.ByName("Username")
+	// username := ps.ByName("Username")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}

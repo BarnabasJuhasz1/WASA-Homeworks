@@ -15,28 +15,28 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func forwardMessage Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
 
-	//get the conversation from path
+	// get the conversation from path
 	OriginalConversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, OriginalConversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	//get messageID from path
+	// get messageID from path
 	messageIDString := ps.ByName("MessageID")
-	//make sure the messageID is correct
+	// make sure the messageID is correct
 	messageID, messageErr := strconv.Atoi(messageIDString)
 	if messageErr != nil || messageID < 0 || messageID >= len(OriginalConversation.Messages) {
 		fmt.Println("Invalid MessageID in path! ", messageErr)
@@ -54,7 +54,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	//make sure the recipient exists in the database as a user
+	// make sure the recipient exists in the database as a user
 	Recipient, userExists := AllUsers[requestBody.RecipientUsername]
 	if !userExists {
 		fmt.Println("User ", requestBody.RecipientUsername, " is not in the database!")
@@ -62,15 +62,15 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	//find the one-on-one conversation you have with the recipient
+	// find the one-on-one conversation you have with the recipient
 	ConvWithRecipient, exists := getOneOnOneConversationWithUser(*UserLoggedIn, Recipient)
 	if !exists {
 
 		fmt.Println("New conversation created between: ", UserLoggedIn.Username, " and ", Recipient.Username)
 
-		//if no such conversation exist, then create a one-on-one conversation with the person (or you cannot forward the message?)
+		// if no such conversation exist, then create a one-on-one conversation with the person (or you cannot forward the message?)
 		var emptyMessages []Message
-		//create the conversation with the recipient
+		// create the conversation with the recipient
 		ConvWithRecipient = Conversation{
 			Id: len(AllConversations),
 			ConversationGroup: Group{
@@ -81,14 +81,14 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 			Messages: emptyMessages,
 		}
 
-		//add the new conversation to the users
+		// add the new conversation to the users
 		UserLoggedIn.MyConversations = append(UserLoggedIn.MyConversations, ConvWithRecipient.Id)
 		Recipient.MyConversations = append(Recipient.MyConversations, ConvWithRecipient.Id)
 	}
 
 	var emptyReactions []Reaction
-	//send the message to the recipient by creating a new message with the same content of the original message
-	//and modify one-on-one conversation by adding the new message
+	// send the message to the recipient by creating a new message with the same content of the original message
+	// and modify one-on-one conversation by adding the new message
 	ConvWithRecipient.Messages = append(OriginalConversation.Messages, Message{
 		Id:              len(ConvWithRecipient.Messages),
 		Sender:          *UserLoggedIn,
@@ -99,7 +99,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		OriginMessageId: -1,
 	})
 
-	//update conversations map by reassigning the struct
+	// update conversations map by reassigning the struct
 	AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
 
 	fmt.Println("-----Func forwardMessage Finished-----")

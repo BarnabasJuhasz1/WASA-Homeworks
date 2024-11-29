@@ -15,7 +15,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func sendMessage Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
@@ -36,7 +36,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	//make sure the user asks for a conversation it is part of
+	// make sure the user asks for a conversation it is part of
 	if !contains(UserLoggedIn.MyConversations, conversationID) {
 		fmt.Println("User tried to send a message to a conversation it is not part of! ", err)
 		w.WriteHeader(http.StatusForbidden)
@@ -45,7 +45,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// Read the request body
 	var requestBody struct {
-		//SenderUsername string `json:"SenderUsername"`
+		// SenderUsername string `json:"SenderUsername"`
 		MessageContent string `json:"MessageContent"`
 	}
 
@@ -69,10 +69,10 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	var emptyReactions []Reaction
 
-	//modify conversation by adding the new message
+	// modify conversation by adding the new message
 	Conversation.Messages = append(Conversation.Messages, Message{
 		Id: len(Conversation.Messages),
-		//Sender:    SenderUser,
+		// Sender:    SenderUser,
 		Sender:          *UserLoggedIn,
 		Content:         requestBody.MessageContent,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
@@ -80,7 +80,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 	})
-	//update the allConversations map by reassigning the struct
+	// update the allConversations map by reassigning the struct
 	AllConversations[conversationID] = Conversation
 
 	fmt.Println("-----Func sendMessage Finished-----")

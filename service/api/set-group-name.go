@@ -13,19 +13,19 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func setGroupName Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
 
-	//get the conversation from path
+	// get the conversation from path
 	Conversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
@@ -61,9 +61,9 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	//modify conversation by changing the group name
+	// modify conversation by changing the group name
 	Conversation.ConversationGroup.GroupName = requestBody.GroupName
-	//update the allConversations map by reassigning the struct
+	// update the allConversations map by reassigning the struct
 	AllConversations[Conversation.Id] = Conversation
 
 	fmt.Println("-----Func setGroupName Finished-----")

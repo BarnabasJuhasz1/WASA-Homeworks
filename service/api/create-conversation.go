@@ -13,7 +13,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func createConversation Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
@@ -30,11 +30,11 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
-	//check all the userNames provided are in the database
+	// check all the userNames provided are in the database
 	var ConversationUsers []User
 	for _, userNameAtI := range requestBody.Participants {
 
-		//check if all the users exist, if so, add them to a list
+		// check if all the users exist, if so, add them to a list
 		userToAdd, userExists := AllUsers[userNameAtI]
 		if !userExists {
 			fmt.Println("User ", userNameAtI, " is not in the database!")
@@ -45,7 +45,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	var emptyMessages []Message
-	//create the conversation with all the users
+	// create the conversation with all the users
 	conversation := Conversation{
 		Id: len(AllConversations),
 		ConversationGroup: Group{
@@ -56,16 +56,16 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		Messages: emptyMessages,
 	}
 
-	//add all users to the new conversation (users' perspective)
+	// add all users to the new conversation (users' perspective)
 	for _, userToAddAtI := range ConversationUsers {
 
-		//add user to the group (users' perspective)
+		// add user to the group (users' perspective)
 		userToAddAtI.MyConversations = append(userToAddAtI.MyConversations, conversation.Id)
 
-		//update users map by reassigning the struct
+		// update users map by reassigning the struct
 		AllUsers[userToAddAtI.Username] = userToAddAtI
 	}
-	//add new conversation to conversations map
+	// add new conversation to conversations map
 	AllConversations[conversation.Id] = conversation
 
 	fmt.Println("-----Func createConversation Finished-----")

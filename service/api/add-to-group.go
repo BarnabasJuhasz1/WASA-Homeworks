@@ -35,13 +35,13 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// 	return
 	// }
 
-	//get the conversation from path
+	// get the conversation from path
 	Conversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
@@ -66,7 +66,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	//check if the person already belongs to the group or not
+	// check if the person already belongs to the group or not
 	// if isUserFoundInList(Conversation.ConversationGroup.Participants, requestBody.UserNameToAdd) {
 
 	// 	fmt.Println("User ", requestBody.UserNameToAdd, " is already in the group!")
@@ -75,22 +75,22 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// }
 
-	//make sure user to add does not already belong to the conversation
+	// make sure user to add does not already belong to the conversation
 	if userBelongsToConversation(w, Conversation, userToAdd) {
 		fmt.Println("User is already in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	//add user to the group (group's perspective)
+	// add user to the group (group's perspective)
 	Conversation.ConversationGroup.Participants = append(Conversation.ConversationGroup.Participants, userToAdd)
 
-	//add user to the group (user's perspective)
+	// add user to the group (user's perspective)
 	userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
 
-	//update users map by reassigning the struct
+	// update users map by reassigning the struct
 	AllUsers[requestBody.UserNameToAdd] = userToAdd
-	//update conversations map by reassigning the struct
+	// update conversations map by reassigning the struct
 	AllConversations[Conversation.Id] = Conversation
 
 	fmt.Println("-----Func addToGroup Finished-----")

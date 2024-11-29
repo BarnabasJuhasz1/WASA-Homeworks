@@ -13,9 +13,9 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func getMyConversations Called-----")
 
-	//username := ps.ByName("Username")
+	// username := ps.ByName("Username")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
@@ -27,7 +27,7 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 	// 	return
 	// }
 
-	//get the conversations of a user
+	// get the conversations of a user
 	var myConversations []Conversation
 	for _, conversationId := range UserLoggedIn.MyConversations {
 

@@ -15,27 +15,27 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "application/json")
 	fmt.Println("-----Func commentMessage Called-----")
 
-	//make sure user is logged in
+	// make sure user is logged in
 	if !isUserLoggedIn(w) {
 		return
 	}
 
-	//get the conversation from path
+	// get the conversation from path
 	Conversation, convErr := getConversationFromPath(w, ps)
 	if convErr {
 		return
 	}
 
-	//make sure the logged in user belongs to the conversation
+	// make sure the logged in user belongs to the conversation
 	if !userBelongsToConversation(w, Conversation, *UserLoggedIn) {
 		fmt.Println("User is not in the conversation!")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	//get messageID from path
+	// get messageID from path
 	messageIDString := ps.ByName("MessageID")
-	//make sure the messageID is correct
+	// make sure the messageID is correct
 	messageID, messageErr := strconv.Atoi(messageIDString)
 	if messageErr != nil || messageID < 0 || messageID >= len(Conversation.Messages) {
 		fmt.Println("Invalid MessageID in path! ", messageErr)
@@ -54,41 +54,41 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	//create the instance of the reaction struct
+	// create the instance of the reaction struct
 	ReactionToMake := Reaction{
 		UserWhoReacted: *UserLoggedIn,
 		Type:           requestBody.TypeOfReaction,
 		Content:        requestBody.ContentOfReaction,
 	}
 
-	//if the reaction is an emoji reaction, just append it to the list of reactions on the message
+	// if the reaction is an emoji reaction, just append it to the list of reactions on the message
 	if ReactionToMake.Type == EmojiReaction {
 
-		//loop through all the emoji reactions to this message
+		// loop through all the emoji reactions to this message
 		for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
-			//if the user has a reaction to this message already, replace that reaction with the new one
+			// if the user has a reaction to this message already, replace that reaction with the new one
 			if ReactionAti.UserWhoReacted.Username == UserLoggedIn.Username {
 
-				//replace old reaction content with new one
+				// replace old reaction content with new one
 				ReactionAti.Content = ReactionToMake.Content
-				//update reaction in the message
+				// update reaction in the message
 				Conversation.Messages[messageID].EmojiReactions[i] = ReactionAti
 				break
 
-				//if we checked all the reactions and none of them were created by the user
+				// if we checked all the reactions and none of them were created by the user
 			} else if i == len(Conversation.Messages[messageID].EmojiReactions)-1 {
 
 				Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions, ReactionToMake)
 			}
 		}
 
-		//if the reaction is a reply (=comment), then create a new message
+		// if the reaction is a reply (=comment), then create a new message
 	} else if ReactionToMake.Type == MessageReaction {
 
 		var emptyReactions []Reaction
-		//create a new message with the content of the reaction,
-		//and add it to the conversation
+		// create a new message with the content of the reaction,
+		// and add it to the conversation
 		Conversation.Messages = append(Conversation.Messages, Message{
 			Id:              len(Conversation.Messages),
 			Sender:          *UserLoggedIn,
@@ -100,7 +100,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		})
 	}
 
-	//update conversations map by reassigning the struct
+	// update conversations map by reassigning the struct
 	AllConversations[Conversation.Id] = Conversation
 
 	fmt.Println("-----Func commentMessage Finished-----")
