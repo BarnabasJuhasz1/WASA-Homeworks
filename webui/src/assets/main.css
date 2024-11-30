@@ -58,3 +58,22 @@
 	stroke-linejoin: round;
 	fill: none;
 }
+
+.container {
+	text-align: center; /* Horizontal centering */
+	line-height: 100vh; /* Matches container height for vertical centering */
+	height: 100vh; /* Full viewport height */
+}
+  
+.content {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: normal; /* Resets the line-height for the content */
+}
+
+.scrollable-field {
+	width: 300px;
+	height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+}
