@@ -37,7 +37,7 @@ paths:
                 Username: 
                   type: string
                   description: "a unique identifier of the user"
-                  example: Maria
+                  example: "Maria"
                   pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
@@ -55,7 +55,7 @@ paths:
                     # change here if you decide to use an integer
                     # or any other type of identifier
                     type: string
-                    example: "abcdef012345"
+                    example: "Maria"
                     pattern: "ˆ.*?$"
                     minLength: 1
                     maxLength: 100
@@ -79,7 +79,7 @@ paths:
                 NewUsername: 
                   type: string
                   description: "a unique identifier of the user"
-                  example: Maria
+                  example: "Maria"
                   pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
@@ -311,7 +311,7 @@ paths:
                 RecipientUsername:
                   description: "The recipient of the message to be forwarded"
                   type: string
-                  example: "user123"
+                  example: "Maria"
                   pattern: "ˆ.*?$"
                   minLength: 3
                   maxLength: 16
@@ -343,7 +343,7 @@ paths:
                   enum:
                     - EmojiReaction
                     - MessageReaction
-                  example: "MessageReaction"
+                  example: "Maria"
                   pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 7
@@ -436,7 +436,7 @@ paths:
                   enum:
                     - UserType
                     - GroupType
-                  example: "GroupType"
+                  example: "Maria"
                   pattern: "ˆ.*?$"
                   minLength: 1
                   maxLength: 5
@@ -497,7 +497,7 @@ components:
         Content:
           description: "the content of the message"
           type: string
-          example: "Hello World!"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1 #the message has to be at least one character
           maxLength: 2000 #limiting the max message length
@@ -516,7 +516,7 @@ components:
             - SingleCheckmark
             - DoubleCheckmark
             - Username
-          example: "Hello World!"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
@@ -542,14 +542,14 @@ components:
           enum:
             - EmojiReaction
             - MessageReaction
-          example: "EmojiReaction"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
         Content:
           description: "the content of reaction, can be either a message or the encoding of an emoji"
           type: string
-          example: ":)"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
@@ -571,7 +571,7 @@ components:
         Group name:
           description: "name of the group"
           type: string
-          example: "Acsai Group"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 3
           maxLength: 20
@@ -592,7 +592,7 @@ components:
             the unique username of the other person or
             the unique Group ID of the group"
           type: string
-          example: "42"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 10000
@@ -611,7 +611,7 @@ components:
           enum:
             - UserType
             - GroupType
-          example: "UserType"
+          example: "Maria"
           pattern: "ˆ.*?$"
           minLength: 1
           maxLength: 5
@@ -653,7 +653,7 @@ components:
       description: "Unique ID for the conversation"
       schema:
         type: string
-        example: "42"
+        example: "Maria"
         pattern: "ˆ.*?$"
         minLength: 1
         maxLength: 10000
