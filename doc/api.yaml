@@ -114,6 +114,8 @@ paths:
                   description: "the profile picture of the user"
                   type: string
                   format: binary
+                  minLength: 1
+                  maxLength: 10000
         required: true
       responses:
         "200":
@@ -652,6 +654,7 @@ components:
     ConversationID:
       description: "Unique ID for the conversation"
       schema:
+        description: "Unique ID for the conversation"
         type: string
         example: "Maria"
         pattern: "ˆ.*?$"
