@@ -64,6 +64,11 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	ctx.Logger.Debugln("-----Func setUsername Finished-----")
 
-	json.NewEncoder(w).Encode(UserLoggedIn)
+	encodeErr := json.NewEncoder(w).Encode(UserLoggedIn)
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

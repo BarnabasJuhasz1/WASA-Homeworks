@@ -47,7 +47,13 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 
 	ctx.Logger.Debugln("-----Func getConversation Finished-----")
 
-	json.NewEncoder(w).Encode(util.AllConversations[Conversation.Id])
+	encodeErr := json.NewEncoder(w).Encode(util.AllConversations[Conversation.Id])
+
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 // function to check if an int ID is present in a list of int IDs

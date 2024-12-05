@@ -57,7 +57,13 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	ctx.Logger.Debugln("-----Func leaveGroup Finished-----")
 
-	json.NewEncoder(w).Encode(util.GetLoggedInUser(w, ctx).MyConversations)
+	encodeErr := json.NewEncoder(w).Encode(util.GetLoggedInUser(w, ctx).MyConversations)
+
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 // Function to delete a user from a list of users

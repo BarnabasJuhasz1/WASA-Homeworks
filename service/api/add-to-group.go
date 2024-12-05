@@ -93,6 +93,12 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	util.AllConversations[Conversation.Id] = Conversation
 
 	ctx.Logger.Debugln("-----Func addToGroup Finished-----")
-	json.NewEncoder(w).Encode(Conversation)
+	encodeErr := json.NewEncoder(w).Encode(Conversation)
+
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 }

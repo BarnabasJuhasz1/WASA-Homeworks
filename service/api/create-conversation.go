@@ -66,6 +66,11 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	util.AllConversations[conversation.Id] = conversation
 
 	ctx.Logger.Debugln("-----Func createConversation Finished-----")
-	json.NewEncoder(w).Encode(conversation)
+	encodeErr := json.NewEncoder(w).Encode(conversation)
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

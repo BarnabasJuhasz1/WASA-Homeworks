@@ -106,6 +106,12 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	ctx.Logger.Debugln("-----Func forwardMessage Finished-----")
 
-	json.NewEncoder(w).Encode(OriginalConversation.Messages[messageID])
+	encodeErr := json.NewEncoder(w).Encode(OriginalConversation.Messages[messageID])
+
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 }

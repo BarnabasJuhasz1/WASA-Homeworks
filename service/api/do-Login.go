@@ -64,5 +64,11 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	//fmt.Println("-----Func doLogin Finished-----")
 
-	json.NewEncoder(w).Encode(requestBody.Username)
+	encodeErr := json.NewEncoder(w).Encode(requestBody.Username)
+
+	if encodeErr != nil {
+		rt.baseLogger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

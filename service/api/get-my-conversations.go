@@ -22,6 +22,12 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	ctx.Logger.Debugln("-----Func getMyConversations Finished-----")
-	json.NewEncoder(w).Encode(myConversations)
+	encodeErr := json.NewEncoder(w).Encode(myConversations)
+
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 }

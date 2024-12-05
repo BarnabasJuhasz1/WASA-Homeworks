@@ -55,6 +55,11 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 
 	ctx.Logger.Debugln("-----Func deleteMessage Finished-----")
 
-	json.NewEncoder(w).Encode(Conversation)
+	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

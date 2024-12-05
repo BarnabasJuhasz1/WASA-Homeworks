@@ -68,6 +68,11 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 
 	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
 
-	json.NewEncoder(w).Encode(Conversation)
+	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

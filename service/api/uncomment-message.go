@@ -65,6 +65,11 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 
 	ctx.Logger.Debugln("-----Func uncommentMessage Finished-----")
 
-	json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
+	encodeErr := json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

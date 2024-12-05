@@ -38,6 +38,11 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 
 	ctx.Logger.Debugln("-----Func setMyPhoto Finished-----")
 
-	json.NewEncoder(w).Encode(UserLoggedIn)
+	encodeErr := json.NewEncoder(w).Encode(UserLoggedIn)
 
+	if encodeErr != nil {
+		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
