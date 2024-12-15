@@ -13,6 +13,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func setGroupName Called-----")
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
 	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
@@ -22,7 +23,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -54,7 +55,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	if Conversation.ConversationGroup.GroupName == requestBody.GroupName {
+	if Conversation.GroupName == requestBody.GroupName {
 		ctx.Logger.Debugln("New Group name matches old one! ", requestBody.GroupName)
 
 		w.WriteHeader(http.StatusNotAcceptable)
@@ -62,7 +63,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// modify conversation by changing the group name
-	Conversation.ConversationGroup.GroupName = requestBody.GroupName
+	Conversation.GroupName = requestBody.GroupName
 	// update the allConversations map by reassigning the struct
 	util.AllConversations[Conversation.Id] = Conversation
 

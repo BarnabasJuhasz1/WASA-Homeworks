@@ -29,37 +29,40 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	user, exists := util.AllUsers[requestBody.Username]
+	_token, _tokenGenError := util.GetRandomToken(32)
+	if _tokenGenError != nil {
+		rt.baseLogger.Errorln("Token generation error!")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
-	if exists {
+	user, userExistsError := rt.db.GetUser(requestBody.Username)
 
-		_token, _tokenGenError := util.GetRandomToken(32)
-		if _tokenGenError != nil {
-			rt.baseLogger.Debug("Token generation error!")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
+	if userExistsError == nil {
 
 		util.TokenMap[_token] = user.Username
 		rt.baseLogger.Println("User ", user.Username, " found in Database, logged in with token: ", _token)
 
 	} else {
+
+		basicPic, picError := util.GetBasicUserPicture()
+		if picError != nil {
+			rt.baseLogger.Errorln("Error with picture of new user!")
+		}
+
 		// create a new user
-		util.AllUsers[requestBody.Username] = util.User{
-			Username: requestBody.Username,
+		newUser := util.User{
+			Username:       requestBody.Username,
+			ProfilePicture: basicPic,
 		}
 		// save new user in the database
-		user = util.AllUsers[requestBody.Username]
-
-		_token, _tokenGenError := util.GetRandomToken(32)
-		if _tokenGenError != nil {
-			rt.baseLogger.Errorln("Token generation error!")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		dberr := rt.db.InsertUser(newUser)
+		if dberr != nil {
+			rt.baseLogger.Errorln("Saving new User into DB error!")
 		}
 
-		util.TokenMap[_token] = user.Username
-		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
+		util.TokenMap[_token] = newUser.Username
+		rt.baseLogger.Println("New User ", newUser.Username, " was created and logged in with token: ", _token)
 	}
 
 	//fmt.Println("-----Func doLogin Finished-----")

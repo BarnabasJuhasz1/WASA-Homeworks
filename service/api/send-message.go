@@ -15,6 +15,8 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func sendMessage Called-----")
+	// LoggedInUser := util.GetLoggedInUser(w, ctx, rt.db)
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	conversationIDString := ps.ByName("ConversationID")
 
@@ -34,7 +36,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// make sure the user asks for a conversation it is part of
-	if !contains(util.GetLoggedInUser(w, ctx).MyConversations, conversationID) {
+	if !contains(LoggedInUser.MyConversations, conversationID) {
 		ctx.Logger.Debugln("User tried to send a message to a conversation it is not part of! ", err)
 
 		w.WriteHeader(http.StatusForbidden)
@@ -72,7 +74,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	Conversation.Messages = append(Conversation.Messages, util.Message{
 		Id: len(Conversation.Messages),
 		// Sender:    SenderUser,
-		Sender:          util.GetLoggedInUser(w, ctx),
+		Sender:          LoggedInUser,
 		Content:         requestBody.MessageContent,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 		Status:          util.UserName,

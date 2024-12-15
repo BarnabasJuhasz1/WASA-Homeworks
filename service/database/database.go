@@ -34,12 +34,21 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"net/http"
+	"sapienza/wasatext/service/api/reqcontext"
+	"sapienza/wasatext/service/api/util"
 )
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetName() (string, error)
-	SetName(name string) error
+	GetUser(username string) (util.User, error)
+	InsertUser(newUser util.User) error
+	UpdateUser(newUser util.User, oldUsername string) error
+	GetLoggedInUser(w http.ResponseWriter, ctx reqcontext.RequestContext) util.User
+
+	GetConversation(id int) (util.Conversation, error)
+	InsertConversation(newConversation util.Conversation) (int, error)
+	GetMyConversations(username string) ([]util.Conversation, error)
 
 	Ping() error
 }
@@ -57,12 +66,44 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// Check if table exists. If not, the database is empty, and we need to create the structure
 	var tableName string
-	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='example_table';`).Scan(&tableName)
+	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		sqlStmt := `CREATE TABLE example_table (id INTEGER NOT NULL PRIMARY KEY, name TEXT);`
+		fmt.Println("users Table Created")
+		sqlStmt := `CREATE TABLE users (
+					username TEXT NOT NULL PRIMARY KEY,
+					profile_picture TEXT);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
+
+		}
+	}
+	err2 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='conversations'").Scan(&tableName)
+	if errors.Is(err2, sql.ErrNoRows) {
+		fmt.Println("conversations Table Created")
+		sqlStmt := `CREATE TABLE conversations (
+					id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+					type TEXT NOT NULL,
+					group_name TEXT,
+					group_picture BLOB, 
+					participants JSON,
+					Messages JSON);`
+		_, err2 = db.Exec(sqlStmt)
+		if err2 != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err2)
+
+		}
+	}
+	err3 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='user_to_conversations'").Scan(&tableName)
+	if errors.Is(err3, sql.ErrNoRows) {
+		fmt.Println("user_to_conversations Table Created")
+		sqlStmt := `CREATE TABLE users (
+					username TEXT NOT NULL PRIMARY KEY,
+					conversations JSON);`
+		_, err3 = db.Exec(sqlStmt)
+		if err3 != nil {
+			return nil, fmt.Errorf("error creating database structure: %w", err3)
+
 		}
 	}
 

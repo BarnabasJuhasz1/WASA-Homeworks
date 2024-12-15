@@ -2,6 +2,7 @@ package util
 
 import (
 	"crypto/rand"
+	"errors"
 	"math/big"
 )
 
@@ -21,4 +22,26 @@ func GetRandomToken(length int) (string, error) {
 		b[i] = secureCharset[idx.Int64()]
 	}
 	return string(b), nil
+}
+
+// UpdateUsername updates the username associated with a token in the map
+func UpdateUsername(oldUsername, newUsername string) error {
+	// Find the token associated with the old username
+	var foundToken string
+	for token, username := range TokenMap {
+		if username == oldUsername {
+			foundToken = token
+			break
+		}
+	}
+
+	// If no matching token is found, return an error
+	if foundToken == "" {
+		return errors.New("username not found in token map")
+	}
+
+	// Update the map with the new username while keeping the token unchanged
+	TokenMap[foundToken] = newUsername
+
+	return nil
 }

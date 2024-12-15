@@ -14,6 +14,8 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func leaveGroup Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// conversationIDString := ps.ByName("ConversationID")
 
 	// //Check conversationID in path
@@ -37,7 +39,7 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -45,19 +47,19 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// delete user from group (group's perspective)
-	Conversation.ConversationGroup.Participants = deleteUserFromList(Conversation.ConversationGroup.Participants, util.GetLoggedInUser(w, ctx))
+	// Conversation.Participants = deleteUserFromList(Conversation.Participants, LoggedInUser)
+	Conversation.Participants = deleteUsernameFromList(Conversation.Participants, LoggedInUser.Username)
 
 	// delete user from group (users's perspective)
-	UserLoggedIn := util.GetLoggedInUser(w, ctx)
-	UserLoggedIn.MyConversations = deleteConversationIdFromList(UserLoggedIn.MyConversations, Conversation.Id)
-	util.AllUsers[util.GetLoggedInUser(w, ctx).Username] = UserLoggedIn
+	LoggedInUser.MyConversations = deleteConversationIdFromList(LoggedInUser.MyConversations, Conversation.Id)
+	// util.AllUsers[LoggedInUser.Username] = LoggedInUser
 
 	// update the allConversations map by reassigning the struct
 	util.AllConversations[Conversation.Id] = Conversation
 
 	ctx.Logger.Debugln("-----Func leaveGroup Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(util.GetLoggedInUser(w, ctx).MyConversations)
+	encodeErr := json.NewEncoder(w).Encode(LoggedInUser.MyConversations)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
@@ -67,18 +69,28 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 }
 
 // Function to delete a user from a list of users
-func deleteUserFromList(users []util.User, userToDelete util.User) []util.User {
+// func deleteUserFromList(users []util.User, userToDelete util.User) []util.User {
 
-	var updatedUsers []util.User
+// 	var updatedUsers []util.User
 
-	for _, user := range users {
-		// we only add the user to the new list if it has a different name then the user to delete
-		if !(user.Username == userToDelete.Username) {
-			updatedUsers = append(updatedUsers, user)
+// 	for _, user := range users {
+// 		// we only add the user to the new list if it has a different name then the user to delete
+// 		if !(user.Username == userToDelete.Username) {
+// 			updatedUsers = append(updatedUsers, user)
+// 		}
+// 	}
+
+// 	return updatedUsers
+// }
+
+func deleteUsernameFromList(usernames []string, usernameToDelete string) []string {
+	result := []string{}
+	for _, username := range usernames {
+		if username != usernameToDelete {
+			result = append(result, username)
 		}
 	}
-
-	return updatedUsers
+	return result
 }
 
 func deleteConversationIdFromList(conversationsOfUser []int, conversationToLeave int) []int {

@@ -6,18 +6,8 @@ package util
 type User struct {
 	//Id int
 	Username        string
-	ProfilePicture  string
+	ProfilePicture  []byte
 	MyConversations []int
-}
-
-// var AllUsers = []User{}
-var AllUsers = make(map[string]User)
-
-type Group struct {
-	//Id int
-	Participants []User
-	GroupName    string
-	GroupPicture string
 }
 
 type MessageStatus string
@@ -57,10 +47,27 @@ type Reaction struct {
 }
 
 type Conversation struct {
-	Id                int // Id corresponding to the key in AllConversations
-	ConversationGroup Group
-	Type              ConversationType
-	Messages          []Message
+	Id int // Id corresponding to the key in AllConversations
+	// ConversationGroup Group
+	Type         ConversationType
+	GroupName    string
+	GroupPicture []byte
+	// Participants []User
+	Participants []string
+	Messages     []Message
 }
 
+// type Group struct {
+// 	//Id int
+// 	Participants []User
+// 	GroupName    string
+// 	GroupPicture []byte
+// }
+
+// stores all the conversations of all users. This should only exist in the database...
 var AllConversations = make(map[int]Conversation) // keys grow incrementally
+
+// stores the IDs of the conversations the user is part of
+// the field maps from username to list of conversation IDs
+// the conversation can be retrieved from the AllConversations field
+var UserToConversationIDs = make(map[string]int)

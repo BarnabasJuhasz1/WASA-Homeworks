@@ -91,3 +91,4 @@ func validateToken(token string) (string, error) {
 
 	return "", errors.New("invalid token")
 }
+

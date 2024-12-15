@@ -13,6 +13,7 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func setGroupPhoto Called-----")
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
 	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
@@ -21,7 +22,7 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -37,7 +38,7 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 
 	// Read the request body
 	var requestBody struct {
-		GroupPicture string `json:"GroupPicture"`
+		GroupPicture []byte `json:"GroupPicture"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
@@ -46,15 +47,15 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	if Conversation.ConversationGroup.GroupPicture == requestBody.GroupPicture {
-		ctx.Logger.Debugln("The group picture is already set to this picture.")
+	// if Conversation.ConversationGroup.GroupPicture == requestBody.GroupPicture {
+	// 	ctx.Logger.Debugln("The group picture is already set to this picture.")
 
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	return
+	// }
 
 	// change the group picture to the payload picture
-	Conversation.ConversationGroup.GroupPicture = requestBody.GroupPicture
+	Conversation.GroupPicture = requestBody.GroupPicture
 
 	// update conversations map by reassigning the struct
 	util.AllConversations[Conversation.Id] = Conversation

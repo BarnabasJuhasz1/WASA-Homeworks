@@ -14,6 +14,8 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func getConversation Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// conversationIDString := ps.ByName("ConversationID")
 
 	// //fmt.Println("User ", username, " sucessfully received its conversations!")
@@ -38,7 +40,7 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)

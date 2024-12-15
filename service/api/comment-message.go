@@ -17,6 +17,8 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func commentMessage Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// get the conversation from path
 	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
@@ -24,7 +26,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -55,7 +57,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	// create the instance of the reaction struct
 	ReactionToMake := util.Reaction{
-		UserWhoReacted: util.GetLoggedInUser(w, ctx),
+		UserWhoReacted: LoggedInUser,
 		Type:           requestBody.TypeOfReaction,
 		Content:        requestBody.ContentOfReaction,
 	}
@@ -67,7 +69,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 			// if the user has a reaction to this message already, replace that reaction with the new one
-			if ReactionAti.UserWhoReacted.Username == util.GetLoggedInUser(w, ctx).Username {
+			if ReactionAti.UserWhoReacted.Username == LoggedInUser.Username {
 
 				// replace old reaction content with new one
 				ReactionAti.Content = ReactionToMake.Content
@@ -90,7 +92,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		// and add it to the conversation
 		Conversation.Messages = append(Conversation.Messages, util.Message{
 			Id:              len(Conversation.Messages),
-			Sender:          util.GetLoggedInUser(w, ctx),
+			Sender:          LoggedInUser,
 			Content:         ReactionToMake.Content,
 			Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 			Status:          util.UserName,

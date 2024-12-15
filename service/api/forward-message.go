@@ -16,6 +16,8 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func forwardMessage Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// get the conversation from path
 	OriginalConversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
@@ -24,7 +26,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(OriginalConversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(OriginalConversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -53,8 +55,8 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// make sure the recipient exists in the database as a user
-	Recipient, userExists := util.AllUsers[requestBody.RecipientUsername]
-	if !userExists {
+	Recipient, userExistsError := rt.db.GetUser(requestBody.RecipientUsername)
+	if userExistsError != nil {
 		ctx.Logger.Debugln("User ", requestBody.RecipientUsername, " is not in the database!")
 
 		w.WriteHeader(http.StatusNotFound)
@@ -62,28 +64,31 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// find the one-on-one conversation you have with the recipient
-	ConvWithRecipient, exists := util.GetOneOnOneConversationWithUser(util.GetLoggedInUser(w, ctx), Recipient)
+	ConvWithRecipient, exists := util.GetOneOnOneConversationWithUser(LoggedInUser, Recipient)
 	if !exists {
 
-		ctx.Logger.Debugln("New conversation created between: ", util.GetLoggedInUser(w, ctx).Username, " and ", Recipient.Username)
+		ctx.Logger.Debugln("New conversation created between: ", LoggedInUser.Username, " and ", Recipient.Username)
 
 		// if no such conversation exist, then create a one-on-one conversation with the person (or you cannot forward the message?)
 		var emptyMessages []util.Message
 		// create the conversation with the recipient
 		ConvWithRecipient = util.Conversation{
 			Id: len(util.AllConversations),
-			ConversationGroup: util.Group{
-				Participants: []util.User{Recipient},
-				GroupName:    "New Conversation",
-			},
-			Type:     util.UserType,
-			Messages: emptyMessages,
+			// ConversationGroup: util.Group{
+			// 	Participants: []util.User{Recipient},
+			// 	GroupName:    "New Conversation",
+			// },
+			Type:      util.UserType,
+			GroupName: "New Conversation",
+
+			// Participants: []util.User{Recipient},
+			Participants: []string{Recipient.Username},
+			Messages:     emptyMessages,
 		}
 
 		// add the new conversation to the users
-		UserLoggedIn := util.GetLoggedInUser(w, ctx)
-		UserLoggedIn.MyConversations = append(util.GetLoggedInUser(w, ctx).MyConversations, ConvWithRecipient.Id)
-		util.AllUsers[util.GetLoggedInUser(w, ctx).Username] = UserLoggedIn
+		LoggedInUser.MyConversations = append(LoggedInUser.MyConversations, ConvWithRecipient.Id)
+		// util.AllUsers[LoggedInUser.Username] = LoggedInUser
 
 		Recipient.MyConversations = append(Recipient.MyConversations, ConvWithRecipient.Id)
 	}
@@ -93,7 +98,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	// and modify one-on-one conversation by adding the new message
 	ConvWithRecipient.Messages = append(OriginalConversation.Messages, util.Message{
 		Id:              len(ConvWithRecipient.Messages),
-		Sender:          util.GetLoggedInUser(w, ctx),
+		Sender:          LoggedInUser,
 		Content:         OriginalConversation.Messages[messageID].Content,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 		Status:          util.UserName,

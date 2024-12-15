@@ -14,6 +14,8 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func addToGroup Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// conversationIDString := ps.ByName("ConversationID")
 
 	// conversationID, convErr := strconv.Atoi(conversationIDString)
@@ -38,7 +40,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -56,8 +58,9 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	userToAdd, userExists := util.AllUsers[requestBody.UserNameToAdd]
-	if !userExists {
+	// userToAdd, userExists := util.AllUsers[requestBody.UserNameToAdd]
+	userToAdd, userExistsError := rt.db.GetUser(requestBody.UserNameToAdd)
+	if userExistsError != nil {
 		ctx.Logger.Debugln("User ", requestBody.UserNameToAdd, " is not in the database!")
 
 		w.WriteHeader(http.StatusNotFound)
@@ -82,13 +85,14 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// add user to the group (group's perspective)
-	Conversation.ConversationGroup.Participants = append(Conversation.ConversationGroup.Participants, userToAdd)
+	Conversation.Participants = append(Conversation.Participants, userToAdd.Username)
 
 	// add user to the group (user's perspective)
 	userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
 
 	// update users map by reassigning the struct
-	util.AllUsers[requestBody.UserNameToAdd] = userToAdd
+	// util.AllUsers[requestBody.UserNameToAdd] = userToAdd
+
 	// update conversations map by reassigning the struct
 	util.AllConversations[Conversation.Id] = Conversation
 

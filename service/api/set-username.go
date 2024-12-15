@@ -14,6 +14,8 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func setUsername Called-----")
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+	ctx.Logger.Debugln("User trying to change name :", LoggedInUser.Username)
 
 	// Read the request body
 	var requestBody struct {
@@ -26,8 +28,8 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if util.GetLoggedInUser(w, ctx).Username == requestBody.NewUsername {
-		ctx.Logger.Debugln("Your username is already ", util.GetLoggedInUser(w, ctx).Username)
+	if LoggedInUser.Username == requestBody.NewUsername {
+		ctx.Logger.Debugln("Your username is already ", LoggedInUser.Username)
 
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -39,32 +41,36 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
+	_, userExistsError := rt.db.GetUser(requestBody.NewUsername)
 
-	_, newExists := util.AllUsers[requestBody.NewUsername]
-	UserLoggedIn := util.GetLoggedInUser(w, ctx)
-
-	if newExists {
+	if userExistsError == nil {
 		ctx.Logger.Debugln("Username ", requestBody.NewUsername, " occupied by someone else!")
 
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	} else {
-		oldUserName := UserLoggedIn.Username
+		oldUserName := LoggedInUser.Username
 		// update the username of the user logged in
 		// Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
-		UserLoggedIn.Username = requestBody.NewUsername
+		LoggedInUser.Username = requestBody.NewUsername
 		ctx.UserID = requestBody.NewUsername
+		util.UpdateUsername(oldUserName, requestBody.NewUsername)
 		// add same user with the new name
-		util.AllUsers[requestBody.NewUsername] = UserLoggedIn
+		// util.AllUsers[requestBody.NewUsername] = LoggedInUser
 		// delete old entry in users
-		delete(util.AllUsers, oldUserName)
+		// delete(util.AllUsers, oldUserName)
+
+		dberr := rt.db.UpdateUser(LoggedInUser, oldUserName)
+		if dberr != nil {
+			rt.baseLogger.Errorln("Saving new User into DB error!")
+		}
 
 		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
 	ctx.Logger.Debugln("-----Func setUsername Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(UserLoggedIn)
+	encodeErr := json.NewEncoder(w).Encode(LoggedInUser)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

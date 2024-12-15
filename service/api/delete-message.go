@@ -15,6 +15,8 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func deleteMessage Called-----")
 
+	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
+
 	// get the conversation from path
 	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
 	if convErr {
@@ -22,7 +24,7 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// make sure the logged in user belongs to the conversation
-	if !util.UserBelongsToConversation(Conversation, util.GetLoggedInUser(w, ctx)) {
+	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -41,7 +43,7 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// make sure you can only delete messages sent by you
-	if Conversation.Messages[messageID].Sender.Username != util.GetLoggedInUser(w, ctx).Username {
+	if Conversation.Messages[messageID].Sender.Username != LoggedInUser.Username {
 		ctx.Logger.Debugln("Tried to delete a message not sent by you!")
 
 		w.WriteHeader(http.StatusForbidden)
