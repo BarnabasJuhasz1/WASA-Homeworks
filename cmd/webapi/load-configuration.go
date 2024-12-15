@@ -27,7 +27,7 @@ type WebAPIConfiguration struct {
 	}
 	Debug bool
 	DB    struct {
-		Filename string `conf:"default:/tmp/decaf.db"`
+		Filename string `conf:"default:/tmp/wasatext.db"`
 	}
 }
 
@@ -55,6 +55,8 @@ func loadConfiguration() (WebAPIConfiguration, error) {
 
 	cwd, _ := os.Getwd()
 	configPath := filepath.Join(filepath.Dir(filepath.Dir(cwd)), cfg.Config.Path)
+	cfg.Config.Path = configPath
+	cfg.DB.Filename = filepath.Join(filepath.Dir(filepath.Dir(cwd)), cfg.DB.Filename)
 
 	// Override values from YAML if specified and if it exists (useful in k8s/compose)
 	fp, err := os.Open(configPath)
