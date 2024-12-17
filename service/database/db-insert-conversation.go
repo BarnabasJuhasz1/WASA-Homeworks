@@ -21,12 +21,19 @@ func (db *appdbimpl) InsertConversation(newConversation util.Conversation) (int,
 	}
 
 	// _, err := db.c.Exec("INSERT INTO conversations (id, type, group_name, group_picture, participants, messages) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING",
+	result, err := db.c.Exec("INSERT INTO conversations (type, group_name, group_picture, participants, messages) VALUES (?, ?, ?, ?, ?)",
+		newConversation.Type, newConversation.GroupName, newConversation.GroupPicture, participantsJson, messagesJson)
+	if err != nil {
+		return 0, err
+	}
 
-	var indexOfInsertedConvnersation int
-	err := db.c.QueryRow("INSERT INTO conversations (type, group_name, group_picture, participants, messages) VALUES (?, ?, ?, ?, ?); SELECT last_insert_rowid();",
-		newConversation.Type, newConversation.GroupName, newConversation.GroupPicture, participantsJson, messagesJson).Scan(&indexOfInsertedConvnersation)
+	// Retrieve the last inserted row ID
+	lastInsertID, err := result.LastInsertId() // This method returns the last insert ID.
+	if err != nil {
+		return 0, err
+	}
 
-	return indexOfInsertedConvnersation, err
+	return int(lastInsertID), err
 }
 
 // type UserSlice []util.User

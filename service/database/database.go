@@ -97,7 +97,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	err3 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='user_to_conversations'").Scan(&tableName)
 	if errors.Is(err3, sql.ErrNoRows) {
 		fmt.Println("user_to_conversations Table Created")
-		sqlStmt := `CREATE TABLE users (
+		sqlStmt := `CREATE TABLE user_to_conversations (
 					username TEXT NOT NULL PRIMARY KEY,
 					conversations JSON);`
 		_, err3 = db.Exec(sqlStmt)

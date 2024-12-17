@@ -26,24 +26,22 @@ export default {
 
 <template>
   <div>
-    <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="index">
-      <Group
-      :index="index"
-      :picture="conversation.picture"
-      :name="conversation.name"
-      :last-message="conversation.messages[conversation.messages.length-1]"
-      @SelectNewConversationAtGroupList="SelectNewConversation"/>
+    <div>
+      <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="index">
+        <Group
+        :index="index"
+        :picture="conversation.picture"
+        :name="conversation.name"
+        :last-message="conversation.messages[conversation.messages.length-1]"
+        @SelectNewConversationAtGroupList="SelectNewConversation"/>
+      </div>
+    </div>
+
+    <div id="emptySpace">
+      
     </div>
   </div>
-
-  <div id="emptySpace">
-    
-  </div>
   
-  <div>
-    test
-  </div>
-
 </template>
 
 

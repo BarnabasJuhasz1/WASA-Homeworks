@@ -4,13 +4,13 @@ package main
 
 import (
 	"fmt"
-	"hilo.uniroma1.it/hilo/webui"
 	"io/fs"
 	"net/http"
+	"sapienza/wasatext/webui"
 	"strings"
 )
 
-func registerWebUI(hdl http.Handler) (http.Handler, error) {
+func RegisterWebUI(hdl http.Handler) (http.Handler, error) {
 	distDirectory, err := fs.Sub(webui.Dist, "dist")
 	if err != nil {
 		return nil, fmt.Errorf("error embedding WebUI dist/ directory: %w", err)

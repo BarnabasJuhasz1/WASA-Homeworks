@@ -51,23 +51,27 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		}
 
 		// create a new user
-		newUser := util.User{
+		user = util.User{
 			Username:       requestBody.Username,
 			ProfilePicture: basicPic,
 		}
 		// save new user in the database
-		dberr := rt.db.InsertUser(newUser)
+		dberr := rt.db.InsertUser(user)
 		if dberr != nil {
 			rt.baseLogger.Errorln("Saving new User into DB error!")
 		}
 
-		util.TokenMap[_token] = newUser.Username
-		rt.baseLogger.Println("New User ", newUser.Username, " was created and logged in with token: ", _token)
+		util.TokenMap[_token] = user.Username
+		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
 	}
 
 	//fmt.Println("-----Func doLogin Finished-----")
+	loggedInUserStruct := util.SessionStruct{
+		User:         user,
+		SessionToken: _token,
+	}
 
-	encodeErr := json.NewEncoder(w).Encode(requestBody.Username)
+	encodeErr := json.NewEncoder(w).Encode(loggedInUserStruct)
 
 	if encodeErr != nil {
 		rt.baseLogger.Errorln("Failed to encode to JSON:", encodeErr)

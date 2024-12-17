@@ -29,14 +29,16 @@ export default {
 
 
 <template>
-  <div>
+  <div class="custom-scrollbar">
     <div id="mainList" v-for="(message, index) in textMessages" :key="index">
       <Message
       :username="message.username"
       :profile-pic="message.profilePic"
       :content="message.content"
       :timestamp="message.timestamp"
-      :msgStyle="computedStyle(message.sentByUser)" />
+      :msgStyle="computedStyle(message.sentByUser)" 
+      />
+      
     </div>
     
   </div>
@@ -46,8 +48,8 @@ export default {
 <style>
 
 #mainList {
-  display: block;
-  /*justify-content: center;  */
+  display: block; 
+  padding-right: 5px; /* Adds a margin-like effect to the scrollbar */
 }
 
 </style>

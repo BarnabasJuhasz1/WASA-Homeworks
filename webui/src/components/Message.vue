@@ -14,8 +14,9 @@ export default {
 				return this.msgStyle.wasSentByUser ? "display: block; margin-right: 0; margin-left: auto;" : ""
 		},
     MessageStyle(){
-		
-        let bgColor = this.msgStyle.wasSentByUser ? 'rgb(145, 224, 239)' : 'rgb(238, 238, 238)'
+				//'rgb(255, 221, 70)'
+				//'rgb(255, 209, 0)'
+        let bgColor = this.msgStyle.wasSentByUser ? 'rgb(255, 221, 70)' : 'rgb(238, 238, 238)'
 				let alignment = this.msgStyle.wasSentByUser ? 'right' : 'left'
 
         return 'color:' + this.msgStyle.color +';' +
@@ -63,7 +64,7 @@ export default {
 
 #Parent {
 	display: flex;
-	overflow-wrap: break-word;
+	overflow-wrap: break-word; /* Modern equivalent for word-wrap */
 
 }
 
@@ -86,7 +87,7 @@ export default {
 }
 
 #ComplexMessage{
-		display: inline-block;
+		display: inline-block; /* Makes the div size fit its content */
 		/*border: 2px solid rgba(0, 0, 0, .25);
 		background-color: rgba(0, 0, 0, .25);*/
 		border-radius: 15px;
@@ -100,10 +101,10 @@ export default {
 }
 
 .message {
-	display: inline-block;
+	display: inline-block; /* Makes the div size fit its content */
 
-  word-break: break-word;
-  overflow-wrap: break-word;
+  word-break: break-word; /* Breaks long words */
+  overflow-wrap: break-word; /* Modern equivalent for word-wrap */
 
 }
 </style>

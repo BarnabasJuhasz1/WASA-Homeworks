@@ -31,6 +31,11 @@ export default {
       </div>
 
     </div>
+    
+    <div id="settingsDots" class="image-container">
+        <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
+    </div>
+
 	</div>
 
 </template>
@@ -39,10 +44,11 @@ export default {
 <style>
 
 #HeaderParent {
-  display: block;
+  display: flex;
   flex-direction: row;
   
 }
+
 
 #HeaderPicture {
   height: 65px;
@@ -53,14 +59,14 @@ export default {
 }
 
 #HeaderGroupName {
-  color: rgb(146, 146, 146);
+  color: rgb(200, 200, 200);
 	font-weight: bold;
   font-size: xx-large;
 
-  white-space: nowrap; /* Prevent text from wrapping */
-  overflow: hidden; /* Hide overflowing content */
-  text-overflow: ellipsis; /* Show ellipsis for hidden text */
-  display: block; /* Ensure proper box behavior */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 #HeaderMemberCount {
@@ -68,22 +74,12 @@ export default {
   font-style: italic;
   font-size: larger;
 
-  white-space: nowrap; /* Prevent text from wrapping */
-  overflow: hidden; /* Hide overflowing content */
-  text-overflow: ellipsis; /* Show ellipsis for hidden text */
-  display: block; /* Ensure proper box behavior */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  display: block;
 }
 
-#MainGroupList {
-  display: block; /* Enable Flexbox */
-  /*justify-content: center; /* Center horizontally */
-  border: 2px solid rgba(0, 0, 0, .25);
-  background-color: rgba(0, 0, 0, .25);
-  border-radius: 15px;
-  margin-bottom: 5px;
-  /*margin-left: 5px;
-  margin-right: 5px;*/
-}
 
 </style>
 
