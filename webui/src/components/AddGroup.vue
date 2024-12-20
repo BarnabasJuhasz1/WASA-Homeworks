@@ -14,7 +14,7 @@ export default {
   
   <div id="AddToGroupParent" >
 
-		<div class="image-container2">
+		<div class="image-container2" @click="this.$emit('openOverlayInMode', 'CREATE_CONVERSATION')">
 				<img src="https://cdn-icons-png.flaticon.com/512/107/107078.png"/>
 		</div>
 

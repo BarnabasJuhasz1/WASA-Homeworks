@@ -1,0 +1,153 @@
+
+<script>
+import { ref, watch } from "vue";
+
+export default {
+  props: {
+    username: {
+      type: String,
+      required: true,
+      default: "New Group",
+    },
+    profilePicture: {
+      type: String,
+      required: true,
+      default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
+    },
+    editable: {
+      type: String,
+      required: true,
+      default: true,
+    },
+    size: {
+      required: true,
+      default: 1,
+    },
+    isInContainer: {
+      required: true,
+      default: false,
+    },
+  },
+  setup(props) {
+    console.log("username is ", props.username);
+    const editableUsername = ref(props.username);
+
+     watch(editableUsername, (newValue) => {
+      console.log("updated value: ", newValue)
+      emit("update:username", newValue);
+    });
+
+    console.log("editable username is: ", editableUsername.value)
+    //editableUsername = props.username;
+    return { editableUsername };
+  },
+  data() {
+    return {
+      //editableUsername: username,
+    };
+  },
+  computed: {
+    // Prepend the Base64 string with the required prefix
+    formattedProfilePicture() {
+      const isValidUrl = this.profilePicture.startsWith("http");
+
+      if (isValidUrl) {
+        return this.profilePicture; // Return URL directly if it's valid
+      } else {
+        return `data:image/png;base64,${this.profilePicture}`; // Return formatted Base64 string
+      }
+    },
+    // editableUsername() {
+    //   return props.username;
+    // }
+  }
+};
+</script>
+
+
+<template>
+  
+  <div :class="isInContainer ? 'container' : 'transparentContainer'" style="height: 60px; width: calc(100% - 10px); margin-top: 5px;" >
+
+		<div id=ProfilePicture  class="image-container" :style="{ minHeight: `${50 * size}px`, minWidth: `${50 * size}px` }">
+				<img :src="formattedProfilePicture"/>
+		</div>
+
+    <input v-if="editable"
+          id="ProfileName"
+          class="transparentContainer"
+          type="text"
+          v-model="editableUsername"
+          placeholder="Enter Username"
+          :style="{ height: `${50 * size}px`, fontSize: `${18 * size}px` }"
+          />
+
+    <div v-if="!editable" text id="ProfileName" :style="{ height: `${50 * size}px`, width: `${50 * size}px` }">
+        {{ editableUsername }}
+    </div>
+  
+	</div>
+
+</template>
+
+
+<style>
+
+.transparentContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  border: 0;
+  outline: 0;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 5px;
+
+  border: 3px solid rgba(0, 0, 0, .25);
+  background-color: rgba(0, 0, 0, .25);
+}
+
+.roundedContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border-radius: 10px;
+
+  border: 3px solid rgba(0, 0, 0, .25);
+  background-color: rgba(0, 0, 0, .25);
+}
+
+.simpleCenteredText {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+
+  color: aliceblue;
+
+  
+}
+
+#ProfileName {
+  color: rgb(146, 146, 146);
+	font-weight: bold;
+  font-size: larger;
+  max-height: 50px;
+
+  white-space: nowrap;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  display: block; 
+}
+
+
+</style>
+
+

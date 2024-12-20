@@ -32,7 +32,7 @@ export default {
 
     </div>
     
-    <div id="settingsDots" class="image-container">
+    <div id="settingsDots" class="image-container" @click="this.$emit('openOverlayInMode', 'GROUP', groupName, picture)">
         <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
     </div>
 

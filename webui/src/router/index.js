@@ -1,14 +1,14 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+import Test from '../views/ConversationsParentView.vue'
 import LoginView from '../views/LoginView.vue'
-import ConversationsView from '../views/ConversationsView.vue'
+import ConversationsParentView from '../views/ConversationsParentView.vue'
 
 const router = createRouter({
 	history: createWebHashHistory(import.meta.env.BASE_URL),
 	routes: [
-		{path: '/', component: HomeView},
+		{path: '/', component: Test},
 		{path: '/login', component: LoginView},
-		{path: '/conversations', component: ConversationsView},
+		{path: '/conversations', component: ConversationsParentView},
 		// {path: '/some/:id/link', component: HomeView},
 	]
 })

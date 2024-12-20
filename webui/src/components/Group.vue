@@ -42,14 +42,14 @@ export default {
 <style>
 
 #Parent {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  	overflow: hidden;
+  	text-overflow: ellipsis;
 	display: flex;
 }
 
 .NameAndMessage {
 	overflow: hidden;
-  text-overflow: ellipsis;
+  	text-overflow: ellipsis;
 	display: block;
 }
 
@@ -60,9 +60,9 @@ export default {
 	padding-top: 5px;
 
 	white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; 
-  display: block;
+	overflow: hidden;
+	text-overflow: ellipsis; 
+  	display: block;
 }
 
 #LastMessage {
@@ -71,31 +71,31 @@ export default {
 	padding-top: 5px;
 
 	white-space: nowrap;
-  overflow: hidden; 
-  text-overflow: ellipsis;
-  display: block;
+	overflow: hidden; 
+	text-overflow: ellipsis;
+	display: block;
 }
 
 .image-container {
-  padding: 5px;
+	padding: 5px;
 
-  width: 50px;
-  height: 50px;
+	width: 50px;
+	height: 50px;
 
 	min-width: 50px;
 	min-height: 50px;
 
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .image-container img {
-  width: 100%; 
-  height: 100%;
-  object-fit: cover;
+	border-radius: 100%;
+	width: 100%; 
+	height: 100%;
+	object-fit: cover;
 }
 
 </style>

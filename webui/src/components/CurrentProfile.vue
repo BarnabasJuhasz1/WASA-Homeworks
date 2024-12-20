@@ -2,12 +2,29 @@
 <script>
 
 export default {
-  props: ['Username', 'ProfilePicture'],
+  props: {
+    username: {
+      type: String,
+      required: true,
+    },
+    profilePicture: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
     };
   },
-
+  computed: {
+    // Prepend the Base64 string with the required prefix
+    formattedProfilePicture() {
+      if (this.profilePicture) {
+        return `data:image/png;base64,${this.profilePicture}`;
+      }
+      return '';
+    }
+  }
 };
 </script>
 
@@ -17,16 +34,16 @@ export default {
   <div id="ProfileHeaderParent" >
 
 		<div id=ProfilePicture class="image-container">
-				<img :src="ProfilePicture"/>
+			<img :src="formattedProfilePicture"/>
 		</div>
 
     <div id="MyUsername">
-        {{ Username }}
+      {{ username }}
     </div>
-    
-      <div id="settingsDots" class="image-container">
-          <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
-      </div>
+
+    <div id="settingsDots" class="image-container" @click="this.$emit('openOverlayInMode', 'USER', username, this.profilePicture)">
+      <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
+    </div>
 
 	</div>
 
