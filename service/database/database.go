@@ -41,14 +41,18 @@ import (
 
 // AppDatabase is the high level interface for the DB
 type AppDatabase interface {
-	GetUser(username string) (util.User, error)
-	InsertUser(newUser util.User) error
+	GetUser(userID int) (util.User, error)
+	GetUserFromName(username string) (util.User, error)
+	InsertUser(newUser util.User) (int, error)
 	UpdateUser(newUser util.User, oldUsername string) error
 	GetLoggedInUser(w http.ResponseWriter, ctx reqcontext.RequestContext) util.User
+	AddConversationIDToUser(userID int, addToConversationId int) error
 
 	GetConversation(id int) (util.Conversation, error)
 	InsertConversation(newConversation util.Conversation) (int, error)
-	GetMyConversations(username string) ([]util.Conversation, error)
+	GetMyConversationIDs(userID int) ([]int, error)
+	GetMyConversations(userID int) ([]util.Conversation, error)
+	UpdateConversation(id int, conversation util.Conversation) error
 
 	Ping() error
 }
@@ -70,8 +74,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 	if errors.Is(err, sql.ErrNoRows) {
 		fmt.Println("users Table Created")
 		sqlStmt := `CREATE TABLE users (
-					username TEXT NOT NULL PRIMARY KEY,
-					profile_picture TEXT);`
+					id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+					username TEXT,
+					profile_picture TEXT,
+					conversations JSON);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
 			return nil, fmt.Errorf("error creating database structure: %w", err)
@@ -94,18 +100,18 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 		}
 	}
-	err3 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='user_to_conversations'").Scan(&tableName)
-	if errors.Is(err3, sql.ErrNoRows) {
-		fmt.Println("user_to_conversations Table Created")
-		sqlStmt := `CREATE TABLE user_to_conversations (
-					username TEXT NOT NULL PRIMARY KEY,
-					conversations JSON);`
-		_, err3 = db.Exec(sqlStmt)
-		if err3 != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err3)
+	// err3 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='user_to_conversations'").Scan(&tableName)
+	// if errors.Is(err3, sql.ErrNoRows) {
+	// 	fmt.Println("user_to_conversations Table Created")
+	// 	sqlStmt := `CREATE TABLE user_to_conversations (
+	// 				username TEXT NOT NULL PRIMARY KEY,
+	// 				conversations JSON);`
+	// 	_, err3 = db.Exec(sqlStmt)
+	// 	if err3 != nil {
+	// 		return nil, fmt.Errorf("error creating database structure: %w", err3)
 
-		}
-	}
+	// 	}
+	// }
 
 	return &appdbimpl{
 		c: db,

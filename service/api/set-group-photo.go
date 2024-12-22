@@ -16,7 +16,7 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -58,7 +58,8 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 	Conversation.GroupPicture = requestBody.GroupPicture
 
 	// update conversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func setGroupPhoto Finished-----")
 

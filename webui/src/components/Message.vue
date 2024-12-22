@@ -1,11 +1,37 @@
 <script>
+import { sharedData } from '../services/sharedData.js';
+
 export default {
-	props: ['username', 'profilePic', 'content', 'timestamp', 'msgStyle'],
+	props: ['userID', 'convType', 'content', 'timestamp', 'msgStyle'],
 	methods: {
+		async getProfile(userID) {
+
+			const profile = await sharedData.getUserProfile(userID);
+			this.username = profile.Username;
+			this.profilePic = profile.ProfilePicture;
+		},
+		formattedTimestamp() {
+			// Parse the input string
+			const date = new Date(this.timestamp);
+
+			// Extract hours and minutes
+			const hours = String(date.getHours()).padStart(2, '0');
+			const minutes = String(date.getMinutes()).padStart(2, '0');
+
+			// Return the formatted time
+			return `${hours}:${minutes}`;
+		}
+	},
+	data() {
+		return {
+			//username: null,
+			profilePic: null
+		}
 	},
 	mounted() {
-
-  },
+		
+		this.getProfile(this.userID);
+  	},
 	computed: {
 		TimeStyle(){
 			return this.msgStyle.wasSentByUser ? "margin-right: 15px;" : "margin-right: 15px;"
@@ -13,7 +39,7 @@ export default {
 		ExtraSpace(){
 				return this.msgStyle.wasSentByUser ? "display: block; margin-right: 0; margin-left: auto;" : ""
 		},
-    MessageStyle(){
+    	MessageStyle(){
 				//'rgb(255, 221, 70)'
 				//'rgb(255, 209, 0)'
         let bgColor = this.msgStyle.wasSentByUser ? 'rgb(255, 221, 70)' : 'rgb(238, 238, 238)'
@@ -24,8 +50,21 @@ export default {
 				" background-color:" + bgColor + ";" +
 				" text-align:"+ alignment+";"+
 				" font-weight: 400"
-    }
-  }
+    	},
+		formattedProfilePicture() {
+
+			if(this.profilePic == null)
+				return "";
+
+			// const isValidUrl = this.profilePic.startsWith("http");
+
+			// if (isValidUrl) {
+			//	return this.profilePic; // Return URL directly if it's valid
+			// } else {
+				return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
+			//}
+    	},
+  	}
 }
 </script>
 
@@ -34,14 +73,18 @@ export default {
 
 	<div id="Parent">
 
-		<div v-if="!this.msgStyle.wasSentByUser" id="profileImageOfOtherPerson {{content}}" class="image-container">
-				<img :src="this.profilePic"/>
+		<div v-if="!this.msgStyle.wasSentByUser
+					&& this.profilePic != null
+					&& this.convType != 'UserType'"
+			id="profileImageOfOtherPerson {{content}}" class="image-container">
+
+				<img :src="formattedProfilePicture"/>
 		</div>
 
 		<div id= "extraSpace" :style="ExtraSpace"> </div>		
 
 		<div id="ComplexMessage" :style="MessageStyle">
-			<div v-if="!this.msgStyle.wasSentByUser" id="username">
+			<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
 					{{ username }}
 			</div>
 
@@ -50,7 +93,7 @@ export default {
 			</div>
 
 			<div class="time">
-					{{ timestamp }}
+					{{ formattedTimestamp() }}
 			</div>
 		</div>
 

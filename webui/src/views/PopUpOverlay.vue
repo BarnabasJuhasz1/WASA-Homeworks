@@ -10,7 +10,7 @@ export default
         overlayMode: {
             type: String,
             required: true,
-            default: "CREATE_CONVERSATION",
+            default: "USER",
         },
         profileText: {
             type: String,
@@ -32,21 +32,21 @@ export default
         let buttonText = "";
         let showConversationType = false;
 
-        if(props.overlayMode === "USER") {
+        if(props.overlayMode == "USER") {
             titleText = "Edit User";
             buttonText = "Save";
             showConversationType = false;
         }
-        else if (props.overlayMode === "GROUP") {
+        else if (props.overlayMode == "GROUP") {
             titleText = "Edit Group";
             buttonText = "Save";
             showConversationType = false;
         }
-        else if (props.overlayMode === "CREATE_CONVERSATION") {
-            titleText = "Create New Conversation";
-            buttonText = "Create";
-            showConversationType = true;
-        }
+        // else if (props.overlayMode === "CREATE_CONVERSATION") {
+        //     titleText = "Create New Conversation";
+        //     buttonText = "Create";
+        //     showConversationType = true;
+        // }
         else {
             alert("Unsupported operation!");
         }
@@ -62,8 +62,10 @@ export default
     },
     data() {
         return {
+            // always populated for every PopUp
             currentProfileText: null,
             currentProfilePicture: null,
+
         }
     },
     components:{
@@ -80,14 +82,22 @@ export default
         universalButtonClicked() {
             // compare old profile pic and new profile pic
             // compare old username and new username
-            
-            if(this.currentProfileText != null)
-            {
-                this.SetNameOperation(this.currentProfileText)
-            }
-            if(this.currentProfilePicture != null){
-                this.SetPictureOperation(this.currentProfilePicture)
-            }
+             
+            if(this.overlayMode == "USER" || this.overlayMode == "GROUP"){
+                
+                if(this.currentProfileText != null)
+                {
+                    this.SetNameOperation(this.currentProfileText)
+                }
+                if(this.currentProfilePicture != null)
+                {
+                    this.SetPictureOperation(this.currentProfilePicture)
+                }
+            } 
+            // else if (this.overlayMode == "CREATE_CONVERSATION")
+            // {
+            //     this.CreateConversation()
+            // }
         },
         async SetNameOperation(newName) {
             if(this.overlayMode == "USER"){
@@ -95,7 +105,7 @@ export default
                 let response = await this.$axios.put(
                 "http://localhost:3000/user", 
                 // JSON body:
-                {   NewUsername: newName },
+                { NewUsername: newName },
                 // Headers:
                 {
                     headers: {
@@ -103,9 +113,9 @@ export default
                     "Content-Type": "application/json",
                     },
                 }
-                );  
+                );
 
-                // console.log(response.data);
+                console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
                 sharedData.UserSession.Username = response.data;
             }
             else if(this.overlayMode == "GROUP"){
@@ -150,54 +160,6 @@ export default
 
             }
         },
-        //attemps to add the user to the conversation
-        async AddUserToConversation() {
-
-        },
-        async CreateConversationEvent() {
-            
-            if((this.currentGroupNameText).trim() == ""){
-                this.currentGroupNameText = "";
-                return
-            }
-            
-            try {
-                /*let response = await this.$axios.post(
-                "http://localhost:3000/session", 
-                // JSON body:
-                {   Username: this.currentGroupNameText },
-                // Headers:
-                {
-                    headers: {
-                    "Content-Type": "application/json",
-                    },
-                }
-                );
-
-                console.log(response.data);
-                */
-                sharedData.UserSession.Username = response.data.User.Username;
-                sharedData.UserSession.ProfilePicture = response.data.User.ProfilePicture;
-                sharedData.UserSession.SessionToken = response.data.SessionToken;
-   
-                // sharedData.UserSession = {
-                //     Username: response.data.User.Username,
-                //     ProfilePicture: response.data.User.ProfilePicture,
-                //     SessionToken: response.data.SessionToken,
-                // }
-                console.log("User session updated:", sharedData.UserSession.Username);
-
-                
-
-            } catch (e) {
-                console.error(e.toString());
-                
-                alert("Creating conversation attempt failed!")
-
-                // reset textArea input
-                this.currentGroupNameText = "";
-            }
-        },
     },
     computed: {
 
@@ -225,7 +187,12 @@ export default
                     </div>
                 </div>
                 <div v-if="showConversationType" id="GroupSpecific">
-                    <ProfileObject :username="profileText" :profilePicture="profilePicture"/>
+                    <PopUpProfileHeader
+                    :username="profileText"
+                    :profilePicture="profilePicture"
+                    @updateUsername="handleUsernameUpdate" 
+                    @updateProfilePicture="handleProfilePictureUpdate"
+                    />
                 </div>
 
                 <input v-if="showConversationType" type="text" class="basicTextField" v-model="currentLoginUsernameText" placeholder="Enter Username" @keydown.enter="LoginEvent"/>

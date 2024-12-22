@@ -4,15 +4,15 @@ package util
 //instead, in a separate map that maps from username (string) to conversationIds ([]int)
 
 type SessionStruct struct {
-	User User
+	User         User
 	SessionToken string
 }
 
 type User struct {
-	//Id int
-	Username        string
-	ProfilePicture  []byte
-	MyConversations []int
+	Id             int
+	Username       string
+	ProfilePicture []byte
+	// MyConversations []int
 }
 
 type MessageStatus string
@@ -33,7 +33,7 @@ const (
 
 type Message struct {
 	Id        int // Id grows incrementally. if a message gets deleted, the content gets deleted, and the message is flagged.
-	Sender    User
+	Sender    int
 	Content   string
 	Timestamp string
 	Status    MessageStatus
@@ -44,7 +44,7 @@ type Message struct {
 }
 
 type Reaction struct {
-	UserWhoReacted User
+	UserWhoReacted string
 	Type           ReactionType
 	// the content of the reaction. if the reaction is a message, this is a reply and so the content is the message content.
 	// if the reaction is an emoji, this is the encoding of the emoji
@@ -58,7 +58,7 @@ type Conversation struct {
 	GroupName    string
 	GroupPicture []byte
 	// Participants []User
-	Participants []string
+	Participants []int
 	Messages     []Message
 }
 
@@ -70,7 +70,7 @@ type Conversation struct {
 // }
 
 // stores all the conversations of all users. This should only exist in the database...
-var AllConversations = make(map[int]Conversation) // keys grow incrementally
+// var AllConversations = make(map[int]Conversation) // keys grow incrementally
 
 // stores the IDs of the conversations the user is part of
 // the field maps from username to list of conversation IDs

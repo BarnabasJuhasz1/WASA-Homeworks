@@ -34,7 +34,7 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -49,7 +49,7 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 
 	ctx.Logger.Debugln("-----Func getConversation Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(util.AllConversations[Conversation.Id])
+	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

@@ -34,7 +34,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -49,7 +49,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// Read the request body
 	var requestBody struct {
-		UserNameToAdd string `json:"UserNameToAdd"`
+		UserIDToAdd int `json:"UserIDToAdd"`
 	}
 
 	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
@@ -59,9 +59,9 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// userToAdd, userExists := util.AllUsers[requestBody.UserNameToAdd]
-	userToAdd, userExistsError := rt.db.GetUser(requestBody.UserNameToAdd)
+	userToAdd, userExistsError := rt.db.GetUser(requestBody.UserIDToAdd)
 	if userExistsError != nil {
-		ctx.Logger.Debugln("User ", requestBody.UserNameToAdd, " is not in the database!")
+		ctx.Logger.Debugln("User ", requestBody.UserIDToAdd, " is not in the database!")
 
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -85,16 +85,17 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// add user to the group (group's perspective)
-	Conversation.Participants = append(Conversation.Participants, userToAdd.Username)
+	Conversation.Participants = append(Conversation.Participants, userToAdd.Id)
 
 	// add user to the group (user's perspective)
-	userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
+	// userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
 
 	// update users map by reassigning the struct
 	// util.AllUsers[requestBody.UserNameToAdd] = userToAdd
 
 	// update conversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func addToGroup Finished-----")
 	encodeErr := json.NewEncoder(w).Encode(Conversation)

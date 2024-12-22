@@ -14,10 +14,19 @@ export default {
   },
   methods: {
     SelectNewConversation(index){
-      console.log('Received notification at group list: ', index);
+      // console.log('select conversation at group list: ', index);
       /*this.selectedConversationIndex = index*/
       this.$emit("SelectNewConversation", index);
     },
+    GetLastMessage(conversation){
+
+      if(conversation.messages == null || conversation.messages.length == 0) {
+        return null;
+      }
+
+      return conversation.messages[conversation.messages.length-1];
+      // :last-message="conversation.messages[conversation.messages.length-1]"
+    }
   }
 
 };
@@ -29,10 +38,8 @@ export default {
     <div>
       <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="index">
         <Group
+        :conversation="conversation"
         :index="index"
-        :picture="conversation.picture"
-        :name="conversation.name"
-        :last-message="conversation.messages[conversation.messages.length-1]"
         @SelectNewConversationAtGroupList="SelectNewConversation"/>
       </div>
     </div>

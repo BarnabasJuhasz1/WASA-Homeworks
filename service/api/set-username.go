@@ -41,7 +41,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
-	_, userExistsError := rt.db.GetUser(requestBody.NewUsername)
+	_, userExistsError := rt.db.GetUserFromName(requestBody.NewUsername)
 
 	if userExistsError == nil {
 		ctx.Logger.Debugln("Username ", requestBody.NewUsername, " occupied by someone else!")
@@ -62,7 +62,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 
 		dberr := rt.db.UpdateUser(LoggedInUser, oldUserName)
 		if dberr != nil {
-			rt.baseLogger.Errorln("Saving new User into DB error!")
+			rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
 		}
 
 		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")

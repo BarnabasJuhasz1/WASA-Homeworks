@@ -74,24 +74,13 @@ export default {
 }
 
 #MyUsername {
-  color: rgb(146, 146, 146);
+  color: var(--font-light);
 	font-weight: bold;
   font-size: larger;
 
   white-space: nowrap;
   overflow: hidden; 
   text-overflow: ellipsis; 
-  display: block; 
-}
-
-#HeaderMemberCount {
-  color: rgb(146, 146, 146);
-  font-style: italic;
-  font-size: larger;
-
-  white-space: nowrap; 
-  overflow: hidden; 
-  text-overflow: ellipsis;
   display: block; 
 }
 

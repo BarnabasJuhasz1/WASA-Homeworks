@@ -5,23 +5,25 @@ import GroupList from '../components/GroupList.vue';
 import CurrentGroupHeader from '../components/CurrentGroupHeader.vue';
 import CurrentProfile from '../components/CurrentProfile.vue';
 import AddGroup from '../components/AddGroup.vue';
+import axios from "../services/axios.js"
 
 import { sharedData } from '../services/sharedData.js';
 
 export default 
 {
-  props() {
-    // myConversations:{
-
-    // }
+  props: {
+    myConversations:{
+      type: Object,
+      default: null,
+    }
   },
   setup() {
     // Log sharedData.UserSession
     console.log("Accessing UserSession in ConversationsView:", sharedData.UserSession);
 
+
     return {
-      UserSession: sharedData.UserSession, // so we can use it in the template
-      myConversations: props.myConversations,
+      UserSession: sharedData.UserSession, // so we can use it in the template 
     };
   },
   data() {
@@ -30,104 +32,123 @@ export default
 
         showOverlay: false,
         currentMessage: "",
-        selectedConversationIndex : 0,
-        myConversations: [{}]
-        // myConversations : [
-        //     { 
-        //     picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTI0IJvH3PBdBTEwR_UdWYYFkfSOBjHwPoW2g&s",
-        //     name: "Avengers Private",
-        //     messages: [
-        //         { id: 0, username:"Juhasz",
-        //         profilePic: "My profile pic",
-        //         content: "Hello Everyone Im Juhasz! :)",
-        //         timestamp: "10:23",
-        //         sentByUser: true,
-        //         },
-
-        //         { id: 1, username:"Puppy",
-        //         profilePic: "https://plus.unsplash.com/premium_photo-1694819488591-a43907d1c5cc?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D",
-        //         content: "Hello world! I'm a cat!",
-        //         timestamp: "10:23",
-        //         sentByUser: false,
-        //         },
-
-        //         { id: 2, username:"Batman",
-        //         profilePic: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTliobw0pREiVZRDG87AVEolPjxFnAK7V2S4Q&s",
-        //         content: "I'm Batman!",
-        //         timestamp: "10:24",
-        //         sentByUser: false
-        //         },
-        //     ],
-        //     },
-        // ],
+        selectedConversationIndexLocal : 0,
 
         };
     },
     methods: {
         sendMessage(event) {
             if(event)
-            event.preventDefault();
+              event.preventDefault();
 
             if((this.currentMessage).trim() == ""){
-            this.currentMessage = "";
-            return
+              this.currentMessage = "";
+              return
             }
 
             const now = new Date();
 
-            const hours = now.getHours().toString().padStart(2, "0"); // Ensure 2 digits
-            const minutes = now.getMinutes().toString().padStart(2, "0");
-
+            const newID = this.selectedConversation.Messages ? this.selectedConversation.Messages.length : 0
             // create a new message and push it to the messages
             const newMessage = {
-            id: this.selectedConversation.messages.length,
-            username: "You",
-            profilePic: "My profile pic",
-            content: this.currentMessage,
-            timestamp: hours+":"+minutes,
-            sentByUser: true,
+              Id: newID,
+              Sender: sharedData.UserSession.UserID,
+              Content: this.currentMessage,
+              Timestamp: now,
+              SentByUser: true,
             }
-            
-            this.selectedConversation.messages.push(newMessage);
+            console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
+            // send the message content to backend
+            this.sendMessageRequest();
+
+            if (!this.selectedConversation.Messages)
+              this.selectedConversation.Messages = [];
+
+            this.selectedConversation.Messages.push(newMessage);
+            // window.location.reload();
 
             // reset textArea input
             this.currentMessage = "";
 
             this.$nextTick(() => {
-            this.scrollToBottom(); // Scroll after DOM is updated
-            this.adjustHeight(); // Adjust the height of the text area after DOM is updated
+              this.scrollToBottom();
+              this.adjustHeight();
             });
 
         },
+        async sendMessageRequest() {
+          try {
+            console.log("attempting to send messsage: ", this.currentMessage, " to id: ", this.myConversations[this.selectedConversationIndexLocal].Id)
+
+            let response = await axios.post(
+              "http://localhost:3000/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id, 
+              // JSON body:
+              {
+                MessageContent: this.currentMessage,
+              },
+              // Headers:
+              {
+                headers: {
+                  "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            console.log("message sent with response: ", response.data);
+            
+          }
+          catch (error) {
+            console.error("Error sending message! ", error);
+            alert("Error sending message!")
+          }
+        },
         scrollToBottom() {
             const scrollContainer = document.getElementById("MessagesList");
-            scrollContainer.scrollTop = scrollContainer.scrollHeight; // Set scroll position to the bottom
+            // const scrollContainer = this.$refs.messagesList;
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
         },
         resetCurrentText(){
             this.currentMessage = "";
         },
         SelectNewConversationInApp(index){
-            console.log('Received notification:', index);
-            this.selectedConversationIndex = index
+            this.selectedConversationIndexLocal = index
             this.currentMessage = "";
 
             this.$nextTick(() => {
-            this.scrollToBottom(); // Scroll after DOM is updated
-            this.adjustHeight(); // Adjust the height of the text area after DOM is updated
+              this.scrollToBottom();
+              this.adjustHeight();
+
+                const groupHeader = this.$refs.groupHeaderRef;
+                groupHeader.getProfile();
             });
 
         },
         adjustHeight() {
             const textarea = document.getElementById("currentTextArea");
-            textarea.style.height = "auto";
-            textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+            if (textarea) {
+              textarea.style.height = "auto";
+              textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+            }
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
         },
+        onPageRefresh() {
+          this.$nextTick(() => {
+            this.scrollToBottom();
+            this.adjustHeight();
+          });
+        }
     },
     mounted() {
-    this.adjustHeight();
+      // this.$nextTick(() => {
+      //   this.adjustHeight();
+      //   this.scrollToBottom();
+      // });
+      // setTimeout(() => {
+      //   this.scrollToBottom();
+      // }, 100);
     },
     components: {
         MessagesList,
@@ -139,7 +160,8 @@ export default
     computed: {
       selectedConversation()
       {
-        return this.myConversations[this.selectedConversationIndex];
+        return this.myConversations && this.myConversations[this.selectedConversationIndexLocal]
+        ? this.myConversations[this.selectedConversationIndexLocal] : null;
       },
       currentMessageText()
       {
@@ -153,7 +175,7 @@ export default
     <div id="body" class="Flexbox">
         <div id="mainLeft" >
             <div id="groupListParent">
-            <GroupList :conversations="myConversations" @SelectNewConversation="SelectNewConversationInApp"/>
+            <GroupList v-if="myConversations != null" :conversations="myConversations" @SelectNewConversation="SelectNewConversationInApp"/>
             </div>
 
             <div id="AddNewGroup">
@@ -166,18 +188,33 @@ export default
 
             @openOverlayInMode="openOverlayInMode"
             />
-        </div>  
+        </div>
 
         <div id="main">
-            <CurrentGroupHeader id="CurrentGroupHeader"
-            :picture=selectedConversation.picture
-            :group-name=selectedConversation.name
-            :member-count=4
+          <div v-if="myConversations != null">
 
+            <!-- <CurrentGroupHeader
+            id="CurrentGroupHeader"
+            :picture=selectedConversation.GroupPicture
+            :group-name=selectedConversation.GroupName
+            :member-count=selectedConversation.Participants.length
+
+            @openOverlayInMode="openOverlayInMode"
+            /> -->
+            <CurrentGroupHeader
+            id="CurrentGroupHeader"
+            ref="groupHeaderRef"
+            :selectedConversation="selectedConversation"
             @openOverlayInMode="openOverlayInMode"
             />
 
-            <MessagesList id="MessagesList" :textMessages="this.selectedConversation.messages"/>
+            <MessagesList
+            id="MessagesList"
+            ref="messagesList"
+            :textMessages="this.selectedConversation.Messages"
+            :convType="this.selectedConversation.Type"
+            @onPageRefresh="onPageRefresh"
+            />
 
             <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
                 <textarea id="currentTextArea"
@@ -191,10 +228,11 @@ export default
 
                 <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
 
-                    <img src="https://static-00.iconduck.com/assets.00/send-icon-2048x2020-jrvk5f1r.png"/>
+                  <img src="https://static-00.iconduck.com/assets.00/send-icon-2048x2020-jrvk5f1r.png"/>
                 
                 </button>
             </div>
+          </div>
         </div>
 
     </div>
@@ -205,6 +243,7 @@ export default
 body, header, h1 {
   margin: 0;
   padding: 0;
+  
 }
 
 
@@ -252,6 +291,7 @@ body, header, h1 {
   border-radius: 15px;
 
   border: 3px solid rgba(0, 0, 0, .25);
+  
 }
 
 #CurrentGroupHeader {
@@ -269,6 +309,7 @@ body, header, h1 {
   margin-bottom: auto;
   overflow-y: auto;
 
+  height: 50vh;
   /*
   background-color: rgba(255, 0, 0, .25);
   flex-grow: 1;*/

@@ -25,7 +25,7 @@ func GetRandomToken(length int) (string, error) {
 }
 
 // UpdateUsername updates the username associated with a token in the map
-func UpdateUsername(oldUsername, newUsername string) error {
+func UpdateUsername(oldUsername string, newUsername string) error {
 	// Find the token associated with the old username
 	var foundToken string
 	for token, username := range TokenMap {
@@ -40,8 +40,10 @@ func UpdateUsername(oldUsername, newUsername string) error {
 		return errors.New("username not found in token map")
 	}
 
+	// msg := "new assoc. for token: " + foundToken + " is now: " + newUsername + "  (old: " + oldUsername + ")"
+
 	// Update the map with the new username while keeping the token unchanged
 	TokenMap[foundToken] = newUsername
 
-	return nil
+	return nil // errors.New(msg)
 }

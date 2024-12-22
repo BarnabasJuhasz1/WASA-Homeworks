@@ -6,14 +6,15 @@ import (
 )
 
 // GetMyConversations gets all the conversation of a given user
-func (db *appdbimpl) GetMyConversations(username string) ([]util.Conversation, error) {
+func (db *appdbimpl) GetMyConversations(userID int) ([]util.Conversation, error) {
 
 	var returnedMyConversations []util.Conversation
 
 	// get the conversation IDs the user belongs to
 	var myConversationIDsJson []byte
 
-	err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&myConversationIDsJson)
+	//err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&myConversationIDsJson)
+	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&myConversationIDsJson)
 	if err != nil {
 		return returnedMyConversations, err
 	}

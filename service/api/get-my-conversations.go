@@ -21,7 +21,7 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 
 	// 	myConversations = append(myConversations, util.AllConversations[conversationId])
 	// }
-	myConversations, err := rt.db.GetMyConversations(LoggedInUser.Username)
+	myConversations, err := rt.db.GetMyConversations(LoggedInUser.Id)
 	if err != nil {
 		ctx.Logger.Errorln("Failed to retrieve user conversations!", err)
 	}

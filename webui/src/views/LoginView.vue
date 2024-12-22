@@ -35,40 +35,17 @@ export default
                 }
                 );
 
-                // response.data contains the JSON in response body
-
-                // this.$store.commit("setUserSession", {
-                //     Username: response.data.User.Username,
-                //     ProfilePicture: response.data.User.ProfilePicture,
-                //     SessionToken: response.data.SessionToken
-                // });
-
-                
-                // UserSession = {
-                //     Username: response.data.User.Username,
-                //     ProfilePicture: response.data.User.ProfilePicture,
-                //     SessionToken: response.data.SessionToken
-                // };
-
+                // response.data contains JSON
                 console.log(response.data);
 
+                sharedData.UserSession.UserID = response.data.User.Id;
                 sharedData.UserSession.Username = response.data.User.Username;
                 sharedData.UserSession.ProfilePicture = response.data.User.ProfilePicture;
                 sharedData.UserSession.SessionToken = response.data.SessionToken;
 
-                
-                // sharedData.UserSession = {
-                //     Username: response.data.User.Username,
-                //     ProfilePicture: response.data.User.ProfilePicture,
-                //     SessionToken: response.data.SessionToken,
-                // }
-                console.log("User session updated:", sharedData.UserSession.Username);
-
-                // console.log(response.data.User.Username)
-                // console.log(response.data.SessionToken)
+                console.log("User session updated:", sharedData.UserSession.UserID , ":", sharedData.UserSession.Username);
 
                 this.$router.push('/conversations');
-
 
             } catch (e) {
                 console.error(e.toString());

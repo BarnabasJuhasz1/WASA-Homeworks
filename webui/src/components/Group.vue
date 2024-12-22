@@ -1,17 +1,95 @@
 <script>
+import { sharedData } from '../services/sharedData.js';
+
 export default {
-	props: ['index', 'picture', 'name', 'lastMessage'],
+	props: {
+		conversation:{
+			type: Object,
+			required: true,
+			default: null,
+		},
+		index:{
+			required: true,
+		}
+	},
 	emits: ['SelectNewConversationAtGroupList'],
+	data() {
+		return {
+			headerName: null,
+			profilePic: null,
+			lastMessageSender: "",
+		}
+	},
+	mounted() {
+		
+		this.getProfile();
+		//this.setLastMessageSender();
+  	},
 	methods: {
 		SelectThisGroup()
 		{
-			console.log('group should be selected:', this.index);
+			// console.log('select group:', this.index);
 			this.$emit('SelectNewConversationAtGroupList', this.index)
+		},
+		// GetHeaderName() {
+      
+		// 	if(this.conversation.Type == 'GroupType')
+		// 		return conversation.GroupName
+
+		// 	// return the name of the other person in the one-on-one conversation
+		// 	for (let i = 0; i < this.conversation.Participants.length; i++) {
+		// 		let participant = this.conversation.Participants[i];
+		// 		if (participant !== sharedData.UserSession.Username) {
+		// 			return participant;
+		// 		}
+		// 	}
+		// },
+		async getProfile()
+		{
+			if(this.conversation.Type == 'UserType')
+			{
+				for (let i = 0; i < this.conversation.Participants.length; i++)
+				{
+					let participant = this.conversation.Participants[i];
+					if (participant != sharedData.UserSession.UserID)
+					{
+						const profile = await sharedData.getUserProfile(participant);
+						this.headerName = profile.Username;
+            			this.profilePic = profile.ProfilePicture;
+					}
+				}
+			}
+			else
+			{
+        		this.headerName = this.conversation.GroupName;
+				this.profilePic = this.conversation.GroupPicture;
+			}
+		},
+		async setLastMessageSender()
+		{
+			if (this.conversation.Messages == null || this.conversation.Messages.length == 0) {
+				return "";
+			}
+			
+			const sender = this.conversation.Messages[this.conversation.Messages.length-1].Sender;
+			const senderProfile = await sharedData.getUserProfile(sender);
+			this.lastMessageSender = senderProfile.Username;
+			//return senderProfile.Username;
 		}
 	},
 	computed: {
+		formattedProfilePicture() {
+			return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
+    	},
+		getLastMessageContent() {
 
-  }
+			if (this.conversation.Messages == null || this.conversation.Messages.length == 0) {
+				return "";
+			}
+		
+			return (this.conversation.Messages[this.conversation.Messages.length-1]).Content;
+		},
+  	}	
 }
 </script>
 
@@ -21,16 +99,16 @@ export default {
 	<div id="Parent" @click="SelectThisGroup">
 
 		<div class="image-container">
-				<img :src="picture"/>
+			<img :src="formattedProfilePicture"/>
 		</div>
 
 		<div class="NameAndMessage"> 
 			<div id="GroupName">
-					{{ name }}
+				{{ headerName }}
 			</div>
 
 			<div id="LastMessage">
-					{{ lastMessage.username }}: {{ lastMessage.content }}
+				{{ lastMessageSender }}: {{ getLastMessageContent }}
 			</div>
 		</div>
 
@@ -54,7 +132,7 @@ export default {
 }
 
 #GroupName {
-	color: rgb(200, 200, 200);
+	color: var(--font-light);
 	font-weight: bold;
 	padding-right: 5px;
 	padding-top: 5px;
@@ -66,7 +144,7 @@ export default {
 }
 
 #LastMessage {
-	color: rgb(146, 146, 146);
+	color: var(--font-light);
 	padding-right: 5px;
 	padding-top: 5px;
 

@@ -33,13 +33,13 @@ setMyPhoto:
 curl.exe -X PUT http://localhost:3000/user/profilePicture -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"ProfilePicture\": \"0000\"}'
 
 getMyConversations:
-curl.exe -X http://localhost:3000/user/myConversations -H "Authorization: Bearer TOKEN"
+curl.exe http://localhost:3000/user/myConversations -H "Authorization: Bearer TOKEN"
 
 getConversation:
 curl.exe http://localhost:3000/conversation/0 -H "Authorization: Bearer TOKEN"
 
 sendMessage:
-curl.exe -X POST http://localhost:3000/conversation/0 -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"SenderUsername\": \"Juhasz\", \"MessageContent\": \"Hello, World!\"}'
+curl.exe -X POST http://localhost:3000/conversation/0 -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"MessageContent\": \"Hello, World!\"}'
 
 setGroupName:
 curl.exe -X POST http://localhost:3000/conversation/0 -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"GroupName\": \"New Group Name\"}'

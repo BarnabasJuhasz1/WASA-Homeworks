@@ -33,7 +33,7 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -48,18 +48,20 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// delete user from group (group's perspective)
 	// Conversation.Participants = deleteUserFromList(Conversation.Participants, LoggedInUser)
-	Conversation.Participants = deleteUsernameFromList(Conversation.Participants, LoggedInUser.Username)
+	Conversation.Participants = deleteIDFromList(Conversation.Participants, LoggedInUser.Id)
 
 	// delete user from group (users's perspective)
-	LoggedInUser.MyConversations = deleteConversationIdFromList(LoggedInUser.MyConversations, Conversation.Id)
+	// LoggedInUser.MyConversations = deleteConversationIdFromList(LoggedInUser.MyConversations, Conversation.Id)
 	// util.AllUsers[LoggedInUser.Username] = LoggedInUser
 
 	// update the allConversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	//util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func leaveGroup Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(LoggedInUser.MyConversations)
+	// encodeErr := json.NewEncoder(w).Encode(LoggedInUser.MyConversations)
+	encodeErr := json.NewEncoder(w).Encode(LoggedInUser)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)
@@ -83,11 +85,11 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 // 	return updatedUsers
 // }
 
-func deleteUsernameFromList(usernames []string, usernameToDelete string) []string {
-	result := []string{}
-	for _, username := range usernames {
-		if username != usernameToDelete {
-			result = append(result, username)
+func deleteIDFromList(userIDs []int, userIDToDelete int) []int {
+	result := []int{}
+	for _, userID := range userIDs {
+		if userID != userIDToDelete {
+			result = append(result, userID)
 		}
 	}
 	return result

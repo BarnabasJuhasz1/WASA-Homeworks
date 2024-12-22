@@ -19,7 +19,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	// Read the request body
 	var requestBody struct {
 		ConvType     util.ConversationType `json:"ConversationType"`
-		Participants []string              `json:"Participants"`
+		Participants []int                 `json:"Participants"`
 	}
 
 	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
@@ -46,27 +46,27 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	// 	ConversationUsers = append(ConversationUsers, userToAdd)
 	// }
 
-	var ConversationUsers []string
+	var ConversationUsers []int
 	// add the user logged in to the conversation automatically
-	ConversationUsers = append(ConversationUsers, LoggedInUser.Username)
+	ConversationUsers = append(ConversationUsers, LoggedInUser.Id)
 
-	for _, userNameAtI := range requestBody.Participants {
+	for _, userIDAtI := range requestBody.Participants {
 
 		// check if all the users exist, if so, add them to a list
-		userToAdd, userExistsError := rt.db.GetUser(userNameAtI)
+		userToAdd, userExistsError := rt.db.GetUser(userIDAtI)
 		if userExistsError != nil {
-			ctx.Logger.Debugln("User", userNameAtI, "is not in the database!")
+			ctx.Logger.Debugln("User", userIDAtI, "is not in the database!")
 
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		ConversationUsers = append(ConversationUsers, userToAdd.Username)
+		ConversationUsers = append(ConversationUsers, userToAdd.Id)
 	}
 
 	var emptyMessages []util.Message
 	basicPic, _ := util.GetBasicGroupPicture()
-	// create the conversation with all the users
-	conversation := util.Conversation{
+	// create the Conversation with all the users
+	Conversation := util.Conversation{
 		// Id: len(util.AllConversations),
 		// ConversationGroup: util.Group{
 		// 	Participants: ConversationUsers,
@@ -93,16 +93,27 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	// }
 	// add new conversation to conversations map
 
-	id, insertingErr := rt.db.InsertConversation(conversation)
+	id, insertingErr := rt.db.InsertConversation(Conversation)
 	if insertingErr != nil {
 		ctx.Logger.Errorln("Error inserting new conversation into database! ", insertingErr)
 	}
 
-	conversation.Id = id
-	util.AllConversations[conversation.Id] = conversation
+	// map myself to the conversation
+	rt.db.AddConversationIDToUser(LoggedInUser.Id, id)
+
+	// map the other users to the conversation
+	for _, userIDAtI := range requestBody.Participants {
+
+		// ctx.Logger.Debugln("trying to add user: ", userNameAtI, " to conversation ", id)
+		rt.db.AddConversationIDToUser(userIDAtI, id)
+	}
+
+	Conversation.Id = id
+	// util.AllConversations[conversation.Id] = conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func createConversation Finished-----")
-	encodeErr := json.NewEncoder(w).Encode(conversation)
+	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

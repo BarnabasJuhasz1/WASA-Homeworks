@@ -16,7 +16,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 
 		return
@@ -65,7 +65,8 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	// modify conversation by changing the group name
 	Conversation.GroupName = requestBody.GroupName
 	// update the allConversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
 

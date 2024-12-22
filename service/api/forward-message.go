@@ -19,7 +19,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	OriginalConversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	OriginalConversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 
 		return
@@ -55,7 +55,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// make sure the recipient exists in the database as a user
-	Recipient, userExistsError := rt.db.GetUser(requestBody.RecipientUsername)
+	Recipient, userExistsError := rt.db.GetUserFromName(requestBody.RecipientUsername)
 	if userExistsError != nil {
 		ctx.Logger.Debugln("User ", requestBody.RecipientUsername, " is not in the database!")
 
@@ -64,7 +64,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// find the one-on-one conversation you have with the recipient
-	ConvWithRecipient, exists := util.GetOneOnOneConversationWithUser(LoggedInUser, Recipient)
+	ConvWithRecipient, exists := GetOneOnOneConversationWithUser(rt, LoggedInUser, Recipient)
 	if !exists {
 
 		ctx.Logger.Debugln("New conversation created between: ", LoggedInUser.Username, " and ", Recipient.Username)
@@ -73,7 +73,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		var emptyMessages []util.Message
 		// create the conversation with the recipient
 		ConvWithRecipient = util.Conversation{
-			Id: len(util.AllConversations),
+			// Id: len(util.AllConversations),
 			// ConversationGroup: util.Group{
 			// 	Participants: []util.User{Recipient},
 			// 	GroupName:    "New Conversation",
@@ -82,15 +82,15 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 			GroupName: "New Conversation",
 
 			// Participants: []util.User{Recipient},
-			Participants: []string{Recipient.Username},
+			Participants: []int{Recipient.Id},
 			Messages:     emptyMessages,
 		}
 
 		// add the new conversation to the users
-		LoggedInUser.MyConversations = append(LoggedInUser.MyConversations, ConvWithRecipient.Id)
+		// LoggedInUser.MyConversations = append(LoggedInUser.MyConversations, ConvWithRecipient.Id)
 		// util.AllUsers[LoggedInUser.Username] = LoggedInUser
 
-		Recipient.MyConversations = append(Recipient.MyConversations, ConvWithRecipient.Id)
+		// Recipient.MyConversations = append(Recipient.MyConversations, ConvWithRecipient.Id)
 	}
 
 	var emptyReactions []util.Reaction
@@ -98,7 +98,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	// and modify one-on-one conversation by adding the new message
 	ConvWithRecipient.Messages = append(OriginalConversation.Messages, util.Message{
 		Id:              len(ConvWithRecipient.Messages),
-		Sender:          LoggedInUser,
+		Sender:          LoggedInUser.Id,
 		Content:         OriginalConversation.Messages[messageID].Content,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 		Status:          util.UserName,
@@ -107,7 +107,8 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	})
 
 	// update conversations map by reassigning the struct
-	util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
+	//util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
+	rt.db.UpdateConversation(ConvWithRecipient.Id, ConvWithRecipient)
 
 	ctx.Logger.Debugln("-----Func forwardMessage Finished-----")
 
@@ -119,4 +120,29 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+}
+
+// gets the conversation from the path.
+// if the conversation is found, the second value of the tuple will be set to true
+func GetOneOnOneConversationWithUser(rt *_router, userA util.User, userB util.User) (util.Conversation, bool) {
+
+	// loop through all the conversations of userA
+	// for _, userAconvIDi := range userA.MyConversations {
+
+	// 	ConversationAti, existsConv := rt.db.GetConversation(userAconvIDi)
+
+	// 	// make sure conversation exists
+	// 	if existsConv != nil {
+
+	// 		// if it is a one on one conversation
+	// 		if ConversationAti.Type == util.UserType {
+
+	// 			// if the other user matches with userB
+	// 			if ConversationAti.Participants[0] == userB.Username {
+	// 				return ConversationAti, true
+	// 			}
+	// 		}
+	// 	}
+	// }
+	return util.Conversation{}, false
 }

@@ -18,7 +18,7 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -43,7 +43,7 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// make sure you can only delete messages sent by you
-	if Conversation.Messages[messageID].Sender.Username != LoggedInUser.Username {
+	if Conversation.Messages[messageID].Sender != LoggedInUser.Id {
 		ctx.Logger.Debugln("Tried to delete a message not sent by you!")
 
 		w.WriteHeader(http.StatusForbidden)
@@ -53,7 +53,8 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	// delete message content
 	Conversation.Messages[messageID].Content = "Message content was deleted."
 	// update conversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func deleteMessage Finished-----")
 

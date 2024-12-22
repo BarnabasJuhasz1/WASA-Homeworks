@@ -2,28 +2,33 @@
 <script>
 import Message from './Message.vue';
 
+import { sharedData } from '../services/sharedData.js';
+
 export default {
-  props: ['textMessages'],
+  props: ['textMessages', 'convType'],
   components: {
     Message,
   },
+  mounted() {
+    this.$.emit("onPageRefresh");
+  },
   data() {
     return {
+      
     };
   },
   methods: {
-    computedStyle(sentByUser) {
+    computedStyle(message) {
       let color = 'black'
       let size = 0.9;
 
       return {
         color: color,
         fontSize: size,
-        wasSentByUser: sentByUser,
+        wasSentByUser: message.Sender == sharedData.UserSession.UserID,
       };
     },
   }
-
 };
 </script>
 
@@ -32,11 +37,13 @@ export default {
   <div class="custom-scrollbar">
     <div id="mainList" v-for="(message, index) in textMessages" :key="index">
       <Message
-      :username="message.username"
-      :profile-pic="message.profilePic"
-      :content="message.content"
-      :timestamp="message.timestamp"
-      :msgStyle="computedStyle(message.sentByUser)" 
+      
+      :userID="message.Sender"
+      :convType="this.convType"
+      :content="message.Content"
+      :timestamp="message.Timestamp"
+      :msgStyle="computedStyle(message)" 
+      
       />
       
     </div>

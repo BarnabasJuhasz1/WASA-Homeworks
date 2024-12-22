@@ -1,13 +1,72 @@
 
 <script>
+import { sharedData } from '../services/sharedData.js';
 
 export default {
-  props: ['picture', 'groupName', 'memberCount'],
-  data() {
-    return {
-    };
+  props: {
+    selectedConversation: {
+      type: Object,
+      required: true,
+      default: null,
+    }
   },
+  data() {
+		return {
+      headerName: null,
+			profilePic: null
+		}
+	},
+	mounted() {
+		this.getProfile();
+  },
+  methods: {
+    // GetHeaderName() {
+      
+    //   if(this.selectedConversation.Type == 'GroupType')
+    //     return this.selectedConversation.GroupName
 
+    //   // return the name of the other person in the one-on-one conversation
+    //   for (let i = 0; i < this.selectedConversation.Participants.length; i++) {
+    //     let participant = this.selectedConversation.Participants[i];
+    //     if (participant !== sharedData.UserSession.Username) {
+    //         return participant;
+    //     }
+    //   }
+    // },
+    async getProfile()
+		{
+			if(this.selectedConversation.Type == 'UserType')
+			{
+				for (let i = 0; i < this.selectedConversation.Participants.length; i++)
+				{
+					let participant = this.selectedConversation.Participants[i];
+					if (participant != sharedData.UserSession.UserID)
+					{
+						const profile = await sharedData.getUserProfile(participant);
+						this.headerName = profile.Username;
+            this.profilePic = profile.ProfilePicture;
+					}
+				}
+			}
+			else
+			{
+        this.headerName = this.selectedConversation.GroupName;
+				this.profilePic = this.selectedConversation.GroupPicture;
+			}
+		},
+  },
+	computed: {
+		formattedProfilePicture() {
+			// const isValidUrl = this.selectedConversation.GroupPicture.startsWith("http");
+
+			// if (isValidUrl) {
+			// 	return this.selectedConversation.GroupPicture; // Return URL directly if it's valid
+			// } else {
+			// 	return `data:image/png;base64,${this.selectedConversation.GroupPicture}`; // Return formatted Base64 string
+			// }
+      return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
+    },
+  }	
 };
 </script>
 
@@ -17,22 +76,27 @@ export default {
   <div id="HeaderParent">
 
 		<div id=HeaderPicture class="image-container">
-				<img :src="picture"/>
+				<img :src="formattedProfilePicture"/>
 		</div>
 
     <div class="NameAndMessage">
     
       <div id="HeaderGroupName">
-          {{ groupName }}
+          {{ headerName }}
       </div>
 
-      <div id="HeaderMemberCount">
-          {{ memberCount }} members
+      <div id="HeaderMemberCount" v-if="this.selectedConversation.Type != 'UserType'">
+          {{ this.selectedConversation.Participants.length }} members
       </div>
 
     </div>
     
-    <div id="settingsDots" class="image-container" @click="this.$emit('openOverlayInMode', 'GROUP', groupName, picture)">
+    <div id="settingsDots" class="image-container"
+      v-if="this.selectedConversation.Type != 'UserType'"
+      @click="this.$emit('openOverlayInMode',
+                          'GROUP',
+                          this.selectedConversation.GroupName,
+                          this.selectedConversation.GroupPicture)">
         <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
     </div>
 
@@ -59,7 +123,8 @@ export default {
 }
 
 #HeaderGroupName {
-  color: rgb(200, 200, 200);
+  /*color: rgb(200, 200, 200);*/
+  color: var(--font-light);
 	font-weight: bold;
   font-size: xx-large;
 
@@ -70,7 +135,7 @@ export default {
 }
 
 #HeaderMemberCount {
-  color: rgb(146, 146, 146);
+  color: var(--font-light);
   font-style: italic;
   font-size: larger;
 

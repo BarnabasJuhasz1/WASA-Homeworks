@@ -15,7 +15,8 @@ func (db *appdbimpl) InsertConversation(newConversation util.Conversation) (int,
 	}
 
 	// Serialize the []Messages slice (the messages)
-	messagesJson, jsonErr2 := json.Marshal(newConversation.Messages)
+	// messagesJson, jsonErr2 := json.Marshal(newConversation.Messages)
+	messagesJson, jsonErr2 := json.Marshal([]util.Message{})
 	if jsonErr2 != nil {
 		return 0, jsonErr2
 	}

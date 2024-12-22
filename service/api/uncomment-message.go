@@ -18,7 +18,7 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -45,7 +45,7 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 		// if the user has a reaction to this message already, replace that reaction with the new one
-		if ReactionAti.UserWhoReacted.Username == LoggedInUser.Username {
+		if ReactionAti.UserWhoReacted == LoggedInUser.Username {
 
 			// remove your emoji reactions from the list of emoji reactions
 			Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions[:i], Conversation.Messages[messageID].EmojiReactions[i+1:]...)
@@ -62,7 +62,8 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	}
 
 	// update conversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func uncommentMessage Finished-----")
 

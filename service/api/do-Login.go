@@ -3,9 +3,11 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 
+	"sapienza/wasatext/service/api/reqcontext"
 	"sapienza/wasatext/service/api/util"
 )
 
@@ -36,7 +38,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	user, userExistsError := rt.db.GetUser(requestBody.Username)
+	user, userExistsError := rt.db.GetUserFromName(requestBody.Username)
 
 	if userExistsError == nil {
 
@@ -56,10 +58,12 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			ProfilePicture: basicPic,
 		}
 		// save new user in the database
-		dberr := rt.db.InsertUser(user)
+		userID, dberr := rt.db.InsertUser(user)
 		if dberr != nil {
 			rt.baseLogger.Errorln("Saving new User into DB error!")
 		}
+
+		user.Id = userID
 
 		util.TokenMap[_token] = user.Username
 		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
@@ -78,4 +82,33 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+}
+
+// gets the conversation from the path.
+// if there is an error, the second value of the tuple will be set to true
+func GetConversationFromPath(rt *_router, w http.ResponseWriter, ps httprouter.Params, ctx reqcontext.RequestContext) (util.Conversation, bool) {
+
+	conversationIDString := ps.ByName("ConversationID")
+
+	// make sure the conversationID is correct
+	conversationID, convErr := strconv.Atoi(conversationIDString)
+	if convErr != nil || conversationID < 0 { //|| messageID > len() {
+		ctx.Logger.Debugln("Invalid conversationID in path! ", convErr)
+
+		w.WriteHeader(http.StatusBadRequest)
+		return util.Conversation{}, true
+	}
+
+	// make sure the conversation exists
+	//ConversationStruct, existsConv := AllConversations[conversationID]
+	ConversationStruct, existsConv := rt.db.GetConversation(conversationID)
+
+	if existsConv != nil {
+		ctx.Logger.Debugln("Invalid conversationID in path! ", existsConv)
+
+		w.WriteHeader(http.StatusBadRequest)
+		return util.Conversation{}, true
+	}
+
+	return ConversationStruct, false
 }

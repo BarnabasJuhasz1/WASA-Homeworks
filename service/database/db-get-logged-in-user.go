@@ -14,7 +14,7 @@ func (db *appdbimpl) GetLoggedInUser(w http.ResponseWriter, ctx reqcontext.Reque
 	}
 
 	var returnedUser util.User
-	err := db.c.QueryRow("SELECT username, profile_picture FROM users WHERE username = ?", ctx.UserID).Scan(&returnedUser.Username, &returnedUser.ProfilePicture)
+	err := db.c.QueryRow("SELECT id, username, profile_picture FROM users WHERE username = ?", ctx.UserID).Scan(&returnedUser.Id, &returnedUser.Username, &returnedUser.ProfilePicture)
 
 	if err != nil {
 		ctx.Logger.Warningln("User with ID: ", ctx.UserID, " requested but not found in database!")

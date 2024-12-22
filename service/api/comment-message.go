@@ -20,7 +20,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
 	// get the conversation from path
-	Conversation, convErr := util.GetConversationFromPath(w, ps, ctx)
+	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
 		return
 	}
@@ -57,7 +57,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	// create the instance of the reaction struct
 	ReactionToMake := util.Reaction{
-		UserWhoReacted: LoggedInUser,
+		UserWhoReacted: LoggedInUser.Username,
 		Type:           requestBody.TypeOfReaction,
 		Content:        requestBody.ContentOfReaction,
 	}
@@ -69,7 +69,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 			// if the user has a reaction to this message already, replace that reaction with the new one
-			if ReactionAti.UserWhoReacted.Username == LoggedInUser.Username {
+			if ReactionAti.UserWhoReacted == LoggedInUser.Username {
 
 				// replace old reaction content with new one
 				ReactionAti.Content = ReactionToMake.Content
@@ -92,7 +92,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		// and add it to the conversation
 		Conversation.Messages = append(Conversation.Messages, util.Message{
 			Id:              len(Conversation.Messages),
-			Sender:          LoggedInUser,
+			Sender:          LoggedInUser.Id,
 			Content:         ReactionToMake.Content,
 			Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 			Status:          util.UserName,
@@ -102,7 +102,8 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// update conversations map by reassigning the struct
-	util.AllConversations[Conversation.Id] = Conversation
+	// util.AllConversations[Conversation.Id] = Conversation
+	rt.db.UpdateConversation(Conversation.Id, Conversation)
 
 	ctx.Logger.Debugln("-----Func commentMessage Finished-----")
 

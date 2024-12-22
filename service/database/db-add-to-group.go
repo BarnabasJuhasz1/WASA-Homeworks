@@ -1,14 +1,18 @@
 package database
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
-// AddToGroup updates the user_to_group table which maps users to conversation IDs
-func (db *appdbimpl) AddToGroup(username string, addToConversationId int) error {
+// AddConversationIDToUser updates the users table conversations column which maps users to conversation IDs
+func (db *appdbimpl) AddConversationIDToUser(userID int, addToConversationId int) error {
 
 	var oldConversationIDsJson []byte
 
+	// fmt.Println("trying to add user: ", username, " to conversation: ", addToConversationId)
 	// get the current conversation IDs
-	err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
+	//err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
+	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&oldConversationIDsJson)
 	if err != nil {
 		return err
 	}
@@ -27,7 +31,8 @@ func (db *appdbimpl) AddToGroup(username string, addToConversationId int) error 
 		return jsonErr
 	}
 
-	_, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
+	//_, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
+	_, err2 := db.c.Exec("UPDATE users SET conversations = ? WHERE id = ?", conversationIDsJson, userID)
 
 	return err2
 }

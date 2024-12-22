@@ -1,11 +1,51 @@
 <script>
 import ConversationsView from "./ConversationsView.vue";
 import PopUpOverlay from "./PopUpOverlay.vue";
+import CreatePopUpOverlay from "./CreatePopUpOverlay.vue";
+import axios from "../services/axios.js"
+import {ref} from "vue";
+import { sharedData } from '../services/sharedData.js';
 
 export default {
   components: {
     ConversationsView,
     PopUpOverlay,
+    CreatePopUpOverlay,
+  },
+  setup() {
+    const myFetchedConversations = ref(null);
+
+    // console.log("TOKEN: ", sharedData.UserSession.SessionToken)
+    // Define a method
+    const GetMyConversations = async () => {
+      try {
+        let response = await axios.get(
+          "http://localhost:3000/user/myConversations", 
+          // Headers:
+          {
+            headers: {
+            "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+            },
+          }
+        );
+
+        // console.log("myconversations ", response.data);
+        myFetchedConversations.value = response.data;
+        
+        //this.myFetchedConversations2 = response.data;
+      }
+      catch (error) {
+        console.error("Error fetching conversations! ", error);
+        alert("Error fetching conversations!")
+      }
+    };
+
+    // Call the method
+    GetMyConversations();
+
+    return {
+      myFetchedConversations
+    };
   },
   data() {
     return {
@@ -17,7 +57,7 @@ export default {
   },
   methods: {
     openOverlayInMode(mode, profileText, profilePicture) {
-      console.log("grandpa user: ", profileText)
+      // console.log("grandparent user: ", profileText)
       // set the overlay mode enum ["USER", "GROUP", "CREATE_CONVERSATION"]
       this.overlayMode = mode;
       this.overlayProfileText = profileText;
@@ -37,20 +77,33 @@ export default {
     <div>
 
       <div class="background">
-        <ConversationsView @openOverlayInMode="openOverlayInMode"/>
+        <ConversationsView
+        @openOverlayInMode="openOverlayInMode"
+        :myConversations="myFetchedConversations"/>
       </div>
   
       <div v-if="showOverlay" class="overlay">
-       
+      
         <div class="blurEffect" @click="closeOverlay()"></div>
 
-        <PopUpOverlay
+        <PopUpOverlay v-if="overlayMode!='CREATE_CONVERSATION'"
           :overlayMode="overlayMode"
           :profileText="overlayProfileText"
           :profilePicture="overlayProfilePicture"
+          conversationID="0"
           @closeOverlay="closeOverlay"
           style="z-index: 1001;"
         />
+
+        <CreatePopUpOverlay v-if="overlayMode=='CREATE_CONVERSATION'"
+          :profileText="overlayProfileText"
+          :profilePicture="overlayProfilePicture"
+          conversationID="0"
+          @closeOverlay="closeOverlay"
+          style="z-index: 1001;"
+        />
+
+
       </div>
     </div>
   </template>
