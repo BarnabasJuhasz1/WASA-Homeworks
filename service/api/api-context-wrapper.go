@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -37,11 +36,11 @@ func (rt *_router) wrap(fn httpRouterHandler) func(http.ResponseWriter, *http.Re
 			"remote-ip": r.RemoteAddr,
 		})
 
-		if logger, ok := rt.baseLogger.(*logrus.Logger); ok {
-			fmt.Println("Log level:", logger.GetLevel())
-		} else {
-			fmt.Println("baseLogger is not a *logrus.Logger")
-		}
+		// if logger, ok := rt.baseLogger.(*logrus.Logger); ok {
+		// 	fmt.Println("Log level:", logger.GetLevel())
+		// } else {
+		// 	fmt.Println("baseLogger is not a *logrus.Logger")
+		// }
 
 		// Extract and validate the Authorization header
 		authHeader := r.Header.Get("Authorization")
@@ -85,10 +84,9 @@ func validateToken(token string) (string, error) {
 		return userID, nil
 	}
 
-	for key, val := range util.TokenMap {
-		fmt.Println("token: ", key, " Username: ", val)
-	}
+	// for key, val := range util.TokenMap {
+	// 	fmt.Println("token: ", key, " Username: ", val)
+	// }
 
 	return "", errors.New("invalid token")
 }
-

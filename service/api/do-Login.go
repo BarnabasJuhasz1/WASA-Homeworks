@@ -69,7 +69,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
 	}
 
-	//fmt.Println("-----Func doLogin Finished-----")
+	// fmt.Println("-----Func doLogin Finished-----")
 	loggedInUserStruct := util.SessionStruct{
 		User:         user,
 		SessionToken: _token,
@@ -100,7 +100,7 @@ func GetConversationFromPath(rt *_router, w http.ResponseWriter, ps httprouter.P
 	}
 
 	// make sure the conversation exists
-	//ConversationStruct, existsConv := AllConversations[conversationID]
+	// ConversationStruct, existsConv := AllConversations[conversationID]
 	ConversationStruct, existsConv := rt.db.GetConversation(conversationID)
 
 	if existsConv != nil {

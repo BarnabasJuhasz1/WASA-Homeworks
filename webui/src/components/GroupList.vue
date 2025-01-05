@@ -61,6 +61,7 @@ export default {
   background-color: rgba(0, 0, 0, .25);
   border-radius: 15px;
   margin-bottom: 5px;
+
   /*margin-left: 5px;
   margin-right: 5px;*/
 }

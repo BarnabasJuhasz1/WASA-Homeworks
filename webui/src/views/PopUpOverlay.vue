@@ -228,6 +228,7 @@ export default
     min-width: 300px;
     width: 40vw;
     max-width: 500px;
+    
     height: 25vh;
 }
 
@@ -241,7 +242,7 @@ export default
     margin-bottom: 5px;
     background-color: rgba(0, 0, 0, .5);
     border: 2px solid rgba(0, 0, 0, .25);
-    color: rgb(146, 146, 146);
+    color: var(--font-light);
     font-size: x-large;
     font-weight: bold;
     text-align: center;
@@ -296,7 +297,7 @@ export default
     font-size: larger;
     outline: 0;
 
-    color: rgb(255, 255, 255);
+    color: var(--font-light);
 
     border-radius: 5px;
     border: 3px solid rgba(0, 0, 0, .25);
@@ -306,7 +307,7 @@ export default
 }
 
 .usernameTextField::placeholder {
-    color: rgb(200, 200, 200);
+    color: var(--font-light);
 }
 
 

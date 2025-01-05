@@ -20,6 +20,14 @@ export default {
     const editableUsername = ref(props.username);
     const editableProfilePicture = ref(props.profilePicture);
 
+    watch(() => props.username, (newValue) => {
+      editableUsername.value = newValue;
+    });
+
+    watch(() => props.profilePicture, (newValue) => {
+      editableProfilePicture.value = newValue;
+    });
+
     watch(editableUsername, (newValue) => {
       emit("updateUsername", newValue)
     });

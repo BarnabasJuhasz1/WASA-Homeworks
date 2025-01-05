@@ -1,4 +1,5 @@
 <script>
+import { ref } from 'vue'
 import { sharedData } from '../services/sharedData.js';
 
 export default {
@@ -7,6 +8,7 @@ export default {
 		async getProfile(userID) {
 
 			const profile = await sharedData.getUserProfile(userID);
+			console.log("for message content: ", this.content, " the found sender: ", profile.Username)
 			this.username = profile.Username;
 			this.profilePic = profile.ProfilePicture;
 		},
@@ -24,10 +26,11 @@ export default {
 	},
 	data() {
 		return {
-			//username: null,
+			username: null,
 			profilePic: null
 		}
 	},
+
 	mounted() {
 		
 		this.getProfile(this.userID);
@@ -42,7 +45,7 @@ export default {
     	MessageStyle(){
 				//'rgb(255, 221, 70)'
 				//'rgb(255, 209, 0)'
-        let bgColor = this.msgStyle.wasSentByUser ? 'rgb(255, 221, 70)' : 'rgb(238, 238, 238)'
+        let bgColor = this.msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)'
 				let alignment = this.msgStyle.wasSentByUser ? 'right' : 'left'
 
         return 'color:' + this.msgStyle.color +';' +
@@ -130,24 +133,24 @@ export default {
 }
 
 #ComplexMessage{
-		display: inline-block; /* Makes the div size fit its content */
-		/*border: 2px solid rgba(0, 0, 0, .25);
-		background-color: rgba(0, 0, 0, .25);*/
-		border-radius: 15px;
-		padding-left: 8px;
-		padding-right: 8px;
-		padding-top: 5px;
-		padding-bottom: 5px;
-		margin-bottom: 5px;
+	display: inline-block; /* Makes the div size fit its content */
+	/*border: 2px solid rgba(0, 0, 0, .25);
+	background-color: rgba(0, 0, 0, .25);*/
+	border-radius: 15px;
+	padding-left: 8px;
+	padding-right: 8px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-bottom: 5px;
 
-		max-width: 75%;
+	max-width: 75%;
 }
 
 .message {
 	display: inline-block; /* Makes the div size fit its content */
 
-  word-break: break-word; /* Breaks long words */
-  overflow-wrap: break-word; /* Modern equivalent for word-wrap */
+  	word-break: break-word; /* Breaks long words */
+  	overflow-wrap: break-word; /* Modern equivalent for word-wrap */
 
 }
 </style>

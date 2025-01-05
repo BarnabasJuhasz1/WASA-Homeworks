@@ -31,8 +31,9 @@ export const sharedData = reactive({
         },
       });
 
+      console.log("user with id: ", userID, "fetched: ", response.data)
       return response.data;
-
+      
     } catch (e) {
       console.error('Error fetching user:', e);
       alert('Fetching other user attempt failed!');
@@ -41,7 +42,7 @@ export const sharedData = reactive({
 
   async getUserProfile(userID) {
     if (this.userProfileCache[userID]) {
-      // console.log('Cache hit for', userID);
+      console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
       return this.userProfileCache[userID];
     }
 

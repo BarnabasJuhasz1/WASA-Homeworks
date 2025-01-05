@@ -173,13 +173,15 @@ export default
 
 <template>
     <div id="body" class="Flexbox">
-        <div id="mainLeft" >
-            <div id="groupListParent">
-            <GroupList v-if="myConversations != null" :conversations="myConversations" @SelectNewConversation="SelectNewConversationInApp"/>
+        <div id="mainLeft">
+            <div id="groupListParent" class="custom-scrollbar">
+              <GroupList v-if="myConversations != null"
+              :conversations="myConversations"
+              @SelectNewConversation="SelectNewConversationInApp"/>
             </div>
 
             <div id="AddNewGroup">
-            <AddGroup @openOverlayInMode="openOverlayInMode"/>
+              <AddGroup @openOverlayInMode="openOverlayInMode"/>
             </div>
           
             <CurrentProfile
@@ -213,6 +215,7 @@ export default
             ref="messagesList"
             :textMessages="this.selectedConversation.Messages"
             :convType="this.selectedConversation.Type"
+            :refreshKey="this.selectedConversationIndexLocal"
             @onPageRefresh="onPageRefresh"
             />
 
@@ -240,35 +243,21 @@ export default
 
 <style>
 
-body, header, h1 {
-  margin: 0;
-  padding: 0;
-  
-}
-
-
-#header {
-  padding-top: 1rem;
-	text-align: center;
-	height: 4rem;
-  color: rgb(146, 146, 146);
-}
 
 #mainLeft {
   display: block; 
   margin-left: auto;
-  height: 70vh;
-  margin-top: 25px;
-  width: 20vw;
-
+  margin-top: -105px;
+  width: 200px;
+  height: calc(85vh - 105px);
 }
 
 #groupListParent {
   display: block; 
   margin-left: auto;
   padding: 5px;
-  margin-top: 6px;
-  height: calc(70vh - 65px - 46px);
+  /*height: calc(70vh - 65px - 46px);*/
+  height: 100%;
   border-radius: 15px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
@@ -276,28 +265,32 @@ body, header, h1 {
 
   border: 3px solid rgba(0, 0, 0, .25);
   border-bottom: 0px;
+
+  overflow-y: auto;
 }
 
 #main{
   display: flex; 
-  margin-top: auto;
+  /*margin-top: auto;*/
   margin-right: auto;
   padding: 5px;
   flex-direction: column;
   background-color: rgba(0, 0, 0, .25);
   /*height: calc(70vh - 6px);*/
-  height: calc(70vh - 6px);
+
+  
   width: 70vw;
   border-radius: 15px;
 
   border: 3px solid rgba(0, 0, 0, .25);
-  
+  height: calc(85vh);
 }
 
 #CurrentGroupHeader {
   display: flex;
   height: 75px;
   min-height: 75px;
+  max-height: 75px;
 
   background-color: rgba(0, 0, 0, .5);
   margin-bottom: 5px;
@@ -309,7 +302,9 @@ body, header, h1 {
   margin-bottom: auto;
   overflow-y: auto;
 
-  height: 50vh;
+  /*height: 50vh;*/
+
+  height: calc(85vh - 150px);
   /*
   background-color: rgba(255, 0, 0, .25);
   flex-grow: 1;*/
@@ -324,7 +319,6 @@ body, header, h1 {
   display: flex;
   align-items: center;
   gap: 5px;
-  
 }
 
 
@@ -332,7 +326,6 @@ body, header, h1 {
   width: 100%;
   /*height: 15px;*/
   max-height: 100px;
-
 
   margin: 0;
   margin-top: 5px;
@@ -347,15 +340,16 @@ body, header, h1 {
 
   box-sizing: border-box; 
 
-  background-color: rgb(75, 75, 75);
+  background-color: var( --message-box);
   outline: none;
 
-  color: rgb(255, 255, 255);
+  /*color: var(--font-light);*/
+  color: rgb(0, 0, 0)
 
 }
 
 #currentTextArea::placeholder {
-    color: rgb(200, 200, 200);
+    color: rgb(0, 0, 0);
 }
 
 .sendButtonImageContainer {
@@ -396,12 +390,6 @@ body, header, h1 {
   margin-top: auto;
   margin-bottom: 0;
 }
-
-#pageFooter {
-	height: 10vh;
-  color: rgb(146, 146, 146);
-}
-
 
 
 

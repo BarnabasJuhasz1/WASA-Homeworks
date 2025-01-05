@@ -15,16 +15,14 @@ export default {
       default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
     },
     editable: {
-      type: String,
+      type: Boolean,
       required: true,
       default: true,
     },
     size: {
-      required: true,
       default: 1,
     },
     isInContainer: {
-      required: true,
       default: false,
     },
   },
@@ -130,13 +128,11 @@ export default {
   margin-left: auto;
   margin-right: auto;
 
-  color: aliceblue;
-
-  
+  color: var(--font-light);  
 }
 
 #ProfileName {
-  color: rgb(146, 146, 146);
+  color: var(--font-light);
 	font-weight: bold;
   font-size: larger;
   max-height: 50px;

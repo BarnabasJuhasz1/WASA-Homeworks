@@ -29,7 +29,7 @@ export default {
           }
         );
 
-        // console.log("myconversations ", response.data);
+        console.log("myconversations ", response.data);
         myFetchedConversations.value = response.data;
         
         //this.myFetchedConversations2 = response.data;
@@ -44,7 +44,8 @@ export default {
     GetMyConversations();
 
     return {
-      myFetchedConversations
+      myFetchedConversations,
+      GetMyConversations,
     };
   },
   data() {
@@ -65,19 +66,31 @@ export default {
       // enable the overlay
       this.showOverlay = true;
     },
-    closeOverlay() {
+    async closeOverlay() {
       // disable the overlay
       this.showOverlay = false;
+
+      const convCount = this.myFetchedConversations.length;
+
+      await this.GetMyConversations();
+
+      // if the overlay is closed because a new conversation was added,#
+      // we switch to that conversation
+      if(convCount != this.myFetchedConversations.length)
+      {
+        const conversationsView = this.$refs.ConversationsViewRef;
+        conversationsView.SelectNewConversationInApp(this.myFetchedConversations.length-1);
+      }
     }
   },
 };
 </script>
 
-<template>
-    <div>
+<template >
+    <div style="height: 85vh">
 
-      <div class="background">
-        <ConversationsView
+      <div class="background" style="height: 100%;">
+        <ConversationsView ref="ConversationsViewRef"
         @openOverlayInMode="openOverlayInMode"
         :myConversations="myFetchedConversations"/>
       </div>
@@ -111,12 +124,10 @@ export default {
   <style>
 
   .background {
-    height: 100vh;
-    display: flex;
+    display: block;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #f0f8ff;
   }
   
   .overlay {

@@ -32,7 +32,6 @@ export default {
   border-radius: 15px;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-  background-color: rgba(0, 0, 0, .5);
   height: 40px;
 
   border: 3px solid rgba(0, 0, 0, .25);;

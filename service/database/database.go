@@ -33,7 +33,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 	"sapienza/wasatext/service/api/reqcontext"
 	"sapienza/wasatext/service/api/util"
@@ -72,7 +71,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	var tableName string
 	err := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").Scan(&tableName)
 	if errors.Is(err, sql.ErrNoRows) {
-		fmt.Println("users Table Created")
+		// fmt.Println("users Table Created")
 		sqlStmt := `CREATE TABLE users (
 					id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 					username TEXT,
@@ -80,13 +79,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 					conversations JSON);`
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err)
+			return nil, errors.New("error creating database structure: TABLE users")
 
 		}
 	}
 	err2 := db.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name='conversations'").Scan(&tableName)
 	if errors.Is(err2, sql.ErrNoRows) {
-		fmt.Println("conversations Table Created")
+		// fmt.Println("conversations Table Created")
 		sqlStmt := `CREATE TABLE conversations (
 					id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 					type TEXT NOT NULL,
@@ -96,7 +95,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 					Messages JSON);`
 		_, err2 = db.Exec(sqlStmt)
 		if err2 != nil {
-			return nil, fmt.Errorf("error creating database structure: %w", err2)
+			return nil, errors.New("error creating database structure: TABLE conversations")
 
 		}
 	}

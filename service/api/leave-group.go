@@ -18,7 +18,7 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// conversationIDString := ps.ByName("ConversationID")
 
-	// //Check conversationID in path
+	// Check conversationID in path
 	// conversationID, err := strconv.Atoi(conversationIDString)
 	// if err != nil || conversationID < 0 {
 	// 	fmt.Println("Invalid conversationID in path! ", err)

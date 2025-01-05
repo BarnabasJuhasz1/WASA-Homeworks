@@ -5,7 +5,7 @@ import Message from './Message.vue';
 import { sharedData } from '../services/sharedData.js';
 
 export default {
-  props: ['textMessages', 'convType'],
+  props: ['refreshKey', 'textMessages', 'convType'],
   components: {
     Message,
   },
@@ -35,7 +35,7 @@ export default {
 
 <template>
   <div class="custom-scrollbar">
-    <div id="mainList" v-for="(message, index) in textMessages" :key="index">
+    <div id="mainList" v-for="(message) in textMessages" :key="message.Sender && message.Content && message.Timestamp">
       <Message
       
       :userID="message.Sender"

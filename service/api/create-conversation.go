@@ -22,7 +22,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		Participants []int                 `json:"Participants"`
 	}
 
-	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
+	requestErr := json.NewDecoder(r.Body).	Decode(&requestBody)
 	if requestErr != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return

@@ -62,7 +62,6 @@ export default {
   margin-top: 5px;
 
   border: 3px solid rgba(0, 0, 0, .25);
-  background-color: rgba(0, 0, 0, .25);
 }
 
 #ProfilePicture {

@@ -18,7 +18,7 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 
 	// conversationIDString := ps.ByName("ConversationID")
 
-	// //fmt.Println("User ", username, " sucessfully received its conversations!")
+	// fmt.Println("User ", username, " sucessfully received its conversations!")
 	// conversationID, err := strconv.Atoi(conversationIDString)
 	// if err != nil || conversationID < 0 {
 	// 	fmt.Println("Invalid conversationID in path! ", err)
