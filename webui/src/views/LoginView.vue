@@ -24,7 +24,7 @@ export default
             // UserData = await this.GetUserData();
             try {
                 let response = await this.$axios.post(
-                "http://localhost:3000/session", 
+                "/session", 
                 // JSON body:
                 {   Username: this.currentLoginUsernameText },
                 // Headers:

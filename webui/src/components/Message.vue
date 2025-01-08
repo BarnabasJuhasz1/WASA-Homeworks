@@ -8,7 +8,7 @@ export default {
 		async getProfile(userID) {
 
 			const profile = await sharedData.getUserProfile(userID);
-			console.log("for message content: ", this.content, " the found sender: ", profile.Username)
+			// console.log("for message content: ", this.content, " the found sender: ", profile.Username)
 			this.username = profile.Username;
 			this.profilePic = profile.ProfilePicture;
 		},

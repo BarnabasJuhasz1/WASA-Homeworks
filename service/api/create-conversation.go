@@ -18,11 +18,13 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 
 	// Read the request body
 	var requestBody struct {
-		ConvType     util.ConversationType `json:"ConversationType"`
-		Participants []int                 `json:"Participants"`
+		ConvType            util.ConversationType `json:"ConversationType"`
+		Participants        []int                 `json:"Participants"`
+		ConversationName    string                `json:"ConversationName"`
+		ConversationPicture []byte                `json:"ConversationPicture"`
 	}
 
-	requestErr := json.NewDecoder(r.Body).	Decode(&requestBody)
+	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if requestErr != nil {
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
@@ -64,7 +66,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	var emptyMessages []util.Message
-	basicPic, _ := util.GetBasicGroupPicture()
+	// basicPic, _ := util.GetBasicGroupPicture()
 	// create the Conversation with all the users
 	Conversation := util.Conversation{
 		// Id: len(util.AllConversations),
@@ -75,8 +77,8 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		// },
 
 		Type:         requestBody.ConvType,
-		GroupName:    "New Group",
-		GroupPicture: basicPic,
+		GroupName:    requestBody.ConversationName,
+		GroupPicture: requestBody.ConversationPicture,
 		Participants: ConversationUsers,
 		Messages:     emptyMessages,
 	}

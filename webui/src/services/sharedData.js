@@ -23,7 +23,7 @@ export const sharedData = reactive({
 
   async fetchUserProfile(userID) {
     try {
-      const response = await axios.get('http://localhost:3000/user', {
+      const response = await axios.get('/user', {
         params: { UserID: userID },
         headers: {
           Authorization: 'Bearer ' + this.UserSession.SessionToken,
@@ -31,7 +31,7 @@ export const sharedData = reactive({
         },
       });
 
-      console.log("user with id: ", userID, "fetched: ", response.data)
+      // console.log("user with id: ", userID, "fetched: ", response.data)
       return response.data;
       
     } catch (e) {
@@ -42,7 +42,7 @@ export const sharedData = reactive({
 
   async getUserProfile(userID) {
     if (this.userProfileCache[userID]) {
-      console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
+      // console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
       return this.userProfileCache[userID];
     }
 

@@ -81,7 +81,7 @@ export default
             console.log("attempting to send messsage: ", this.currentMessage, " to id: ", this.myConversations[this.selectedConversationIndexLocal].Id)
 
             let response = await axios.post(
-              "http://localhost:3000/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id, 
+              "/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id, 
               // JSON body:
               {
                 MessageContent: this.currentMessage,

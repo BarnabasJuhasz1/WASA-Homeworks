@@ -89,7 +89,8 @@ export default {
 		
 			return (this.conversation.Messages[this.conversation.Messages.length-1]).Content;
 		},
-  	}	
+	
+  	}
 }
 </script>
 
@@ -107,7 +108,7 @@ export default {
 				{{ headerName }}
 			</div>
 
-			<div id="LastMessage">
+			<div id="LastMessage" v-if="getLastMessageContent != ''">
 				{{ lastMessageSender }}: {{ getLastMessageContent }}
 			</div>
 		</div>

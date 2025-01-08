@@ -95,15 +95,15 @@ func deleteIDFromList(userIDs []int, userIDToDelete int) []int {
 	return result
 }
 
-func deleteConversationIdFromList(conversationsOfUser []int, conversationToLeave int) []int {
-	var updatedConversations []int
+// func deleteConversationIdFromList(conversationsOfUser []int, conversationToLeave int) []int {
+// 	var updatedConversations []int
 
-	for _, conversationId := range conversationsOfUser {
-		// we only add the user to the new list if it has a different name then the user to delete
-		if conversationId != conversationToLeave {
-			updatedConversations = append(updatedConversations, conversationId)
-		}
-	}
+// 	for _, conversationId := range conversationsOfUser {
+// 		// we only add the user to the new list if it has a different name then the user to delete
+// 		if conversationId != conversationToLeave {
+// 			updatedConversations = append(updatedConversations, conversationId)
+// 		}
+// 	}
 
-	return updatedConversations
-}
+// 	return updatedConversations
+// }

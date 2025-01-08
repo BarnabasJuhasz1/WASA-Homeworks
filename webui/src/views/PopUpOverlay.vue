@@ -103,7 +103,7 @@ export default
             if(this.overlayMode == "USER"){
 
                 let response = await this.$axios.put(
-                "http://localhost:3000/user", 
+                "/user", 
                 // JSON body:
                 { NewUsername: newName },
                 // Headers:
@@ -121,7 +121,7 @@ export default
             else if(this.overlayMode == "GROUP"){
 
                 let response = await this.$axios.put(
-                "http://localhost:3000/conversation/"+this.conversationID, 
+                "/conversation/"+this.conversationID, 
                 // JSON body:
                 {   GroupName: newName },
                 // Headers:
@@ -133,7 +133,7 @@ export default
                 }
                 );  
 
-                // console.log(response.data);
+                console.log("RESPONSE to change group name: ", response.data);
                 sharedData.UserSession.Username = response.data;
             }
         },
@@ -141,7 +141,7 @@ export default
             if(this.overlayMode == "USER"){
                 // http://localhost:3000/user -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"NewUsername\": \"NewJuhasz\"}'
                 let response = await this.$axios.put(
-                "http://localhost:3000/user/profilePicture", 
+                "/user/profilePicture", 
                 // JSON body:
                 {   ProfilePicture: newPicture },
                 // Headers:

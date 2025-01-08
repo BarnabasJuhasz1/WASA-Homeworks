@@ -5,12 +5,14 @@ import CreatePopUpOverlay from "./CreatePopUpOverlay.vue";
 import axios from "../services/axios.js"
 import {ref} from "vue";
 import { sharedData } from '../services/sharedData.js';
+import EditGroupPopUp from "./EditGroupPopUp.vue";
 
 export default {
   components: {
     ConversationsView,
     PopUpOverlay,
     CreatePopUpOverlay,
+    EditGroupPopUp,
   },
   setup() {
     const myFetchedConversations = ref(null);
@@ -20,7 +22,7 @@ export default {
     const GetMyConversations = async () => {
       try {
         let response = await axios.get(
-          "http://localhost:3000/user/myConversations", 
+          "/user/myConversations", 
           // Headers:
           {
             headers: {
@@ -54,6 +56,8 @@ export default {
       overlayMode: "",
       overlayProfileText: "",
       overlayProfilePicture: "",
+      participants: [],
+      participantIDs: [],
     };
   },
   methods: {
@@ -66,11 +70,17 @@ export default {
       // enable the overlay
       this.showOverlay = true;
     },
+    openOverlayInGroupMode(mode, profileText, profilePicture, participants, participantIDs)
+    {
+      this.openOverlayInMode(mode, profileText, profilePicture);
+      this.participants = participants;
+      this.participantIDs = participantIDs;
+    },
     async closeOverlay() {
       // disable the overlay
       this.showOverlay = false;
 
-      const convCount = this.myFetchedConversations.length;
+      const convCount = this.myFetchedConversations ? this.myFetchedConversations.length : 0;
 
       await this.GetMyConversations();
 
@@ -99,11 +109,20 @@ export default {
       
         <div class="blurEffect" @click="closeOverlay()"></div>
 
-        <PopUpOverlay v-if="overlayMode!='CREATE_CONVERSATION'"
+        <PopUpOverlay v-if="overlayMode=='USER'"
           :overlayMode="overlayMode"
           :profileText="overlayProfileText"
           :profilePicture="overlayProfilePicture"
           conversationID="0"
+          @closeOverlay="closeOverlay"
+          style="z-index: 1001;"
+        />
+
+        <EditGroupPopUp v-if="overlayMode=='GROUP'"
+          :overlayMode="overlayMode"
+          :profileText="overlayProfileText"
+          :profilePicture="overlayProfilePicture"
+          :participants="0"
           @closeOverlay="closeOverlay"
           style="z-index: 1001;"
         />
