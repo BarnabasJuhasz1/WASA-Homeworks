@@ -38,7 +38,7 @@ paths:
                   type: string
                   description: "a unique identifier of the user"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -56,7 +56,7 @@ paths:
                     # or any other type of identifier
                     type: string
                     example: "Maria"
-                    pattern: "ˆ.*?$"
+                    pattern: "ˆ.*$"
                     minLength: 1
                     maxLength: 100
                     
@@ -80,7 +80,7 @@ paths:
                   type: string
                   description: "a unique identifier of the user"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -179,7 +179,7 @@ paths:
                   type: string
                   description: "the content of the message"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 1
                   maxLength: 10000
         required: true
@@ -209,7 +209,7 @@ paths:
                   type: string
                   description: "new name for the group"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -260,7 +260,7 @@ paths:
                   type: string
                   description: "User to add to the group"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 3
                   maxLength: 16
         required: true
@@ -314,7 +314,7 @@ paths:
                   description: "The recipient of the message to be forwarded"
                   type: string
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 3
                   maxLength: 16
       responses:
@@ -346,7 +346,7 @@ paths:
                     - EmojiReaction
                     - MessageReaction
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 1
                   maxLength: 7
                 Content: 
@@ -355,7 +355,7 @@ paths:
                                 this is a reply and so the content is the message content; |
                                 If the reaction is an emoji, this is the encoding of the emoji"
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 1
                   maxLength: 10000
         required: true
@@ -439,7 +439,7 @@ paths:
                     - UserType
                     - GroupType
                   example: "Maria"
-                  pattern: "ˆ.*?$"
+                  pattern: "ˆ.*$"
                   minLength: 1
                   maxLength: 5
                 Participants:
@@ -449,7 +449,7 @@ paths:
                     description: "a list of usernames"
                     type: string
                     example: "Maria"
-                    pattern: "ˆ.*?$"
+                    pattern: "ˆ.*$"
                     minLength: 1
                     maxLength: 16
                   minItems: 1
@@ -475,7 +475,7 @@ components:
           description: "a unique identifier of the user"
           type: string
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 16
         Profile Picture:
@@ -500,7 +500,7 @@ components:
           description: "the content of the message"
           type: string
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1 #the message has to be at least one character
           maxLength: 2000 #limiting the max message length
           
@@ -519,7 +519,7 @@ components:
             - DoubleCheckmark
             - Username
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 10000
         Reactions:
@@ -545,14 +545,14 @@ components:
             - EmojiReaction
             - MessageReaction
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 10000
         Content:
           description: "the content of reaction, can be either a message or the encoding of an emoji"
           type: string
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 10000
         
@@ -574,7 +574,7 @@ components:
           description: "name of the group"
           type: string
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 3
           maxLength: 20
         Group Picture:
@@ -595,7 +595,7 @@ components:
             the unique Group ID of the group"
           type: string
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 10000
         ConversationGroup:
@@ -614,7 +614,7 @@ components:
             - UserType
             - GroupType
           example: "Maria"
-          pattern: "ˆ.*?$"
+          pattern: "ˆ.*$"
           minLength: 1
           maxLength: 5
         Messages:
@@ -644,7 +644,7 @@ components:
     #  description: "Unique Username"
     #  schema:
     #    type: string
-    #    pattern: 'ˆ.*?$'
+    #    pattern: 'ˆ.*$'
     #    minLength: 3
     #    maxLength: 20
     #    readOnly: true
@@ -657,7 +657,7 @@ components:
         description: "Unique ID for the conversation"
         type: string
         example: "Maria"
-        pattern: "ˆ.*?$"
+        pattern: "ˆ.*$"
         minLength: 1
         maxLength: 10000
         readOnly: true
@@ -667,6 +667,7 @@ components:
     MessageID:
       description: "Message ID that is unique in the scope of a conversation"
       schema:
+        description: "Message ID that is unique in the scope of a conversation"
         type: integer
         readOnly: true
       name: MessageID
