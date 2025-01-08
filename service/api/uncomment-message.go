@@ -63,7 +63,12 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 
 	// update conversations map by reassigning the struct
 	// util.AllConversations[Conversation.Id] = Conversation
-	rt.db.UpdateConversation(Conversation.Id, Conversation)
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func uncommentMessage Finished-----")
 

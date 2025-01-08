@@ -66,7 +66,12 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	Conversation.GroupName = requestBody.GroupName
 	// update the allConversations map by reassigning the struct
 	// util.AllConversations[Conversation.Id] = Conversation
-	rt.db.UpdateConversation(Conversation.Id, Conversation)
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
 

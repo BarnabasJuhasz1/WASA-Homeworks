@@ -107,8 +107,13 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 	})
 
 	// update conversations map by reassigning the struct
-	//util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
-	rt.db.UpdateConversation(ConvWithRecipient.Id, ConvWithRecipient)
+	// util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
+	dberr := rt.db.UpdateConversation(ConvWithRecipient.Id, ConvWithRecipient)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func forwardMessage Finished-----")
 

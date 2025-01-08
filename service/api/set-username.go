@@ -54,7 +54,10 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		// Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
 		LoggedInUser.Username = requestBody.NewUsername
 		ctx.UserID = requestBody.NewUsername
-		util.UpdateUsername(oldUserName, requestBody.NewUsername)
+		updateErr := util.UpdateUsername(oldUserName, requestBody.NewUsername)
+		if updateErr != nil {
+			rt.baseLogger.Errorln("Error updating token of user after name change! ", updateErr)
+		}
 		// add same user with the new name
 		// util.AllUsers[requestBody.NewUsername] = LoggedInUser
 		// delete old entry in users
@@ -63,6 +66,8 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		dberr := rt.db.UpdateUser(LoggedInUser, oldUserName)
 		if dberr != nil {
 			rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")

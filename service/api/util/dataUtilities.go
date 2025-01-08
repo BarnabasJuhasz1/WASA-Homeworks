@@ -1,7 +1,7 @@
 package util
 
-//we should not store info of which conversation a user is part of inside the user struct
-//instead, in a separate map that maps from username (string) to conversationIds ([]int)
+// we should not store info of which conversation a user is part of inside the user struct
+// instead, in a separate map that maps from username (string) to conversationIds ([]int)
 
 type SessionStruct struct {
 	User         User

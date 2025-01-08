@@ -31,7 +31,7 @@ func (db *appdbimpl) AddConversationIDToUser(userID int, addToConversationId int
 		return jsonErr
 	}
 
-	//_, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
+	// _, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
 	_, err2 := db.c.Exec("UPDATE users SET conversations = ? WHERE id = ?", conversationIDsJson, userID)
 
 	return err2

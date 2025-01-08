@@ -105,9 +105,9 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	ctx.Logger.Debugln("id: ", conversationID, " participants: ", Conversation.Participants)
 
-	updateConvErr := rt.db.UpdateConversation(conversationID, Conversation)
-	if updateConvErr != nil {
-		ctx.Logger.Errorln("Error updating conversation: ", updateConvErr)
+	dberr := rt.db.UpdateConversation(conversationID, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

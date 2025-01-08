@@ -101,18 +101,33 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	// map myself to the conversation
-	rt.db.AddConversationIDToUser(LoggedInUser.Id, id)
+	dbAddErr := rt.db.AddConversationIDToUser(LoggedInUser.Id, id)
+	if dbAddErr != nil {
+		ctx.Logger.Errorln("Failed to add user to conversation:", dbAddErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// map the other users to the conversation
 	for _, userIDAtI := range requestBody.Participants {
 
 		// ctx.Logger.Debugln("trying to add user: ", userNameAtI, " to conversation ", id)
-		rt.db.AddConversationIDToUser(userIDAtI, id)
+		dbAddErr = rt.db.AddConversationIDToUser(userIDAtI, id)
+		if dbAddErr != nil {
+			ctx.Logger.Errorln("Failed to add user to conversation:", dbAddErr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 
 	Conversation.Id = id
 	// util.AllConversations[conversation.Id] = conversation
-	rt.db.UpdateConversation(Conversation.Id, Conversation)
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func createConversation Finished-----")
 	encodeErr := json.NewEncoder(w).Encode(Conversation)

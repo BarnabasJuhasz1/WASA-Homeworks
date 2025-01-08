@@ -12,7 +12,7 @@ func (db *appdbimpl) GetMyConversationIDs(userID int) ([]int, error) {
 	// get the conversation IDs the user belongs to
 	var myConversationIDsJson []byte
 
-	//err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&myConversationIDsJson)
+	// err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&myConversationIDsJson)
 	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&myConversationIDsJson)
 	if err != nil {
 		return returnedMyConversationIDs, err

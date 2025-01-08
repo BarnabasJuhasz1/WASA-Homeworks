@@ -34,7 +34,13 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	LoggedInUser.ProfilePicture = requestBody.ProfilePicture
-	rt.db.UpdateUser(LoggedInUser, LoggedInUser.Username)
+	dberr := rt.db.UpdateUser(LoggedInUser, LoggedInUser.Username)
+	if dberr != nil {
+		rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 	// util.AllUsers[UserLoggedIn.Username] = UserLoggedIn
 
 	ctx.Logger.Debugln("-----Func setMyPhoto Finished-----")

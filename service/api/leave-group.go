@@ -55,8 +55,13 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// util.AllUsers[LoggedInUser.Username] = LoggedInUser
 
 	// update the allConversations map by reassigning the struct
-	//util.AllConversations[Conversation.Id] = Conversation
-	rt.db.UpdateConversation(Conversation.Id, Conversation)
+	// util.AllConversations[Conversation.Id] = Conversation
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func leaveGroup Finished-----")
 

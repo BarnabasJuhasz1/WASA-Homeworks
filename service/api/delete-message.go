@@ -54,7 +54,12 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	Conversation.Messages[messageID].Content = "Message content was deleted."
 	// update conversations map by reassigning the struct
 	// util.AllConversations[Conversation.Id] = Conversation
-	rt.db.UpdateConversation(Conversation.Id, Conversation)
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	ctx.Logger.Debugln("-----Func deleteMessage Finished-----")
 

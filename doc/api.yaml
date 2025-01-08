@@ -493,6 +493,7 @@ components:
           description: "message id that is unique in the scope of a conversation"
           type: integer
         Sender:
+          description: "the user of the person who sent the message"
           allOf:
             - $ref: "#/components/schemas/User"
             - description: "the user of the person who sent the message"
@@ -535,6 +536,7 @@ components:
       type: object
       properties:
         UserWhoReacted:
+          description: "The user who made the reaction"
           allOf:
             - $ref: "#/components/schemas/User"
             - description: "The user who made the reaction"
@@ -555,14 +557,20 @@ components:
           pattern: "ˆ.*$"
           minLength: 1
           maxLength: 10000
-        
-    Group:
-      description: "Object representing a Group of users"
+          
+    Conversation:
+      description: "Object representing a conversation"
       type: object
       properties:
-        Group ID:
-          description: "unique ID for the group"
-          type: integer
+        id:
+          description: "identifier of a conversation, which is either
+            the unique username of the other person or
+            the unique Group ID of the group"
+          type: string
+          example: "Maria"
+          pattern: "ˆ.*$"
+          minLength: 1
+          maxLength: 10000
         Participants:
           description: "users in the group"
           type: array
@@ -583,30 +591,6 @@ components:
           format: binary
           minLength: 1
           maxLength: 100
-          
-    Conversation:
-      description: "Object representing a conversation"
-      type: object
-      properties:
-        id:
-          description: |
-            "identifier of a conversation, which is either
-            the unique username of the other person or
-            the unique Group ID of the group"
-          type: string
-          example: "Maria"
-          pattern: "ˆ.*$"
-          minLength: 1
-          maxLength: 10000
-        ConversationGroup:
-          allOf:
-            - $ref: "#/components/schemas/Group"
-            - description: |
-                "the group that has this conversation,
-                if this is a single one-to-one conversation,
-                then the group will only be consisting of two people.
-                The group name, picture, and participants returned by backend
-                will match the person that the client has a conversation with." 
         ConversationType:
           description: "type of conversation, either with a single person or a group"
           type: string
@@ -636,21 +620,11 @@ components:
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
+      description: "Bearer authentication"
       type: http
       scheme: bearer
   
   parameters:
-    #Username:
-    #  description: "Unique Username"
-    #  schema:
-    #    type: string
-    #    pattern: 'ˆ.*$'
-    #    minLength: 3
-    #    maxLength: 20
-    #    readOnly: true
-    #  name: Username
-    #  in: path
-    #  required: true
     ConversationID:
       description: "Unique ID for the conversation"
       schema:

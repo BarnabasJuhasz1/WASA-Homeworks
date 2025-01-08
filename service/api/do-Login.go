@@ -61,6 +61,8 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		userID, dberr := rt.db.InsertUser(user)
 		if dberr != nil {
 			rt.baseLogger.Errorln("Saving new User into DB error!")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		user.Id = userID
