@@ -17,12 +17,11 @@ export default
             required: true,
             default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
         },
-        participants: 
+        inspectingConversation: 
         {
             type: Object,
             required: true,
-            default: [],
-        }
+        },
     },
     setup(props) {
 
@@ -33,11 +32,17 @@ export default
             currentProfileText: this.profileText,
             currentProfilePicture: this.profilePicture,
             // only populated for createConversation:
-            currentParticipantIDs: [],
+        
+            currentParticipantIDs: this.inspectingConversation.Participants,
             currentParticipants: [],
+
+            newParticipantIDs: [],
 
             currentUsernameToAddText: "",
         }
+    },
+    mounted(){
+        this.GetUsersOfConversation()
     },
     components:{
         ProfileObject,
@@ -45,6 +50,13 @@ export default
         ParticipantsList,
     },
     methods: {
+        async GetUsersOfConversation() {
+            for (let i = 0; i < this.inspectingConversation.Participants.length; i++)
+            {
+                let userProfile = await sharedData.getUserProfile(this.inspectingConversation.Participants[i])
+                this.currentParticipants.push(userProfile)
+            }
+        },
         handleUsernameUpdate(value) {
             this.currentProfileText = value;
         },
@@ -52,14 +64,27 @@ export default
             this.currentProfilePicture = value;
         },
         universalButtonClicked() {
-            // compare old profile pic and new profile pic
-            // compare old username and new username
+            // compare old group name and new group name
+            if(this.currentProfileText != this.inspectingConversation.GroupName)
+            {
+                this.SetConversationName()
+            }
 
-            this.CreateConversation()
+            // compare old group pic and new group pic
+            if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
+            {
+                this.SetConversationPicture()
+            }
+
+            // check if there are any new participants added
+            for (let i = 0; i < this.newParticipantIDs.length; i++)
+            {
+                this.AddUserRequest(this.newParticipantIDs[i])
+            }
             
         },
         //attemps to add the user to the conversation
-        async AddUserToConversation() {
+        async AddUserToConversationLocal() {
 
             // make http request to make sure user to add exist in database
             try {
@@ -96,9 +121,15 @@ export default
                     }
                 }
 
+                // add the user to the current group editing UI
                 this.currentParticipantIDs.push(response.data.Id)
+                this.newParticipantIDs.push(response.data.Id)
+
                 this.currentParticipants.push(response.data)
-             
+            
+                // actually add the user to the conversation
+                // this.inspectingConversation.Participants.push(response.data.Id)
+
                 if(this.currentConversationType == "UserType"){
                     this.currentProfileText = response.data.Username
                     this.currentProfilePicture = response.data.ProfilePicture
@@ -140,24 +171,13 @@ export default
             }
             return formattedProfilePic;
         },
-        async CreateConversation() {
-            
-            if((this.currentParticipantIDs).length == 0){
-                return
-            }
-
-            let formattedProfilePic = await this.GetFormattedPicture();
-            console.log(this.currentProfileText)
-            console.log(formattedProfilePic)
+        async SetConversationName() {
             try {
-                let response = await this.$axios.post(
-                "/create/conversation", 
+                let response = await this.$axios.put(
+                "/conversation/"+this.inspectingConversation.Id, 
                 // JSON body:
                 {
-                    ConversationType: this.currentConversationType, // either UserType or GroupType
-                    Participants: this.currentParticipantIDs, // list of usernames
-                    ConversationName: this.currentProfileText,
-                    ConversationPicture: formattedProfilePic,
+                    GroupName: this.currentProfileText,
                 },
                 // Headers:
                 {
@@ -169,15 +189,78 @@ export default
                 );
 
                 console.log(response.data);
+                // this.inspectingConversation.GroupName = this.currentProfileText;
+
+                // this.$emit('updateGroup', this.inspectingConversation);
+                this.$emit('closeOverlay');
+
+            } catch (e) {
+                console.error(e.toString());         
+                alert("Updating conversation name failed!")
+            }
+        },
+        async SetConversationPicture() {
+
+            let formattedProfilePic = await this.GetFormattedPicture();
+
+            try {
+                let response = await this.$axios.put(
+                "/conversation/"
+                +this.inspectingConversation.Id
+                +"/groupPicture", 
+                // JSON body:
+                {
+                    GroupPicture: formattedProfilePic,
+                },
+                // Headers:
+                {
+                    headers: {
+                        "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                console.log(response.data);
+                // this.inspectingConversation.GroupPicture = formattedProfilePic;
+
+                // this.$emit('updateGroup', this.inspectingConversation)
                 this.$emit('closeOverlay')
 
             } catch (e) {
                 console.error(e.toString());
                 
-                alert("Creating conversation attempt failed!")
+                alert("Adding user to conversation failed!")
+            }
+        },
+        async AddUserRequest(userID) {
+            try {
+                let response = await this.$axios.put(
+                "/conversation/"
+                +this.inspectingConversation.Id
+                +"/add", 
+                // JSON body:
+                {
+                    UserIDToAdd: userID,
+                },
+                // Headers:
+                {
+                    headers: {
+                        "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
 
-                // reset textArea input
-                this.currentGroupNameText = "";
+                console.log(response.data);
+                // this.inspectingConversation.GroupName = this.currentProfileText;
+
+                // this.$emit('updateGroup', this.inspectingConversation);
+                this.$emit('closeOverlay');
+
+            } catch (e) {
+                console.error(e.toString());         
+                alert("Updating conversation name failed!")
             }
         },
     },
@@ -215,7 +298,7 @@ export default
                         class="basicTextField"
                         v-model="currentUsernameToAddText"
                         placeholder="Invite Username"
-                        @keydown.enter="AddUserToConversation"
+                        @keydown.enter="AddUserToConversationLocal"
                     />
                 </div>
 

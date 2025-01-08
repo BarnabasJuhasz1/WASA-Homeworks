@@ -21,7 +21,6 @@ export default
     // Log sharedData.UserSession
     console.log("Accessing UserSession in ConversationsView:", sharedData.UserSession);
 
-
     return {
       UserSession: sharedData.UserSession, // so we can use it in the template 
     };
@@ -57,7 +56,7 @@ export default
               Timestamp: now,
               SentByUser: true,
             }
-            console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
+            // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
             // send the message content to backend
             this.sendMessageRequest();
 
@@ -78,7 +77,7 @@ export default
         },
         async sendMessageRequest() {
           try {
-            console.log("attempting to send messsage: ", this.currentMessage, " to id: ", this.myConversations[this.selectedConversationIndexLocal].Id)
+            // console.log("attempting to send messsage: ", this.currentMessage, " to id: ", this.myConversations[this.selectedConversationIndexLocal].Id)
 
             let response = await axios.post(
               "/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id, 
@@ -95,7 +94,7 @@ export default
               }
             );
 
-            console.log("message sent with response: ", response.data);
+            // console.log("message sent with response: ", response.data);
             
           }
           catch (error) {
@@ -133,6 +132,9 @@ export default
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
+        },
+        openOverlayInGroupMode(conversation){
+          this.$emit("openOverlayInGroupMode", conversation);
         },
         onPageRefresh() {
           this.$nextTick(() => {
@@ -207,7 +209,7 @@ export default
             id="CurrentGroupHeader"
             ref="groupHeaderRef"
             :selectedConversation="selectedConversation"
-            @openOverlayInMode="openOverlayInMode"
+            @openOverlayInGroupMode="openOverlayInGroupMode"
             />
 
             <MessagesList

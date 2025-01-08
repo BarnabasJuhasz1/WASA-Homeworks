@@ -27,21 +27,21 @@ export default {
     },
   },
   setup(props) {
-    console.log("username is ", props.username);
+    // console.log("username is ", props.username);
     const editableUsername = ref(props.username);
 
      watch(editableUsername, (newValue) => {
-      console.log("updated value: ", newValue)
+      // console.log("updated value: ", newValue)
       emit("update:username", newValue);
     });
 
-    console.log("editable username is: ", editableUsername.value)
-    //editableUsername = props.username;
+    // console.log("editable username is: ", editableUsername.value)
+    // editableUsername = props.username;
     return { editableUsername };
   },
   data() {
     return {
-      //editableUsername: username,
+      // editableUsername: username,
     };
   },
   computed: {
@@ -80,7 +80,7 @@ export default {
           :style="{ height: `${50 * size}px`, fontSize: `${18 * size}px` }"
           />
 
-    <div v-if="!editable" text id="ProfileName" :style="{ height: `${50 * size}px`, width: `${50 * size}px` }">
+    <div v-if="!editable" text id="ProfileName" :style="{ height: `${50 * size}px`, width: `${200 * size}px` }">
         {{ editableUsername }}
     </div>
   

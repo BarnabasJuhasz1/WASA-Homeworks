@@ -33,6 +33,9 @@ export default {
     //     }
     //   }
     // },
+    check(){
+      console.log("header touched")
+    },
     async getProfile()
 		{
 			if(this.selectedConversation.Type == 'UserType')
@@ -93,10 +96,7 @@ export default {
     
     <div id="settingsDots" class="image-container"
       v-if="this.selectedConversation.Type != 'UserType'"
-      @click="this.$emit('openOverlayInMode',
-                          'GROUP',
-                          this.selectedConversation.GroupName,
-                          this.selectedConversation.GroupPicture)">
+      @click="this.$emit('openOverlayInGroupMode', this.selectedConversation)">
         <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
     </div>
 

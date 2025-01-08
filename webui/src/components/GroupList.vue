@@ -3,7 +3,12 @@
 import Group from './Group.vue';
 
 export default {
-  props: ['conversations'],
+  props:{
+    conversations: {
+      type: Object,
+      required: true,
+    },
+  },
   emits: ['SelectNewConversation'],
   components: {
     Group,
@@ -36,7 +41,7 @@ export default {
 <template>
   <div>
     <div>
-      <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="index">
+      <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="`${conversation.GroupName}-${conversation.GroupPicture}-${index}`">
         <Group
         :conversation="conversation"
         :index="index"

@@ -56,8 +56,7 @@ export default {
       overlayMode: "",
       overlayProfileText: "",
       overlayProfilePicture: "",
-      participants: [],
-      participantIDs: [],
+      inspectingConversation: null,
     };
   },
   methods: {
@@ -70,11 +69,10 @@ export default {
       // enable the overlay
       this.showOverlay = true;
     },
-    openOverlayInGroupMode(mode, profileText, profilePicture, participants, participantIDs)
+    openOverlayInGroupMode(conversation)
     {
-      this.openOverlayInMode(mode, profileText, profilePicture);
-      this.participants = participants;
-      this.participantIDs = participantIDs;
+      this.openOverlayInMode("GROUP", conversation.GroupName, conversation.GroupPicture);
+      this.inspectingConversation = conversation
     },
     async closeOverlay() {
       // disable the overlay
@@ -91,6 +89,15 @@ export default {
         const conversationsView = this.$refs.ConversationsViewRef;
         conversationsView.SelectNewConversationInApp(this.myFetchedConversations.length-1);
       }
+      else
+      {
+        const conversationsView = this.$refs.ConversationsViewRef;
+        conversationsView.SelectNewConversationInApp(this.selectedConversationIndexLocal);
+      }
+    },
+    updateGroup(conversation){
+      console.log("yes update group to be : ", conversation)
+      this.myFetchedConversations[this.selectedConversationIndexLocal] = conversation
     }
   },
 };
@@ -102,6 +109,7 @@ export default {
       <div class="background" style="height: 100%;">
         <ConversationsView ref="ConversationsViewRef"
         @openOverlayInMode="openOverlayInMode"
+        @openOverlayInGroupMode="openOverlayInGroupMode"
         :myConversations="myFetchedConversations"/>
       </div>
   
@@ -122,8 +130,9 @@ export default {
           :overlayMode="overlayMode"
           :profileText="overlayProfileText"
           :profilePicture="overlayProfilePicture"
-          :participants="0"
+          :inspectingConversation="inspectingConversation"
           @closeOverlay="closeOverlay"
+          @updateGroup="updateGroup"
           style="z-index: 1001;"
         />
 
