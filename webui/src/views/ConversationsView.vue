@@ -7,6 +7,8 @@ import CurrentProfile from '../components/CurrentProfile.vue';
 import AddGroup from '../components/AddGroup.vue';
 import axios from "../services/axios.js"
 
+import ContextMenu from '../components/ContextMenu.vue';
+
 import { sharedData } from '../services/sharedData.js';
 
 export default 
@@ -33,6 +35,8 @@ export default
         currentMessage: "",
         selectedConversationIndexLocal : 0,
 
+        contextMenuVisible: false,
+        selectedMessageID: null,
         };
     },
     methods: {
@@ -134,14 +138,26 @@ export default
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
         },
         openOverlayInGroupMode(conversation){
-          this.$emit("openOverlayInGroupMode", conversation);
+          this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
         },
         onPageRefresh() {
           this.$nextTick(() => {
             this.scrollToBottom();
             this.adjustHeight();
           });
-        }
+        },
+        openContextMenu(messageID) {
+          this.selectedMessageID = messageID;
+          // console.log("selecting message: ", messageID)
+          this.contextMenuVisible = true;
+          this.$refs.contextMenu.show(event.clientX, event.clientY, messageID);
+          document.addEventListener('click', this.closeContextMenu);
+        },
+        closeContextMenu() {
+          this.$refs.contextMenu.hide();
+          document.removeEventListener('click', this.closeContextMenu);
+          this.contextMenuVisible = false;
+        },
     },
     mounted() {
       // this.$nextTick(() => {
@@ -158,6 +174,7 @@ export default
         CurrentGroupHeader,
         CurrentProfile,
         AddGroup,
+        ContextMenu,
     },
     computed: {
       selectedConversation()
@@ -197,14 +214,6 @@ export default
         <div id="main">
           <div v-if="myConversations != null">
 
-            <!-- <CurrentGroupHeader
-            id="CurrentGroupHeader"
-            :picture=selectedConversation.GroupPicture
-            :group-name=selectedConversation.GroupName
-            :member-count=selectedConversation.Participants.length
-
-            @openOverlayInMode="openOverlayInMode"
-            /> -->
             <CurrentGroupHeader
             id="CurrentGroupHeader"
             ref="groupHeaderRef"
@@ -219,27 +228,40 @@ export default
             :convType="this.selectedConversation.Type"
             :refreshKey="this.selectedConversationIndexLocal"
             @onPageRefresh="onPageRefresh"
+            @openContextMenu="openContextMenu"
             />
 
             <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
-                <textarea id="currentTextArea"
-                rows="1"
-                v-model="currentMessage"
-                placeholder="Type a message"
-                @keydown.enter="sendMessage"
-                @input="adjustHeight"
-                class="custom-scrollbar"
-                ></textarea>
-
-                <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
-
-                  <img src="https://static-00.iconduck.com/assets.00/send-icon-2048x2020-jrvk5f1r.png"/>
                 
-                </button>
+              <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
+                <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
+              </button>
+
+              <textarea id="currentTextArea"
+              rows="1"
+              v-model="currentMessage"
+              placeholder="Type a message"
+              @keydown.enter="sendMessage"
+              @input="adjustHeight"
+              class="custom-scrollbar"
+              ></textarea>
+
+              <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
+                <img src="https://cdn-icons-png.flaticon.com/128/561/561226.png"
+                style="margin-right: 2.5px;"
+                />
+              </button>
+
             </div>
+
+            <ContextMenu ref="contextMenu"
+            v-show="contextMenuVisible"
+            :messageID="selectedMessageID"
+            @click="closeContextMenu"
+            />
+
           </div>
         </div>
-
     </div>
 </template>
 
@@ -378,15 +400,18 @@ export default
 }
 
 #sendButton {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  min-height: 40px;
-  background-color: rgb(255, 209, 0);
+  width: 50px;
+  height: 50px;
+  min-width: 50px;
+  min-height: 50px;
+  /* background-color: rgb(255, 209, 0);
+  border: 0; */
+  background-color: var(--background-light);
+  border: 2px solid  rgb(255, 209, 0);
+
   border-radius: 15px;
   font-weight: bold;
   
-  border: 0;
   outline: none;
 
   margin-top: auto;

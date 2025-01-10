@@ -57,6 +57,7 @@ export default {
       overlayProfileText: "",
       overlayProfilePicture: "",
       inspectingConversation: null,
+      selectedConversationIndexLocal: null,
     };
   },
   methods: {
@@ -69,10 +70,11 @@ export default {
       // enable the overlay
       this.showOverlay = true;
     },
-    openOverlayInGroupMode(conversation)
+    openOverlayInGroupMode(conversation, selectedConvIndexLocal)
     {
       this.openOverlayInMode("GROUP", conversation.GroupName, conversation.GroupPicture);
       this.inspectingConversation = conversation
+      this.selectedConversationIndexLocal = selectedConvIndexLocal
     },
     async closeOverlay() {
       // disable the overlay
@@ -82,23 +84,20 @@ export default {
 
       await this.GetMyConversations();
 
-      // if the overlay is closed because a new conversation was added,#
+      // if the overlay is closed because a new conversation was added,
       // we switch to that conversation
       if(convCount != this.myFetchedConversations.length)
       {
         const conversationsView = this.$refs.ConversationsViewRef;
         conversationsView.SelectNewConversationInApp(this.myFetchedConversations.length-1);
       }
-      else
+      else // otherwise we update the currently selected one
       {
         const conversationsView = this.$refs.ConversationsViewRef;
         conversationsView.SelectNewConversationInApp(this.selectedConversationIndexLocal);
       }
     },
-    updateGroup(conversation){
-      console.log("yes update group to be : ", conversation)
-      this.myFetchedConversations[this.selectedConversationIndexLocal] = conversation
-    }
+
   },
 };
 </script>
@@ -132,7 +131,6 @@ export default {
           :profilePicture="overlayProfilePicture"
           :inspectingConversation="inspectingConversation"
           @closeOverlay="closeOverlay"
-          @updateGroup="updateGroup"
           style="z-index: 1001;"
         />
 

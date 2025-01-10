@@ -1,6 +1,7 @@
 
 <script>
 import Message from './Message.vue';
+import ContextMenu from './ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
 
@@ -8,13 +9,14 @@ export default {
   props: ['refreshKey', 'textMessages', 'convType'],
   components: {
     Message,
+    ContextMenu,
   },
   mounted() {
     this.$.emit("onPageRefresh");
   },
   data() {
     return {
-      
+      // contextMenuVisible: false,
     };
   },
   methods: {
@@ -28,6 +30,17 @@ export default {
         wasSentByUser: message.Sender == sharedData.UserSession.UserID,
       };
     },
+    // openContextMenu() {
+    //   this.contextMenuVisible = true;
+    //   console.log("contextmenu found? ", this.$refs.contextMenu)
+    //   this.$refs.contextMenu.show(event.clientX, event.clientY);
+    //   document.addEventListener('click', this.closeContextMenu);
+    // },
+    // closeContextMenu() {
+    //   this.contextMenuVisible = false;
+    //   this.$refs.contextMenu.hide();
+    //   document.removeEventListener('click', this.closeContextMenu);
+    // },
   }
 };
 </script>
@@ -38,16 +51,18 @@ export default {
     <div id="mainList" v-for="(message) in textMessages" :key="message.Sender && message.Content && message.Timestamp">
       <Message
       
+      :message="message"
       :userID="message.Sender"
       :convType="this.convType"
       :content="message.Content"
       :timestamp="message.Timestamp"
       :msgStyle="computedStyle(message)" 
       
-      />
-      
+      @contextmenu.prevent="this.$emit('openContextMenu', message.Id)"
+      />      
     </div>
-    
+
+
   </div>
 </template>
 
