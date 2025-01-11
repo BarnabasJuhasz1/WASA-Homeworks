@@ -79,7 +79,12 @@ export default
                 alert("Error sending emoji!")
             }
         },
+        selectMessageToReplyTo() {
+            this.$emit("setOriginMessage", this.messageID)
+        },
         async ReplyToMessage() {
+
+            
             try{
                 let response = await this.$axios.put(
                 "/user", 
@@ -117,7 +122,7 @@ export default
             <div id="ContextMenu" :style="{ top: `${position.y}px`, left: `${position.x}px` }">
                 
                 <button class="ContextMenuButton"
-                    @click="universalButtonClicked">
+                    @click="selectMessageToReplyTo">
                     Reply
                 </button>
 

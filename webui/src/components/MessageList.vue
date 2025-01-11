@@ -30,6 +30,14 @@ export default {
         wasSentByUser: message.Sender == sharedData.UserSession.UserID,
       };
     },
+    getOriginMessage(message) {
+      
+      if(message.OriginMessageId == -1){
+        return null
+      }
+
+      return this.textMessages[message.OriginMessageId]
+    }
     // openContextMenu() {
     //   this.contextMenuVisible = true;
     //   console.log("contextmenu found? ", this.$refs.contextMenu)
@@ -54,12 +62,10 @@ export default {
       >
 
       <Message
-      
-      :message="message"
-      :userID="message.Sender"
+
       :convType="this.convType"
-      :content="message.Content"
-      :timestamp="message.Timestamp"
+      :message="message"
+      :originMessage="getOriginMessage(message)"
       :msgStyle="computedStyle(message)" 
       
       @contextmenu.prevent="this.$emit('openContextMenu', message.Id)"

@@ -3,7 +3,24 @@ import { ref } from 'vue'
 import { sharedData } from '../services/sharedData.js';
 
 export default {
-	props: ['message', 'userID', 'convType', 'content', 'timestamp', 'msgStyle'],
+	props: {
+		convType: {
+			type: String,
+			required: true,
+		},
+		message:{
+			type: Object,
+			required: true,
+		},
+		originMessage:{
+			type: Object,
+		},
+		msgStyle: {
+			type: String,
+			required: true,
+		},
+
+	},
 	methods: {
 		async getProfile(userID) {
 
@@ -14,7 +31,7 @@ export default {
 		},
 		formattedTimestamp() {
 			// Parse the input string
-			const date = new Date(this.timestamp);
+			const date = new Date(this.message.Timestamp);
 
 			// Extract hours and minutes
 			const hours = String(date.getHours()).padStart(2, '0');
@@ -33,7 +50,7 @@ export default {
 
 	mounted() {
 		
-		this.getProfile(this.userID);
+		this.getProfile(this.message.Sender);
   	},
 	computed: {
 		TimeStyle(){
@@ -158,11 +175,11 @@ export default {
 			<div id="ComplexMessage" :style="MessageStyle">
 				
 				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
-						{{ username }}
+						{{ this.username }}
 				</div>
 
 				<div class="message" :style="TimeStyle">
-						{{ content }}
+						{{ this.message.Content }}
 				</div>
 
 				<div class="time">

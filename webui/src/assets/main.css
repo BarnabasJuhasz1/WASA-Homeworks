@@ -1,5 +1,5 @@
 :root {
-    --primary-light: #3498db;
+    --primary-light: rgb(52, 152, 219);
     --secondary-light: #2ecc71;
     /*--background-light: rgb(240, 248, 255);*/
     --background-light: rgb(52, 59, 77);
@@ -9,5 +9,7 @@
     /*--message-own: rgb(204, 176, 56);*/
     --message-own: rgb(206, 215, 240);
     --message-box: rgb(206, 215, 240);
+    --origin-message-bg: rgba(255, 255, 255, 0.089);
+    --origin-message-border: rgb(163, 169, 188);
     --button: rgb(255, 209, 0);
 }

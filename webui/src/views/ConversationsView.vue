@@ -5,6 +5,7 @@ import GroupList from '../components/GroupList.vue';
 import CurrentGroupHeader from '../components/CurrentGroupHeader.vue';
 import CurrentProfile from '../components/CurrentProfile.vue';
 import AddGroup from '../components/AddGroup.vue';
+import OriginMessage from '../components/OriginMessage.vue';
 import axios from "../services/axios.js"
 
 import ContextMenu from '../components/ContextMenu.vue';
@@ -41,6 +42,8 @@ export default
         selectedMessageID: null,
 
         emojiPanelVisible: false,
+
+        originMessage: null,
 
         };
     },
@@ -120,24 +123,50 @@ export default
             this.currentMessage = "";
         },
         SelectNewConversationInApp(index){
+          
+          if(this.selectedConversationIndexLocal != index)
+          {
+            this.originMessage = null;               
             this.selectedConversationIndexLocal = index
             this.currentMessage = "";
+          }
 
-            this.$nextTick(() => {
-              this.scrollToBottom();
-              this.adjustHeight();
+          this.$nextTick(() => {
+            this.scrollToBottom();
+            this.adjustHeight();
 
-                const groupHeader = this.$refs.groupHeaderRef;
-                groupHeader.getProfile();
-            });
+              const groupHeader = this.$refs.groupHeaderRef;
+              groupHeader.getProfile();
+          });
 
         },
         adjustHeight() {
-            const textarea = document.getElementById("currentTextArea");
-            if (textarea) {
-              textarea.style.height = "auto";
-              textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+          console.log("adjusting height ")
+
+          const textarea = document.getElementById("currentTextArea");
+          const originMessage = document.getElementById("OriginMessage");
+
+          if (textarea) {
+            const originalHeight = parseInt(textarea.style.height, 10) || 0; // Parse previous height or default to 0
+            textarea.style.height = "auto";
+            const newHeight = Math.min(textarea.scrollHeight, 200); // New height
+            textarea.style.height = `${newHeight}px`;
+
+            const difference = newHeight - originalHeight; // Calculate height change
+
+            const currentTextAreaBottom = parseInt(window.getComputedStyle(textarea).bottom, 10) || 0;
+            textarea.style.position = "relative";
+            textarea.style.bottom = `${currentTextAreaBottom + difference/2}px`;
+
+            console.log("Original Height:", originalHeight, "New Height:", newHeight);
+
+            if (originMessage) {
+              const currentBottom = parseInt(window.getComputedStyle(originMessage).bottom, 10) || 0;
+
+              originMessage.style.position = "relative";
+              originMessage.style.bottom = `${currentBottom + difference}px`;
             }
+          }
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
@@ -146,10 +175,12 @@ export default
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
         },
         onPageRefresh() {
-
+          
           this.$nextTick(() => {
             this.scrollToBottom();
             this.adjustHeight();
+
+            this.originMessage = null;
           });
           
         },
@@ -173,6 +204,9 @@ export default
         },
         addEmojiToCurrentMessage(emoji){
           this.currentMessage += emoji.detail.emoji.unicode;
+        },
+        setOriginMessage(messageID){
+          this.originMessage = this.selectedConversation.Messages[messageID];
         }
     },
     mounted() {
@@ -191,11 +225,12 @@ export default
         CurrentProfile,
         AddGroup,
         ContextMenu,
+        OriginMessage
     },
     computed: {
       selectedConversation()
       {
-        console.log("myconve: ", this.myConversations)
+        // console.log("my conversations: ", this.myConversations)
         return this.myConversations && this.myConversations[this.selectedConversationIndexLocal]
         ? this.myConversations[this.selectedConversationIndexLocal] : null;
       },
@@ -228,8 +263,7 @@ export default
             />
         </div>
 
-        <div id="main">
-          <div v-if="myConversations != null">
+        <div id="main" v-if="myConversations != null">
 
             <CurrentGroupHeader
             id="CurrentGroupHeader"
@@ -248,32 +282,42 @@ export default
             @openContextMenu="openContextMenu"
             />
 
-            <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
-                
-              <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
-                <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
-              </button>
+            <div id="BottomPartWrapper">
 
-              <emoji-picker id="EmojiPicker"
-                v-if="emojiPanelVisible"
-                @emoji-click="addEmojiToCurrentMessage"
+              <OriginMessage id="OriginMessage" ref="OriginMessage" style="display: flex;"
+              v-if="this.originMessage != null"
+              :convType="this.selectedConversation.Type"
+              :message="this.originMessage"
               />
+          
 
-              <textarea id="currentTextArea"
-              rows="1"
-              v-model="currentMessage"
-              placeholder="Type a message"
-              @keydown.enter="sendMessage"
-              @input="adjustHeight"
-              class="custom-scrollbar"
-              ></textarea>
+              <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
+                  
+                <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
+                  <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
+                </button>
 
-              <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
-                <img src="https://cdn-icons-png.flaticon.com/128/561/561226.png"
-                style="margin-right: 2.5px;"
+                <emoji-picker id="EmojiPicker"
+                  v-if="emojiPanelVisible"
+                  @emoji-click="addEmojiToCurrentMessage"
                 />
-              </button>
 
+                <textarea id="currentTextArea"
+                rows="1"
+                v-model="currentMessage"
+                placeholder="Type a message"
+                @keydown.enter="sendMessage"
+                @input="adjustHeight"
+                class="custom-scrollbar"
+                ></textarea>
+
+                <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
+                  <img src="https://cdn-icons-png.flaticon.com/128/561/561226.png"
+                  style="margin-right: 2.5px;"
+                  />
+                </button>
+
+              </div>
             </div>
 
             <ContextMenu ref="contextMenu"
@@ -281,10 +325,11 @@ export default
             :conversationID="this.selectedConversation.Id"
             @click="closeContextMenu"
             @refreshLocalMessage="refreshLocalMessage"
+            @setOriginMessage="setOriginMessage"
             />
 
-          </div>
         </div>
+
     </div>
 </template>
 
@@ -331,6 +376,9 @@ export default
 
   border: 3px solid rgba(0, 0, 0, .25);
   height: calc(85vh);
+
+  /*flex-grow: 1;*/
+
 }
 
 #CurrentGroupHeader {
@@ -345,21 +393,33 @@ export default
 }
 
 #MessagesList {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  
   margin-bottom: auto;
   overflow-y: auto;
 
   /*height: 50vh;*/
 
-  height: calc(85vh - 150px);
+  /*height: calc(85vh - 150px);*/
+  max-height: calc(85vh - 150px);
+
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: 0;
+
+  margin-bottom: 10px;
   /*
   background-color: rgba(255, 0, 0, .25);
   flex-grow: 1;*/
+
 }
 
 #TextAndSend {
   margin-top: auto;
   margin-bottom: 0;
+
+  height: 75px;
 }
 
 .Flexbox {
@@ -370,12 +430,17 @@ export default
 
 
 #currentTextArea {
+  
+  display: block;
+  position: fixed;
+
   width: 100%;
   /*height: 15px;*/
   max-height: 100px;
 
-  margin: 0;
-  margin-top: 5px;
+  margin-top: 25px;
+  margin-bottom: -45px;
+  
   resize: none;
   border-radius: 15px;
   border: 0;
@@ -506,5 +571,34 @@ export default
   border-radius: 5px;
   margin-bottom: 450px;
 }
+
+
+#OriginMessage {
+  display: flex;
+  position: relative;
+
+  height: auto;
+  max-height: 100px;
+
+  background-color: var(--origin-message-bg);
+  border: 2px solid var(--origin-message-border);
+
+  border-radius: 15px;
+
+  margin-right: 55px;
+  margin-left: 55px;
+
+  margin-bottom: -20px;
+}
+
+
+#BottomPartWrapper {
+
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+}
+
 
 </style>
