@@ -47,9 +47,9 @@ export default {
 				//'rgb(255, 209, 0)'
         let bgColor = this.msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)'
 		let alignment = this.msgStyle.wasSentByUser ? 'right' : 'left'
-		let bottomPadding = this.message.EmojiReactions && this.message.EmojiReactions.length > 0 ? "padding-bottom: 25px;" :"padding-bottom: 5px;"
+		let bottomPadding = this.hasEmojiReactions ? "10px;" :"3px;"
 
-        return 'color:' + this.msgStyle.color +';' +
+		return 'color:' + this.msgStyle.color +';' +
 				' font-size:'+ this.msgStyle.fontSize + 'rem;' +
 				" background-color:" + bgColor + ";" +
 				" text-align:"+ alignment+";"+
@@ -70,7 +70,71 @@ export default {
 			//}
     	},
 		hasEmojiReactions(){
-			return message.EmojiReactions.length > 0;
+			return this.message.EmojiReactions != null && this.message.EmojiReactions.length > 0;
+		},
+		mostReactedEmojiOnMessage(){
+
+			if(this.hasEmojiReactions == false){
+				return{
+					mostCommonReaction: "",
+					count: 0
+				}
+			}
+
+			let reactionCounts = new Map();
+
+			for (let i = 0; i < this.message.EmojiReactions.length; i++) {
+
+				let reaction = this.message.EmojiReactions[i].Content;
+
+				if (reactionCounts.has(reaction)) {
+					reactionCounts.set(reaction, reactionCounts.get(reaction) + 1);
+				} else {
+					reactionCounts.set(reaction, 1);
+				}
+			}
+
+			let mostCommonReaction = null;
+			let maxCount = 0;
+
+			reactionCounts.forEach((count, reaction) => {
+				if (count > maxCount) {
+					maxCount = count;
+					mostCommonReaction = reaction;
+				}
+			});
+
+			return {
+				mostCommonReaction: mostCommonReaction,
+				count: maxCount
+			}
+		},
+		reactedEmojis(){
+
+			if(this.hasEmojiReactions == false){
+				return{
+					emojis: "",
+					count: 0
+				}
+			}
+
+			let reactionCounts = new Map();
+
+			for (let i = 0; i < this.message.EmojiReactions.length; i++) {
+
+				let reaction = this.message.EmojiReactions[i].Content;
+
+				if (reactionCounts.has(reaction)) {
+					reactionCounts.set(reaction, reactionCounts.get(reaction) + 1);
+				} else {
+					reactionCounts.set(reaction, 1);
+				}
+			}
+			// console.log(reactionCounts,  this.message.EmojiReactions.length)
+			return {
+				emojis: reactionCounts,
+				count: this.message.EmojiReactions.length
+			}
 		}
   	}
 }
@@ -107,14 +171,39 @@ export default {
 
 			</div>
 
-			<div id = "messageEmoji" :style="{backgroundColor: msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)'}"> 
-				❤
+			<div id="EmojiAndCount"
+			v-show="this.hasEmojiReactions"
+			:style="{
+				backgroundColor: msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)',
+				marginLeft: msgStyle.wasSentByUser ? '0px' : '10px',
+				marginRight: msgStyle.wasSentByUser ? '10px' : '0px'
+				}"
+			>
+		
+				<!-- <div id = "messageEmoji">
+					{{ mostReactedEmojiOnMessage.mostCommonReaction }} 
+				</div>
+
+				<div id = "emojiCount"
+				v-show="this.mostReactedEmojiOnMessage.count > 1"
+				>
+					{{ mostReactedEmojiOnMessage.count }}
+				</div> -->
+
+				<div style="display: flex; margin-left: 10px; margin-right: -5px;">
+					<div id = "messageEmoji" v-for="(value, key) in reactedEmojis.emojis" :key="key">
+					{{ value[0] }}
+					</div>
+				</div>
+
+				<div id = "emojiCount"
+				v-show="reactedEmojis.count > 1"
+				>
+					{{ reactedEmojis.count }}
+				</div>
 			</div>
+
 		</div>
-
-
-
-
 
 	</div>
 	
@@ -151,6 +240,7 @@ export default {
 	flex-grow: 1;
 
   	flex-direction: column;
+	padding-bottom: 5px;
 }
 
 #ComplexMessage{
@@ -162,7 +252,7 @@ export default {
 	padding-left: 8px;
 	padding-right: 8px;
 	padding-top: 5px;
-	
+
 	max-width: 75%;
 
 }
@@ -174,21 +264,41 @@ export default {
   	overflow-wrap: break-word;
 }
 
+#EmojiAndCount {
+	display: flex;
+
+	margin-top: -15px;
+
+	border-radius: 15px;
+
+	justify-content: center; /* Centers content horizontally */
+	align-items: center;     /* Centers content vertically */
+
+	padding-right: 5px;
+
+}
+
 #messageEmoji {
-	display: block;
+	display: flex;
 	
 	width:25px;
 	height:25px;
 
-	margin-top: -15px;
-	margin-left: 8px;
-	margin-bottom: 5px;
+	gap: -10px;
+	margin-left: -10px;
 
-	border-radius: 15px;
+	justify-content: center; /* Centers content horizontally */
+	align-items: center;     /* Centers content vertically */
+}
+
+#emojiCount {
+	display: flex;
 	
-	align-content: center;
-	text-align: center;
-	
+	width:15px;
+	height:15px;
+	justify-content: center; /* Centers content horizontally */
+	align-items: center;     /* Centers content vertically */
+
 }
 
 </style>

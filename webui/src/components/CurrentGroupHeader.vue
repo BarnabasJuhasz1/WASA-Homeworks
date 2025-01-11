@@ -33,9 +33,6 @@ export default {
     //     }
     //   }
     // },
-    check(){
-      console.log("header touched")
-    },
     async getProfile()
 		{
 			if(this.selectedConversation.Type == 'UserType')

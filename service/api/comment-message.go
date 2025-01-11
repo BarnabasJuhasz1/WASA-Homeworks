@@ -46,8 +46,8 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	// Read the request body
 	var requestBody struct {
-		TypeOfReaction    util.ReactionType `json:"ReactionType"`
-		ContentOfReaction string            `json:"Content"`
+		TypeOfReaction    util.ReactionType `json:"TypeOfReaction"`
+		ContentOfReaction string            `json:"ContentOfReaction"`
 	}
 	requestErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if requestErr != nil {
@@ -65,22 +65,41 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	// if the reaction is an emoji reaction, just append it to the list of reactions on the message
 	if ReactionToMake.Type == util.EmojiReaction {
 
-		// loop through all the emoji reactions to this message
-		for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
+		// if there are no emoji reactions on this message
+		if len(Conversation.Messages[messageID].EmojiReactions) == 0 {
 
-			// if the user has a reaction to this message already, replace that reaction with the new one
-			if ReactionAti.UserWhoReacted == LoggedInUser.Username {
+			Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions, ReactionToMake)
 
-				// replace old reaction content with new one
-				ReactionAti.Content = ReactionToMake.Content
-				// update reaction in the message
-				Conversation.Messages[messageID].EmojiReactions[i] = ReactionAti
-				break
+		} else {
 
-				// if we checked all the reactions and none of them were created by the user
-			} else if i == len(Conversation.Messages[messageID].EmojiReactions)-1 {
+			// loop through all the emoji reactions to this message
+			for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
-				Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions, ReactionToMake)
+				// if the user has a reaction to this message already, replace that reaction with the new one
+				if ReactionAti.UserWhoReacted == LoggedInUser.Username {
+
+					messageToReplace := Conversation.Messages[messageID]
+					// if you are placing a new emoji on the message
+					if ReactionAti.Content != ReactionToMake.Content {
+						// replace old reaction content with new one
+						messageToReplace.EmojiReactions[i] = ReactionToMake
+
+					} else {
+						// remove my reaction
+						messageToReplace.EmojiReactions = append(
+							messageToReplace.EmojiReactions[:i],
+							messageToReplace.EmojiReactions[i+1:]...,
+						)
+					}
+					// update reaction in the message
+					Conversation.Messages[messageID] = messageToReplace
+					break
+
+					// if we checked all the reactions and none of them were created by the user
+				} else if i == len(Conversation.Messages[messageID].EmojiReactions)-1 {
+
+					Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions, ReactionToMake)
+				}
 			}
 		}
 
@@ -112,7 +131,12 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	ctx.Logger.Debugln("-----Func commentMessage Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
+	var encodeErr error
+	if ReactionToMake.Type == util.EmojiReaction {
+		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID])
+	} else {
+		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
+	}
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

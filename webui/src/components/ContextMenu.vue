@@ -2,15 +2,15 @@
 <script>
 import { sharedData } from '../services/sharedData';
 
-import 'emoji-picker-element';
+// import 'emoji-picker-element';
 
 export default 
 {
     props: {
-        // messageID: {
-        //     type: Number,
-        //     required: true,
-        // },
+        conversationID: {
+            type: Number,
+            required: true,
+        },
     },
     setup(props) {
         
@@ -30,26 +30,54 @@ export default
 
 
             messageID: null,
+            sender: null,
         }
     },
     components:{
         
     },
     methods: {
-        show(x, y, messageID) {
+        show(x, y, messageID, sender) {
             this.position = { x, y };
             this.visible = true;
 
             this.messageID = messageID;
-            console.log("sleected message ID: ", this.messageID)
-
+            this.sender = sender
+            // console.log("selected message ID: ", this.messageID, sender)
+            
         },
         hide() {
             this.visible = false;
         },
-        addEmoji(emoji) {
+        async addEmoji(emoji) {
             console.log("emoji added: ", emoji)
-            
+            try{
+                let response = await this.$axios.put(
+                "/conversation/"+ this.conversationID
+                + "/message/"+ this.messageID
+                + "/comment", 
+                // JSON body:
+                {   
+                    TypeOfReaction: "EmojiReaction",
+                    ContentOfReaction: emoji
+                },
+                // Headers:
+                {
+                    headers: {
+                    "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                    "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                // console.log(response.data)
+                // make sure conversation is reloaded
+                this.$emit('refreshLocalMessage', response.data)
+
+            } catch (error) {
+                console.error("Error sending emoji! ", error);
+                alert("Error sending emoji!")
+            }
         },
         async ReplyToMessage() {
             try{
@@ -66,6 +94,8 @@ export default
                 }
                 );
 
+                console.log(response.data)
+
             } catch (error) {
                 console.error("Error sending message! ", error);
                 alert("Error sending message!")
@@ -74,7 +104,9 @@ export default
 
     },
     computed: {
-
+        IamTheMessageSender(){
+            return this.sender == sharedData.UserSession.UserID
+        }
     }
 }
 </script>
@@ -95,6 +127,7 @@ export default
                 </button>
 
                 <button class="ContextMenuButton"
+                    v-if="IamTheMessageSender"
                     @click="universalButtonClicked">
                     Delete
                 </button>
@@ -124,7 +157,7 @@ export default
 
 #ContextMenu {
     width: 195px;
-    height: 210px;
+    max-height: 210px;
 }
 
 .emoji {
@@ -143,12 +176,6 @@ export default
     display: flex;
     gap: 5px;
     overflow-x: auto; /* Allow scrolling for longer lists */
-}
-
-#EmojiPicker {
-    background: white;
-    border: .5px solid white;
-    border-radius: 5px;
 }
 
 #ContextMenuParent {

@@ -11,6 +11,8 @@ import ContextMenu from '../components/ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
 
+import 'emoji-picker-element';
+
 export default 
 {
   props: {
@@ -37,6 +39,9 @@ export default
 
         contextMenuVisible: false,
         selectedMessageID: null,
+
+        emojiPanelVisible: false,
+
         };
     },
     methods: {
@@ -141,16 +146,18 @@ export default
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
         },
         onPageRefresh() {
+
           this.$nextTick(() => {
             this.scrollToBottom();
             this.adjustHeight();
           });
+          
         },
         openContextMenu(messageID) {
           this.selectedMessageID = messageID;
           // console.log("selecting message: ", messageID)
           this.contextMenuVisible = true;
-          this.$refs.contextMenu.show(event.clientX, event.clientY, messageID);
+          this.$refs.contextMenu.show(event.clientX, event.clientY, messageID, this.selectedConversation.Messages[messageID].Sender);
           document.addEventListener('click', this.closeContextMenu);
         },
         closeContextMenu() {
@@ -158,6 +165,15 @@ export default
           document.removeEventListener('click', this.closeContextMenu);
           this.contextMenuVisible = false;
         },
+        refreshLocalMessage(newMessage){
+          this.selectedConversation.Messages[newMessage.Id] = newMessage
+        },
+        openEmojis(){
+          this.emojiPanelVisible = !this.emojiPanelVisible
+        },
+        addEmojiToCurrentMessage(emoji){
+          this.currentMessage += emoji.detail.emoji.unicode;
+        }
     },
     mounted() {
       // this.$nextTick(() => {
@@ -179,6 +195,7 @@ export default
     computed: {
       selectedConversation()
       {
+        console.log("myconve: ", this.myConversations)
         return this.myConversations && this.myConversations[this.selectedConversationIndexLocal]
         ? this.myConversations[this.selectedConversationIndexLocal] : null;
       },
@@ -233,9 +250,14 @@ export default
 
             <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
                 
-              <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
+              <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
                 <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
               </button>
+
+              <emoji-picker id="EmojiPicker"
+                v-if="emojiPanelVisible"
+                @emoji-click="addEmojiToCurrentMessage"
+              />
 
               <textarea id="currentTextArea"
               rows="1"
@@ -256,8 +278,9 @@ export default
 
             <ContextMenu ref="contextMenu"
             v-show="contextMenuVisible"
-            :messageID="selectedMessageID"
+            :conversationID="this.selectedConversation.Id"
             @click="closeContextMenu"
+            @refreshLocalMessage="refreshLocalMessage"
             />
 
           </div>
@@ -443,36 +466,45 @@ export default
 
 
 .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .blurred-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px); /* Apply the blur effect */
-    z-index: 1;
-  }
-  
-  .modal {
-    position: relative;
-    z-index: 2;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.blurred-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px); /* Apply the blur effect */
+  z-index: 1;
+}
+
+.modal {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#EmojiPicker {
+  display: absolute;
+  position: fixed;
+  background: white;
+  border: 2px solid white;
+  border-radius: 5px;
+  margin-bottom: 450px;
+}
 
 </style>

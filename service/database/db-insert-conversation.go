@@ -21,6 +21,12 @@ func (db *appdbimpl) InsertConversation(newConversation util.Conversation) (int,
 		return 0, jsonErr2
 	}
 
+	// Serialize the []EmojiReactions slice
+	// emojiReactionJson, jsonErr3 := json.Marshal([]util.Reaction{})
+	// if jsonErr3 != nil {
+	// 	return 0, jsonErr3
+	// }
+
 	// _, err := db.c.Exec("INSERT INTO conversations (id, type, group_name, group_picture, participants, messages) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO NOTHING",
 	result, err := db.c.Exec("INSERT INTO conversations (type, group_name, group_picture, participants, messages) VALUES (?, ?, ?, ?, ?)",
 		newConversation.Type, newConversation.GroupName, newConversation.GroupPicture, participantsJson, messagesJson)

@@ -48,7 +48,11 @@ export default {
 
 <template>
   <div class="custom-scrollbar">
-    <div id="mainList" v-for="(message) in textMessages" :key="message.Sender && message.Content && message.Timestamp">
+    <div id="mainList"
+      v-for="(message) in textMessages"
+      :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}`"
+      >
+
       <Message
       
       :message="message"

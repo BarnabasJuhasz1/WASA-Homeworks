@@ -14,7 +14,7 @@ func (db *appdbimpl) UpdateConversation(id int, conversation util.Conversation) 
 		return jsonErr
 	}
 
-	// Serialize the []Messages slice (the messages)
+	// Serialize the []Messages slice
 	messagesJson, jsonErr2 := json.Marshal(conversation.Messages)
 	if jsonErr2 != nil {
 		return jsonErr2
