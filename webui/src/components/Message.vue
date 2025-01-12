@@ -1,6 +1,6 @@
 <script>
-import { ref } from 'vue'
 import { sharedData } from '../services/sharedData.js';
+import OriginMessage from './OriginMessage.vue';
 
 export default {
 	props: {
@@ -26,7 +26,7 @@ export default {
 
 			const profile = await sharedData.getUserProfile(userID);
 			// console.log("for message content: ", this.content, " the found sender: ", profile.Username)
-			this.username = profile.Username;
+			this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
 			this.profilePic = profile.ProfilePicture;
 		},
 		formattedTimestamp() {
@@ -47,7 +47,9 @@ export default {
 			profilePic: null
 		}
 	},
-
+	components: {
+		OriginMessage,
+	},
 	mounted() {
 		
 		this.getProfile(this.message.Sender);
@@ -173,7 +175,15 @@ export default {
 		<div id="ComplexMessageAndEmoji" :style="{alignItems: this.msgStyle.wasSentByUser ? 'flex-end' : 'flex-start'}">
 
 			<div id="ComplexMessage" :style="MessageStyle">
-				
+
+				<OriginMessage style="border-radius: 10px; max-width: 500px;"
+					v-if="this.originMessage != null"
+					:convType="this.convType"
+					:message="this.originMessage"
+					>
+				</OriginMessage>
+
+
 				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
 						{{ this.username }}
 				</div>

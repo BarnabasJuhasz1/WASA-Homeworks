@@ -16,19 +16,13 @@ export default {
 		async getProfile(userID) {
 
 			const profile = await sharedData.getUserProfile(userID);
-			this.username = profile.Username;
-		},
-		formattedTimestamp() {
-			// Parse the input string
-			const date = new Date(this.message.Timestamp);
+			
+			this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
 
-			// Extract hours and minutes
-			const hours = String(date.getHours()).padStart(2, '0');
-			const minutes = String(date.getMinutes()).padStart(2, '0');
-
-			// Return the formatted time
-			return `${hours}:${minutes}`;
 		},
+		BackgroundColor() {
+			return this.message.Sender == sharedData.UserSession.UserID ? 'var(--message-own)' : 'var(--message-other)';
+		}
 	},
 	data() {
 		return {
@@ -40,6 +34,16 @@ export default {
 		
 		this.getProfile(this.message.Sender);
   	},
+	watch: {
+		message: {
+			handler(newValue) {
+				if (newValue.Sender !== this.username) {
+					this.getProfile(newValue.Sender);
+				}
+			},
+			deep: true,
+		},
+	},
 	computed: {
     	MessageStyle(){
 
@@ -61,14 +65,16 @@ export default {
 
 			return `data:image/png;base64,${this.profilePic}`;
     	},
+		
   	}
 }
 </script>
 
 
-<template>
+<template >
 
-	<div id="MessageParent" style="text-align: left">
+	<div id="MessageParent" style="text-align: left; border: 2px solid rgb(0, 0, 0, 0.5); white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis;"
+		:style="{ backgroundColor: BackgroundColor() }">
 		
 		<div id="ComplexMessageAndEmoji" style="align-items: flex-start; white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis;">
 
@@ -80,10 +86,6 @@ export default {
 
 				<div class="message" style="white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis;">
 					{{ this.message.Content }}
-				</div>
-
-				<div class="time">
-					{{ formattedTimestamp() }}
 				</div>
 
 			</div>

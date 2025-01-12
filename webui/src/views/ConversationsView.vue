@@ -67,19 +67,29 @@ export default
               Content: this.currentMessage,
               Timestamp: now,
               SentByUser: true,
+              OriginMessageId: this.originMessage == null ? -1 : this.originMessage.Id,
             }
             // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
             // send the message content to backend
-            this.sendMessageRequest();
+            if(this.originMessage == null){
+              this.sendMessageRequest();
+            }
+            else{
+              this.sendMessageReplyRequest();
+            }
 
-            if (!this.selectedConversation.Messages)
+            if (!this.selectedConversation.Messages){
               this.selectedConversation.Messages = [];
+            }
 
+            console.log("pushed new msg: ", newMessage)
             this.selectedConversation.Messages.push(newMessage);
             // window.location.reload();
 
             // reset textArea input
             this.currentMessage = "";
+            // stop replying to messages
+            this.originMessage = null;
 
             this.$nextTick(() => {
               this.scrollToBottom();
@@ -114,6 +124,36 @@ export default
             alert("Error sending message!")
           }
         },
+        async sendMessageReplyRequest() {
+          try {
+            console.log("sending to conv: ", this.myConversations[this.selectedConversationIndexLocal].Id, " with msg origin ID: ", this.originMessage.Id, " with token: ", sharedData.UserSession.SessionToken)
+            let response = await axios.put(
+              "/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id
+              + "/message/"+ this.originMessage.Id
+              + "/comment", 
+              // JSON body:
+              {
+                TypeOfReaction: "MessageReaction",
+		            ContentOfReaction: this.currentMessage,
+              },
+              // Headers:
+              {
+                headers: {
+                  "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                  "Content-Type": "application/json",
+                },
+              }
+            );
+
+            console.log(response.data)
+            // console.log("message sent with response: ", response.data);
+            
+          }
+          catch (error) {
+            console.error("Error sending reply message! ", error);
+            alert("Error sending reply message!")
+          }
+        },
         scrollToBottom() {
             const scrollContainer = document.getElementById("MessagesList");
             // const scrollContainer = this.$refs.messagesList;
@@ -141,31 +181,36 @@ export default
 
         },
         adjustHeight() {
-          console.log("adjusting height ")
 
           const textarea = document.getElementById("currentTextArea");
+          const spaceForBottom = document.getElementById("spaceForBottom");
           const originMessage = document.getElementById("OriginMessage");
 
           if (textarea) {
-            const originalHeight = parseInt(textarea.style.height, 10) || 0; // Parse previous height or default to 0
+            const originalHeight = parseInt(textarea.style.height, 10) || 0;
+            const originalTextAreaTop = parseInt(window.getComputedStyle(textarea).top, 10) || 0;
+
             textarea.style.height = "auto";
-            const newHeight = Math.min(textarea.scrollHeight, 200); // New height
+            const newHeight = Math.min(textarea.scrollHeight, 100);
             textarea.style.height = `${newHeight}px`;
 
-            const difference = newHeight - originalHeight; // Calculate height change
+            const difference = newHeight - originalHeight;
 
-            const currentTextAreaBottom = parseInt(window.getComputedStyle(textarea).bottom, 10) || 0;
             textarea.style.position = "relative";
-            textarea.style.bottom = `${currentTextAreaBottom + difference/2}px`;
+            textarea.style.top = `${originalTextAreaTop - difference}px`;
 
-            console.log("Original Height:", originalHeight, "New Height:", newHeight);
+         
+            const spaceForBottomHeight = parseInt(spaceForBottom.style.height, 10) || 0;
+            if(difference < 50)
+              spaceForBottom.style.height = `${spaceForBottomHeight + difference}px`;
 
             if (originMessage) {
-              const currentBottom = parseInt(window.getComputedStyle(originMessage).bottom, 10) || 0;
-
+              const currentBottom = parseInt(window.getComputedStyle(originMessage).top, 10) || 0;
+              console.log("origin top: ", currentBottom, " diff: ", difference)
               originMessage.style.position = "relative";
-              originMessage.style.bottom = `${currentBottom + difference}px`;
+              originMessage.style.top = `${currentBottom - difference}px`;
             }
+       
           }
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
@@ -207,6 +252,16 @@ export default
         },
         setOriginMessage(messageID){
           this.originMessage = this.selectedConversation.Messages[messageID];
+
+          this.$nextTick(() => {
+            const textarea = document.getElementById("currentTextArea");
+            const originMessage = document.getElementById("OriginMessage");
+            const currentBottom = parseInt(window.getComputedStyle(textarea).top, 10) || 0;
+
+            originMessage.style.position = "relative";
+            originMessage.style.top = `${currentBottom + 50}px`;
+          });
+
         }
     },
     mounted() {
@@ -284,14 +339,16 @@ export default
 
             <div id="BottomPartWrapper">
 
-              <OriginMessage id="OriginMessage" ref="OriginMessage" style="display: flex;"
+              <div id="spaceForBottom" style="display: block; width: 100%; height: 0px; border-top: 2px solid rgb(206, 215, 240); margin-bottom: 5px;">
+              </div>
+
+              <OriginMessage id="OriginMessage" ref="OriginMessage"
               v-if="this.originMessage != null"
               :convType="this.selectedConversation.Type"
               :message="this.originMessage"
               />
-          
-
-              <div id="TextAndSend" class="Flexbox" style="gap: 5px;">
+        
+              <div id="TextAndSend" >
                   
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
                   <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
@@ -302,14 +359,16 @@ export default
                   @emoji-click="addEmojiToCurrentMessage"
                 />
 
-                <textarea id="currentTextArea"
-                rows="1"
-                v-model="currentMessage"
-                placeholder="Type a message"
-                @keydown.enter="sendMessage"
-                @input="adjustHeight"
-                class="custom-scrollbar"
-                ></textarea>
+                <div style="display: block; position: relative; width: 100%; max-height: 100px;">
+                  <textarea id="currentTextArea"
+                  rows="1"
+                  v-model="currentMessage"
+                  placeholder="Type a message"
+                  @keydown.enter="sendMessage"
+                  @input="adjustHeight"
+                  class="custom-scrollbar"
+                  ></textarea>
+                </div>
 
                 <button id="sendButton" @click="sendMessage()" class="sendButtonImageContainer"> 
                   <img src="https://cdn-icons-png.flaticon.com/128/561/561226.png"
@@ -402,13 +461,13 @@ export default
   /*height: 50vh;*/
 
   /*height: calc(85vh - 150px);*/
+  height: auto;
   max-height: calc(85vh - 150px);
 
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 0;
 
-  margin-bottom: 10px;
   /*
   background-color: rgba(255, 0, 0, .25);
   flex-grow: 1;*/
@@ -416,10 +475,16 @@ export default
 }
 
 #TextAndSend {
-  margin-top: auto;
-  margin-bottom: 0;
+  display: flex;
+  flex-direction: row;
 
-  height: 75px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+
+  height: 60px;
+  padding-top: 10px;
+
+  gap:5px;
 }
 
 .Flexbox {
@@ -432,17 +497,15 @@ export default
 #currentTextArea {
   
   display: block;
-  position: fixed;
 
   width: 100%;
-  /*height: 15px;*/
   max-height: 100px;
 
-  margin-top: 25px;
-  margin-bottom: -45px;
-  
+  margin-top: 50px;
+
   resize: none;
   border-radius: 15px;
+  
   border: 0;
   
   padding-left: 15px;
@@ -450,11 +513,12 @@ export default
 	padding-top: 15px;
 	padding-bottom: 15px;
 
-  box-sizing: border-box; 
+
+  box-sizing: border-box;
 
   background-color: var( --message-box);
   outline: none;
-
+  
   /*color: var(--font-light);*/
   color: rgb(0, 0, 0)
 
@@ -588,7 +652,7 @@ export default
   margin-right: 55px;
   margin-left: 55px;
 
-  margin-bottom: -20px;
+  margin-bottom: -2px;
 }
 
 
@@ -596,7 +660,6 @@ export default
 
   display: flex;
   flex-direction: column;
-  position: relative;
 
 }
 

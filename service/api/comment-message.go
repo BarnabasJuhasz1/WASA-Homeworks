@@ -118,6 +118,9 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 			EmojiReactions:  emptyReactions,
 			OriginMessageId: messageID,
 		})
+
+		ctx.Logger.Debugln("new REPLY CREATED WITH CONTENT: ", ReactionToMake.Content)
+
 	}
 
 	// update conversations map by reassigning the struct
