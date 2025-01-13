@@ -45,7 +45,9 @@ type AppDatabase interface {
 	InsertUser(newUser util.User) (int, error)
 	UpdateUser(newUser util.User, oldUsername string) error
 	GetLoggedInUser(w http.ResponseWriter, ctx reqcontext.RequestContext) util.User
+
 	AddConversationIDToUser(userID int, addToConversationId int) error
+	RemoveConversationIDFromUser(userID int, removeFromConversationId int) error
 
 	GetConversation(id int) (util.Conversation, error)
 	InsertConversation(newConversation util.Conversation) (int, error)

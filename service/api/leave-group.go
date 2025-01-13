@@ -53,6 +53,12 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// delete user from group (users's perspective)
 	// LoggedInUser.MyConversations = deleteConversationIdFromList(LoggedInUser.MyConversations, Conversation.Id)
 	// util.AllUsers[LoggedInUser.Username] = LoggedInUser
+	removeErr := rt.db.RemoveConversationIDFromUser(LoggedInUser.Id, Conversation.Id)
+	if removeErr != nil {
+		ctx.Logger.Errorln("Failed to remove user from conversation:", removeErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// update the allConversations map by reassigning the struct
 	// util.AllConversations[Conversation.Id] = Conversation

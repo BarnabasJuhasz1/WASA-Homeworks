@@ -63,7 +63,7 @@ export default
         handleProfilePictureUpdate(value) {
             this.currentProfilePicture = value;
         },
-        universalButtonClicked() {
+        editButtonClicked() {
             // compare old group name and new group name
             if(this.currentProfileText != this.inspectingConversation.GroupName)
             {
@@ -263,6 +263,31 @@ export default
                 alert("Updating conversation name failed!")
             }
         },
+        async LeaveFromConversation() {
+            try {
+                let response = await this.$axios.delete(
+                "/conversation/"
+                +this.inspectingConversation.Id, 
+                // Headers:
+                {
+                    headers: {
+                        "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                console.log(response.data);
+                // this.inspectingConversation.GroupName = this.currentProfileText;
+
+                // this.$emit('updateGroup', this.inspectingConversation);
+                this.$emit('closeOverlay');
+
+            } catch (e) {
+                console.error(e.toString());         
+                alert("Leaving from conversation failed!")
+            }
+        },
     },
     computed: {
 
@@ -302,10 +327,21 @@ export default
                     />
                 </div>
 
-                <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px"
-                @click="universalButtonClicked">
-                    Edit
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px; width: 100px;"
+                    @click="editButtonClicked">
+                        Edit
+                    </button>
+
+                    <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px; width: 100px; background-color: red;"
+                    @click="LeaveFromConversation">
+                        Leave
+                    </button>
+
+                </div>
+     
+
+                
          
             </div>
         </div>

@@ -633,7 +633,7 @@ export default
   background: white;
   border: 2px solid white;
   border-radius: 5px;
-  margin-bottom: 450px;
+  margin-top: -410px;
 }
 
 

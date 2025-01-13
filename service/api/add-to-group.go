@@ -89,6 +89,12 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// add user to the group (user's perspective)
 	// userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
+	dbAddErr := rt.db.AddConversationIDToUser(userToAdd.Id, Conversation.Id)
+	if dbAddErr != nil {
+		ctx.Logger.Errorln("Failed to add user to conversation:", dbAddErr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// update users map by reassigning the struct
 	// util.AllUsers[requestBody.UserNameToAdd] = userToAdd

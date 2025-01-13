@@ -297,11 +297,14 @@ export default
     font-size: larger;
     outline: 0;
 
-    color: var(--font-light);
 
     border-radius: 5px;
     border: 3px solid rgba(0, 0, 0, .25);
-    background-color: rgba(0, 0, 0, .25);
+
+    /*color: var(--font-light);*/
+    /*background-color: rgba(0, 0, 0, .25);*/
+    color: black;
+    background-color: var(--message-box);
 
     align-items: center;
 }
