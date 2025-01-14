@@ -138,7 +138,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 	if ReactionToMake.Type == util.EmojiReaction {
 		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID])
 	} else {
-		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID+1])
+		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[len(Conversation.Messages)-1])
 	}
 
 	if encodeErr != nil {

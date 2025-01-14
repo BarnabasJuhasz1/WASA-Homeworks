@@ -88,9 +88,11 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 	// }
 
 	var emptyReactions []util.Reaction
+	// message read by the sender automatically
+	newMessageReadBy := []int{LoggedInUser.Id}
 
-	// modify conversation by adding the new message
-	Conversation.Messages = append(Conversation.Messages, util.Message{
+	// create the new message
+	newMessage := util.Message{
 		Id:              len(Conversation.Messages),
 		Sender:          LoggedInUser.Id,
 		Content:         requestBody.MessageContent,
@@ -98,12 +100,16 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		Status:          util.SingleCheckmark,
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
-	})
+		HasBeenDeleted:  false,
+		ReadBy:          newMessageReadBy,
+	}
+	// modify conversation by adding the new message
+	Conversation.Messages = append(Conversation.Messages, newMessage)
 
 	// update the allConversations map by reassigning the struct
 	// util.AllConversations[conversationID] = Conversation
 
-	ctx.Logger.Debugln("id: ", conversationID, " participants: ", Conversation.Participants)
+	// ctx.Logger.Debugln("id: ", conversationID, " participants: ", Conversation.Participants)
 
 	dberr := rt.db.UpdateConversation(conversationID, Conversation)
 	if dberr != nil {
@@ -114,7 +120,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 
 	ctx.Logger.Debugln("-----Func sendMessage Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(Conversation)
+	encodeErr := json.NewEncoder(w).Encode(newMessage)
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

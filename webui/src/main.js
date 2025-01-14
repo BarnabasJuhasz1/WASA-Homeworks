@@ -12,5 +12,5 @@ const app = createApp(App)
 app.config.globalProperties.$axios = axios;
 app.component("ErrorMsg", ErrorMsg);
 app.component("LoadingSpinner", LoadingSpinner);
-app.use(router)
-app.mount('#app')
+app.use(router);
+app.mount('#app');

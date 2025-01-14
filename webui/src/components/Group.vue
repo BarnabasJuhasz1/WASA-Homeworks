@@ -10,7 +10,11 @@ export default {
 		},
 		index:{
 			required: true,
-		}
+		},
+		isSelected:{
+			type: Boolean,
+			required: true,
+		},
 	},
 	emits: ['SelectNewConversationAtGroupList'],
 	data() {
@@ -104,7 +108,9 @@ export default {
 
 <template>
 
-	<div id="Parent" @click="SelectThisGroup">
+	<div id="Parent" @click="SelectThisGroup"
+		style="border-radius: 12px;"
+		:style="{outline: this.isSelected ? '2px solid orange': ''}">
 
 		<div class="image-container">
 			<img :src="formattedProfilePicture"/>

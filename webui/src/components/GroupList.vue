@@ -8,6 +8,10 @@ export default {
       type: Object,
       required: true,
     },
+    selectedConversationIndexLocal: {
+      type: Number,
+      required: true,
+    },
   },
   emits: ['SelectNewConversation'],
   components: {
@@ -45,6 +49,7 @@ export default {
         <Group
         :conversation="conversation"
         :index="index"
+        :isSelected="this.selectedConversationIndexLocal == index"
         @SelectNewConversationAtGroupList="SelectNewConversation"/>
       </div>
     </div>

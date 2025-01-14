@@ -16,7 +16,6 @@ export default {
 			type: Object,
 		},
 		msgStyle: {
-			type: String,
 			required: true,
 		},
 
@@ -40,17 +39,26 @@ export default {
 			// Return the formatted time
 			return `${hours}:${minutes}`;
 		},
+		setCheckMarkImg() {
+			if (this.currentCheckmarkState == "DoubleCheckmark") {
+				this.currentCheckmarkImage = this.readCheckMark;
+			} else if (this.currentCheckmarkState == "SingleCheckmark") {
+				this.currentCheckmarkImage =  this.receivedCheckMark;
+			} else {
+				this.currentCheckmarkImage =  null;
+			}
+		},
 	},
 	data() {
 		return {
 			username: null,
 			profilePic: null,
 
-			// state 0 --> sent, state 1 --> received, state 2 --> read
-			currentCheckmarkState: 0,
-
 			receivedCheckMark: "https://cdn-icons-png.flaticon.com/128/447/447147.png",
 			readCheckMark: "https://cdn-icons-png.flaticon.com/128/18604/18604719.png",
+		
+			currentCheckmarkState: this.message.Status,
+			currentCheckmarkImage: null,
 		}
 	},
 	components: {
@@ -59,10 +67,11 @@ export default {
 	mounted() {
 		
 		this.getProfile(this.message.Sender);
+		this.setCheckMarkImg();
   	},
 	computed: {
 		TimeStyle(){
-			return this.msgStyle.wasSentByUser ? "margin-right: 15px;" : "margin-right: 15px;"
+			return this.msgStyle.wasSentByUser ? "margin-right: 15px" : "margin-right: 15px"
 		},
 		ExtraSpace(){
 				return this.msgStyle.wasSentByUser ? "display: block; margin-right: 0; margin-left: auto;" : ""
@@ -163,16 +172,9 @@ export default {
 		},
 		isCheckMarkVisible() {
 			return this.msgStyle.wasSentByUser
+				&& this.currentCheckmarkImage != null
 				&& !this.message.HasBeenDeleted
 				&& !this.currentCheckmarkState == 0;
-		},
-		getCheckMarkImg() {
-			if(this.currentCheckmarkState == 2)
-				return this.readCheckMark;
-			else if (this.currentCheckmarkState == 1)
-				return this.receivedCheckMark;
-			else
-				return null;
 		},
   	}
 }
@@ -221,8 +223,8 @@ export default {
 					{{ formattedTimestamp() }}
 					<img
 					v-if="isCheckMarkVisible"
-					style="width:20px; height:20px;"
-					:src="getCheckMarkImg"
+					style="width:15px; height:15px;"
+					:src="this.currentCheckmarkImage"
 					>
 				</div>
 

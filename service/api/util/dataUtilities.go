@@ -40,7 +40,10 @@ type Message struct {
 	EmojiReactions []Reaction
 	// stores the id of the message this is a reply to. if this is not a reply message, the value is initialized to -1.
 	OriginMessageId int
-	HasBeenDeleted  bool
+	// flag that is set to true if the message has been deleted
+	HasBeenDeleted bool
+	// list of userIDs that have read the message
+	ReadBy []int
 }
 
 type Reaction struct {

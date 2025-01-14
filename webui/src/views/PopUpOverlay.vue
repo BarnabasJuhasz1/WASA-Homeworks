@@ -118,28 +118,27 @@ export default
                 console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
                 sharedData.UserSession.Username = response.data;
             }
-            else if(this.overlayMode == "GROUP"){
+            // else if(this.overlayMode == "GROUP"){
 
-                let response = await this.$axios.put(
-                "/conversation/"+this.conversationID, 
-                // JSON body:
-                {   GroupName: newName },
-                // Headers:
-                {
-                    headers: {
-                    "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-                    "Content-Type": "application/json",
-                    },
-                }
-                );  
+            //     let response = await this.$axios.put(
+            //     "/conversation/"+this.conversationID, 
+            //     // JSON body:
+            //     {   GroupName: newName },
+            //     // Headers:
+            //     {
+            //         headers: {
+            //         "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+            //         "Content-Type": "application/json",
+            //         },
+            //     }
+            //     );  
 
-                console.log("RESPONSE to change group name: ", response.data);
-                sharedData.UserSession.Username = response.data;
-            }
+            //     console.log("RESPONSE to change group name: ", response.data);
+            //     sharedData.UserSession.Username = response.data;
+            // }
         },
         async SetPictureOperation(newPicture) {
             if(this.overlayMode == "USER"){
-                // http://localhost:3000/user -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" -d '{\"NewUsername\": \"NewJuhasz\"}'
                 let response = await this.$axios.put(
                 "/user/profilePicture", 
                 // JSON body:
@@ -155,9 +154,6 @@ export default
 
                 // console.log(response.data);
                 sharedData.UserSession.ProfilePicture = response.data;
-            }
-            else if(this.overlayMode == "GROUP"){
-
             }
         },
     },

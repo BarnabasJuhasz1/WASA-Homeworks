@@ -55,8 +55,29 @@ export default
                 // reset textArea input
                 this.currentLoginUsernameText = "";
             }
-
         },
+        // async GetMyConversations(){
+        //     try {
+        //         let response = await axios.get(
+        //         "/user/myConversations", 
+        //         // Headers:
+        //         {
+        //             headers: {
+        //             "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+        //             },
+        //         }
+        //         );
+
+        //         console.log("myconversations: ", response.data);
+        //         myFetchedConversations.value = response.data;
+                
+        //         //this.myFetchedConversations2 = response.data;
+        //     }
+        //     catch (error) {
+        //         console.error("Error fetching conversations! ", error);
+        //         alert("Error fetching conversations!")
+        //     }
+        // }
     },
 }
 </script>

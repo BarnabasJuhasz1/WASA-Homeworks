@@ -11,7 +11,7 @@ import (
 func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
 	w.Header().Set("content-type", "application/json")
-	ctx.Logger.Debugln("-----Func getConversation Called-----")
+	ctx.Logger.Debugln("-----Func getUserFromName Called-----")
 
 	// LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
@@ -30,7 +30,7 @@ func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func getConversation Finished-----")
+	ctx.Logger.Debugln("-----Func getUserFromName Finished-----")
 
 	encodeErr := json.NewEncoder(w).Encode(userToReturn)
 

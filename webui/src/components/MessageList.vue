@@ -69,7 +69,7 @@ export default {
       :msgStyle="computedStyle(message)" 
       
       @openContextMenu="this.$emit('openContextMenu', message.Id)"
-      />      
+      />
     </div>
 
 
