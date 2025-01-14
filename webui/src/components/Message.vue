@@ -44,7 +44,13 @@ export default {
 	data() {
 		return {
 			username: null,
-			profilePic: null
+			profilePic: null,
+
+			// state 0 --> sent, state 1 --> received, state 2 --> read
+			currentCheckmarkState: 0,
+
+			receivedCheckMark: "https://cdn-icons-png.flaticon.com/128/447/447147.png",
+			readCheckMark: "https://cdn-icons-png.flaticon.com/128/18604/18604719.png",
 		}
 	},
 	components: {
@@ -154,7 +160,20 @@ export default {
 				emojis: reactionCounts,
 				count: this.message.EmojiReactions.length
 			}
-		}
+		},
+		isCheckMarkVisible() {
+			return this.msgStyle.wasSentByUser
+				&& !this.message.HasBeenDeleted
+				&& !this.currentCheckmarkState == 0;
+		},
+		getCheckMarkImg() {
+			if(this.currentCheckmarkState == 2)
+				return this.readCheckMark;
+			else if (this.currentCheckmarkState == 1)
+				return this.receivedCheckMark;
+			else
+				return null;
+		},
   	}
 }
 </script>
@@ -162,7 +181,8 @@ export default {
 
 <template>
 
-	<div id="MessageParent" :style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}">
+	<div id="MessageParent"
+		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}">
 
 		<div v-if="!this.msgStyle.wasSentByUser
 					&& this.profilePic != null
@@ -172,12 +192,16 @@ export default {
 				<img :src="formattedProfilePicture"/>
 		</div>
 		
-		<div id="ComplexMessageAndEmoji" :style="{alignItems: this.msgStyle.wasSentByUser ? 'flex-end' : 'flex-start'}">
+		<div id="ComplexMessageAndEmoji"
+			:style="{alignItems: this.msgStyle.wasSentByUser ? 'flex-end' : 'flex-start'}">
 
-			<div id="ComplexMessage" :style="MessageStyle">
+			<div id="ComplexMessage"
+				:style="MessageStyle"
+				@contextmenu.prevent="this.message.HasBeenDeleted ? null : this.$emit('openContextMenu')"
+				>
 
 				<OriginMessage style="border-radius: 10px; max-width: 500px;"
-					v-if="this.originMessage != null"
+					v-if="this.originMessage != null && !this.message.HasBeenDeleted"
 					:convType="this.convType"
 					:message="this.originMessage"
 					>
@@ -188,17 +212,24 @@ export default {
 						{{ this.username }}
 				</div>
 
-				<div class="message" :style="TimeStyle">
+				<div class="message"
+					:style="{ TimeStyle, fontStyle: this.message.HasBeenDeleted ? 'italic' : 'normal'}">
 						{{ this.message.Content }}
 				</div>
 
-				<div class="time">
-						{{ formattedTimestamp() }}
+				<div class="timeAndCheckmark">
+					{{ formattedTimestamp() }}
+					<img
+					v-if="isCheckMarkVisible"
+					style="width:20px; height:20px;"
+					:src="getCheckMarkImg"
+					>
 				</div>
 
 			</div>
 
 			<div id="EmojiAndCount"
+			v-if="!this.message.HasBeenDeleted"
 			v-show="this.hasEmojiReactions"
 			:style="{
 				backgroundColor: msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)',
@@ -218,14 +249,13 @@ export default {
 				</div> -->
 
 				<div style="display: flex; margin-left: 10px; margin-right: -5px;">
-					<div id = "messageEmoji" v-for="(value, key) in reactedEmojis.emojis" :key="key">
-					{{ value[0] }}
+					<div id = "messageEmoji"
+					v-for="(value, key) in reactedEmojis.emojis" :key="key">
+						{{ value[0] }}
 					</div>
 				</div>
 
-				<div id = "emojiCount"
-				v-show="reactedEmojis.count > 1"
-				>
+				<div id = "emojiCount" v-show="reactedEmojis.count > 1">
 					{{ reactedEmojis.count }}
 				</div>
 			</div>
@@ -248,11 +278,11 @@ export default {
 	visibility: visible;
 }
 
-.time {
+.timeAndCheckmark {
 	stroke-width: 50%;
 	font-weight: 10;
 	font-style: italic;
-	margin-top: 5px;
+	/*margin-top: 5px;*/
 	text-align: right;
 }
 

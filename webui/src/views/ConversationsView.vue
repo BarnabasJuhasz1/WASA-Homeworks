@@ -71,19 +71,21 @@ export default
             }
             // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
             // send the message content to backend
-            if(this.originMessage == null){
-              this.sendMessageRequest();
-            }
-            else{
-              this.sendMessageReplyRequest();
-            }
+            console.log("New Message Sent: ", newMessage)
 
             if (!this.selectedConversation.Messages){
               this.selectedConversation.Messages = [];
             }
 
-            console.log("pushed new msg: ", newMessage)
             this.selectedConversation.Messages.push(newMessage);
+
+            if(this.originMessage == null){
+              this.sendMessageRequest(newID);
+            }
+            else{
+              this.sendMessageReplyRequest();
+            }
+
             // window.location.reload();
 
             // reset textArea input
@@ -97,7 +99,7 @@ export default
             });
 
         },
-        async sendMessageRequest() {
+        async sendMessageRequest(newMessageID) {
           try {
             // console.log("attempting to send messsage: ", this.currentMessage, " to id: ", this.myConversations[this.selectedConversationIndexLocal].Id)
 
@@ -116,6 +118,7 @@ export default
               }
             );
 
+            // this.selectedConversation[newMessageID].
             // console.log("message sent with response: ", response.data);
             
           }
@@ -126,7 +129,7 @@ export default
         },
         async sendMessageReplyRequest() {
           try {
-            console.log("sending to conv: ", this.myConversations[this.selectedConversationIndexLocal].Id, " with msg origin ID: ", this.originMessage.Id, " with token: ", sharedData.UserSession.SessionToken)
+            // console.log("sending to conv: ", this.myConversations[this.selectedConversationIndexLocal].Id, " with msg origin ID: ", this.originMessage.Id, " with token: ", sharedData.UserSession.SessionToken)
             let response = await axios.put(
               "/conversation/"+this.myConversations[this.selectedConversationIndexLocal].Id
               + "/message/"+ this.originMessage.Id

@@ -95,7 +95,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		Sender:          LoggedInUser.Id,
 		Content:         requestBody.MessageContent,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-		Status:          util.UserName,
+		Status:          util.SingleCheckmark,
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 	})

@@ -101,7 +101,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		Sender:          LoggedInUser.Id,
 		Content:         OriginalConversation.Messages[messageID].Content,
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-		Status:          util.UserName,
+		Status:          util.SingleCheckmark,
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 	})

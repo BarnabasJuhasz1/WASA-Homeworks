@@ -68,7 +68,7 @@ export default {
       :originMessage="getOriginMessage(message)"
       :msgStyle="computedStyle(message)" 
       
-      @contextmenu.prevent="this.$emit('openContextMenu', message.Id)"
+      @openContextMenu="this.$emit('openContextMenu', message.Id)"
       />      
     </div>
 

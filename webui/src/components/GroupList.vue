@@ -41,7 +41,7 @@ export default {
 <template>
   <div>
     <div>
-      <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="`${conversation.GroupName}-${conversation.GroupPicture}-${index}`">
+      <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="`${conversation.GroupName}-${conversation.GroupPicture}-${conversation.Messages}-${index}`">
         <Group
         :conversation="conversation"
         :index="index"

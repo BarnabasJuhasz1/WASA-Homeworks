@@ -23,7 +23,7 @@ export default {
 	mounted() {
 		
 		this.getProfile();
-		//this.setLastMessageSender();
+		this.setLastMessageSender();
   	},
 	methods: {
 		SelectThisGroup()
@@ -72,14 +72,21 @@ export default {
 			}
 			
 			const sender = this.conversation.Messages[this.conversation.Messages.length-1].Sender;
-			const senderProfile = await sharedData.getUserProfile(sender);
-			this.lastMessageSender = senderProfile.Username;
+			if(sender == sharedData.UserSession.UserID)
+			{
+				this.lastMessageSender = "You";
+			}
+			else
+			{
+				const senderProfile = await sharedData.getUserProfile(sender);
+				this.lastMessageSender = senderProfile.Username;
+			}
 			//return senderProfile.Username;
 		}
 	},
 	computed: {
 		formattedProfilePicture() {
-			return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
+			return `data:image/png;base64,${this.profilePic}`;
     	},
 		getLastMessageContent() {
 
@@ -109,7 +116,7 @@ export default {
 			</div>
 
 			<div id="LastMessage" v-if="getLastMessageContent != ''">
-				{{ lastMessageSender }}: {{ getLastMessageContent }}
+				{{ this.lastMessageSender }}: {{ getLastMessageContent }}
 			</div>
 		</div>
 

@@ -51,7 +51,10 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// delete message content
-	Conversation.Messages[messageID].Content = "Message content was deleted."
+	Conversation.Messages[messageID].Content = "Message content has been deleted."
+	// flag message as deleted
+	Conversation.Messages[messageID].HasBeenDeleted = true
+
 	// update conversations map by reassigning the struct
 	// util.AllConversations[Conversation.Id] = Conversation
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
@@ -63,7 +66,7 @@ func (rt *_router) deleteMessage(w http.ResponseWriter, r *http.Request, ps http
 
 	ctx.Logger.Debugln("-----Func deleteMessage Finished-----")
 
-	encodeErr := json.NewEncoder(w).Encode(Conversation)
+	encodeErr := json.NewEncoder(w).Encode(Conversation.Messages[messageID])
 
 	if encodeErr != nil {
 		ctx.Logger.Errorln("Failed to encode to JSON:", encodeErr)

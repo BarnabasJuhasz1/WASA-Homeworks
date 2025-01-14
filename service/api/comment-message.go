@@ -114,7 +114,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 			Sender:          LoggedInUser.Id,
 			Content:         ReactionToMake.Content,
 			Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
-			Status:          util.UserName,
+			Status:          util.SingleCheckmark,
 			EmojiReactions:  emptyReactions,
 			OriginMessageId: messageID,
 		})

@@ -26,7 +26,7 @@ export default
             position: { x: 0, y: 0},
 
             // mostUsedEmojis: ['😀', '😂', '😍', '😭', '😎', '😡', '👍', '👏', '🎉'],
-            mostUsedEmojis: ['❤', '😂', '😭', '😎', '😡', '👍', '👏', '🎉'],
+            mostUsedEmojis: ['❤', '😂', '😭', '😡', '👍'],
 
 
             messageID: null,
@@ -82,9 +82,7 @@ export default
         selectMessageToReplyTo() {
             this.$emit("setOriginMessage", this.messageID)
         },
-        async ReplyToMessage() {
-
-            
+        async ReplyToMessage() {  
             try{
                 let response = await this.$axios.put(
                 "/user", 
@@ -104,6 +102,31 @@ export default
             } catch (error) {
                 console.error("Error sending message! ", error);
                 alert("Error sending message!")
+            }
+        },
+        DeleteEvent() {
+            this.DeleteMessage();
+        },
+        async DeleteMessage() {  
+            try{
+                let response = await this.$axios.delete(
+                "/conversation/"+ this.conversationID
+                + "/message/"+ this.messageID, 
+                // Headers:
+                {
+                    headers: {
+                    "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                    "Content-Type": "application/json",
+                    },
+                }
+                );
+                console.log("deleting message: ", this.messageID)
+                console.log(response.data)
+                this.$emit('refreshLocalMessage', response.data)
+
+            } catch (error) {
+                console.error("Error deleting message! ", error);
+                alert("Error deleting message!")
             }
         },
 
@@ -133,7 +156,7 @@ export default
 
                 <button class="ContextMenuButton"
                     v-if="IamTheMessageSender"
-                    @click="universalButtonClicked">
+                    @click="DeleteMessage">
                     Delete
                 </button>
 
@@ -172,7 +195,7 @@ export default
 
 #EmojiRow {
     width: 100%;
-    height: 60px;
+    height: 40px;
     display: flex;
     flex-direction: row;
 
@@ -180,13 +203,13 @@ export default
 
     display: flex;
     gap: 5px;
-    overflow-x: auto; /* Allow scrolling for longer lists */
+    overflow-x: auto;
+    background-color: transparent;
 }
 
 #ContextMenuParent {
     position: absolute;
-    background: white;
-    border: .5px solid white;
+    background: rgb(0, 0, 0, 0.5);
     z-index: 1000;
     border-radius: 5px;
 }
@@ -201,9 +224,10 @@ export default
     font-size: medium;
     font-weight: bold;
     
-    border: .5px solid white;
     outline: none;
-
+    border: 2px solid black;
+    appearance: none;
+    box-shadow: none;
 }
 
 </style>

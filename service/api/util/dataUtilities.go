@@ -25,14 +25,13 @@ const (
 
 	SingleCheckmark MessageStatus = "SingleCheckmark"
 	DoubleCheckmark MessageStatus = "DoubleCheckmark"
-	UserName        MessageStatus = "Username"
 
 	MessageReaction ReactionType = "MessageReaction"
 	EmojiReaction   ReactionType = "EmojiReaction"
 )
 
 type Message struct {
-	Id        int // Id grows incrementally. if a message gets deleted, the content gets deleted, and the message is flagged.
+	Id        int // Id grows incrementally. if a message gets deleted, the content gets deleted, and the message is flagged with "HasBeenDeleted" = true.
 	Sender    int
 	Content   string
 	Timestamp string
@@ -41,6 +40,7 @@ type Message struct {
 	EmojiReactions []Reaction
 	// stores the id of the message this is a reply to. if this is not a reply message, the value is initialized to -1.
 	OriginMessageId int
+	HasBeenDeleted  bool
 }
 
 type Reaction struct {
