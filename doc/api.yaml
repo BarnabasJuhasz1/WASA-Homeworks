@@ -52,8 +52,7 @@ paths:
                 type: object
                 properties:
                   identifier:
-                    # change here if you decide to use an integer
-                    # or any other type of identifier
+                    description: "The login identifier"
                     type: string
                     example: "Maria"
                     pattern: "^.*$"
@@ -343,9 +342,9 @@ paths:
                   description: "the type of reaction, can be either emoji or message"
                   type: string
                   enum:
-                    - EmojiReaction
-                    - MessageReaction
-                  example: "EmojiReaction"
+                    - Emoji
+                    - Message
+                  example: "Emoji"
                   pattern: "^.*$"
                   minLength: 1
                   maxLength: 7
@@ -436,9 +435,9 @@ paths:
                   description: "type of conversation, either with a single person or a group"
                   type: string
                   enum:
-                    - UserType
-                    - GroupType
-                  example: "UserType"
+                    - User
+                    - Group
+                  example: "User"
                   pattern: "^.*$"
                   minLength: 1
                   maxLength: 5
@@ -516,10 +515,10 @@ components:
           description: "the status of the message"
           type: string
           enum:
-            - SingleCheckmark
-            - DoubleCheckmark
+            - Single
+            - Double
             - Username
-          example: "SingleCheckmark"
+          example: "Single"
           pattern: "^.*$"
           minLength: 1
           maxLength: 10000
@@ -544,9 +543,9 @@ components:
           description: "the type of reaction, can be either emoji or message"
           type: string
           enum:
-            - EmojiReaction
-            - MessageReaction
-          example: "MessageReaction"
+            - Emoji
+            - Message
+          example: "Emoji"
           pattern: "^.*$"
           minLength: 1
           maxLength: 10000
@@ -595,9 +594,9 @@ components:
           description: "type of conversation, either with a single person or a group"
           type: string
           enum:
-            - UserType
-            - GroupType
-          example: "UserType"
+            - User
+            - Group
+          example: "User"
           pattern: "^.*$"
           minLength: 1
           maxLength: 5

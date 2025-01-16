@@ -37,5 +37,6 @@ func (db *appdbimpl) UpdateUser(newUser util.User, existingUsername string) erro
 	// 		db.UpdateConversation(myConv.Id, myConv)
 	// 	}
 	// }
+
 	return err
 }

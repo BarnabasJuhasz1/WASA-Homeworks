@@ -23,7 +23,8 @@ func (db *appdbimpl) InsertUser(newUser util.User) (int, error) {
 		return -1, err
 	}
 
-	lastInsertID, err := result.LastInsertId() // This method returns the last insert ID.
+	// This method returns the last insert ID.
+	lastInsertID, err := result.LastInsertId()
 	if err != nil {
 		return 0, err
 	}

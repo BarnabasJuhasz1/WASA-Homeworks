@@ -26,10 +26,10 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
-	if len(requestBody.Username) < 3 || len(requestBody.Username) > 16 {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
-	}
+	// if len(requestBody.Username) < 1 || len(requestBody.Username) > 16 {
+	// 	w.WriteHeader(http.StatusNotAcceptable)
+	// 	return
+	// }
 
 	_token, _tokenGenError := util.GetRandomToken(32)
 	if _tokenGenError != nil {
@@ -71,7 +71,6 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
 	}
 
-	// fmt.Println("-----Func doLogin Finished-----")
 	loggedInUserStruct := util.SessionStruct{
 		User:         user,
 		SessionToken: _token,

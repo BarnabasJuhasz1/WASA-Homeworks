@@ -16,22 +16,6 @@ func (rt *_router) leaveGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
-	// conversationIDString := ps.ByName("ConversationID")
-
-	// Check conversationID in path
-	// conversationID, err := strconv.Atoi(conversationIDString)
-	// if err != nil || conversationID < 0 {
-	// 	fmt.Println("Invalid conversationID in path! ", err)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-	// Conversation, existsConv := AllConversations[conversationID]
-	// if !existsConv {
-	// 	fmt.Println("Invalid conversationID in path! ", err)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
 	// get the conversation from path
 	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {

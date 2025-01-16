@@ -13,5 +13,6 @@ func (rt *_router) liveness(w http.ResponseWriter, r *http.Request, ps httproute
 	if err := rt.DB.Ping(); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-	}*/
+	}
+	*/
 }

@@ -80,13 +80,6 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// SenderUser, existsUser := Users[requestBody.SenderUsername]
-	// if !existsUser {
-	// 	fmt.Println("User ", requestBody.SenderUsername, " is not in the database!")
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
 	var emptyReactions []util.Reaction
 	// message read by the sender automatically
 	newMessageReadBy := []int{LoggedInUser.Id}

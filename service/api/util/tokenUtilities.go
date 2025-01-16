@@ -8,7 +8,7 @@ import (
 
 const secureCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-// Mock database that maps tokens to user IDs (Username)
+// maps tokens to user IDs (Username)
 var TokenMap = map[string]string{}
 
 func GetRandomToken(length int) (string, error) {

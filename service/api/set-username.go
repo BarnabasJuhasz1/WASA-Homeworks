@@ -69,8 +69,6 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
-		// fmt.Println("User ", UserLoggedIn.Username, " renamed sucessfully to ", requestBody.NewUsername, "!")
 	}
 
 	ctx.Logger.Debugln("-----Func setUsername Finished-----")

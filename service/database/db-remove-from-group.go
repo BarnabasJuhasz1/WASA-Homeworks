@@ -11,7 +11,7 @@ func (db *appdbimpl) RemoveConversationIDFromUser(userID int, removeFromConversa
 
 	// fmt.Println("trying to remove user: ", username, " from conversation: ", addToConversationId)
 	// get the current conversation IDs
-	//err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
+	// err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
 	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&oldConversationIDsJson)
 	if err != nil {
 		return err

@@ -11,7 +11,7 @@ func (db *appdbimpl) AddConversationIDToUser(userID int, addToConversationId int
 
 	// fmt.Println("trying to add user: ", username, " to conversation: ", addToConversationId)
 	// get the current conversation IDs
-	//err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
+	// err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
 	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&oldConversationIDsJson)
 	if err != nil {
 		return err
