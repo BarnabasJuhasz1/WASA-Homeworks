@@ -3,7 +3,7 @@ import PopUpOverlay from "./PopUpOverlay.vue";
 import CreatePopUpOverlay from "./CreatePopUpOverlay.vue";
 import axios from "../services/axios.js"
 import {ref} from "vue";
-import { sharedData } from '../services/sharedData.js';
+import { sharedData } from './sharedData.js';
 import EditGroupPopUp from "./EditGroupPopUp.vue";
 import NewConversationsView from "./NewConversationsView.vue";
 

@@ -3,7 +3,7 @@
 import ParticipantsList from '../components/ParticipantsList.vue';
 import PopUpProfileHeader from '../components/PopUpProfileHeader.vue';
 import ProfileObject from '../components/ProfileObject.vue';
-import { sharedData } from '../services/sharedData';
+import { sharedData } from './sharedData';
 
 export default 
 {

@@ -1,5 +1,5 @@
 <script>
-import { sharedData } from '../services/sharedData.js';
+import { sharedData } from '../views/sharedData.js';
 import OriginMessage from './OriginMessage.vue';
 
 export default {

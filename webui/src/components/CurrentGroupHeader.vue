@@ -1,6 +1,6 @@
 
 <script>
-import { sharedData } from '../services/sharedData.js';
+import { sharedData } from '../views/sharedData.js';
 
 export default {
   props: {

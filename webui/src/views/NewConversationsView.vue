@@ -11,7 +11,7 @@ import axios from "../services/axios.js"
 
 import ContextMenu from '../components/ContextMenu.vue';
 
-import { sharedData } from '../services/sharedData.js';
+import { sharedData } from './sharedData.js';
 
 import 'emoji-picker-element';
 

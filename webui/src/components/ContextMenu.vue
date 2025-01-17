@@ -1,6 +1,6 @@
 
 <script>
-import { sharedData } from '../services/sharedData';
+import { sharedData } from '../views/sharedData';
 
 // import 'emoji-picker-element';
 
