@@ -42,6 +42,7 @@ import (
 type AppDatabase interface {
 	GetUser(userID int) (util.User, error)
 	GetUserFromName(username string) (util.User, error)
+	GetAllUsers() ([]int, error)
 	InsertUser(newUser util.User) (int, error)
 	UpdateUser(newUser util.User, oldUsername string) error
 	GetLoggedInUser(w http.ResponseWriter, ctx reqcontext.RequestContext) util.User

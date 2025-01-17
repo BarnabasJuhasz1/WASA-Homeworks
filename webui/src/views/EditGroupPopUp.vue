@@ -2,7 +2,6 @@
 <script>
 import ParticipantsList from '../components/ParticipantsList.vue';
 import PopUpProfileHeader from '../components/PopUpProfileHeader.vue';
-import ProfileObject from '../components/ProfileObject.vue';
 import { sharedData } from './sharedData';
 
 export default 
@@ -45,7 +44,6 @@ export default
         this.GetUsersOfConversation()
     },
     components:{
-        ProfileObject,
         PopUpProfileHeader,
         ParticipantsList,
     },

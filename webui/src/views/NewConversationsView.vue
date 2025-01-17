@@ -34,7 +34,11 @@ export default
     // Watch for changes in route parameters
     '$route'(to) {
       console.log("Updated ROUTER PARAMS: ", to.params.id);
-      this.getConversation(to.params.id);
+      // this.getConversation(to.params.id);
+      this.SelectNewConversationInApp(to.params.id)
+    },
+    '$myconversations'(to){
+      console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
     }
   },
   data() {
@@ -204,8 +208,11 @@ export default
         },
         SelectNewConversationInApp(localConvIndex){
           
-          this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
-                 
+          // this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
+          this.$router.push('/conversation/'+localConvIndex);
+
+          this.getConversation(this.myConversations[localConvIndex].Id);
+
           if(this.selectedConversationIndexLocal != localConvIndex)
           {
             console.log("local index changed from ", this.selectedConversationIndexLocal, " to ", localConvIndex)
@@ -214,7 +221,6 @@ export default
             this.currentMessage = "";
           }
           console.log("LOCAL INVDEX: ", this.selectedConversationIndexLocal)
-
 
           this.$nextTick(() => {
             this.scrollToBottom();
@@ -271,6 +277,8 @@ export default
             this.adjustHeight();
 
             this.originMessage = null;
+
+            this.SelectNewConversationInApp(this.selectedConversationIndexLocal)
           });
           
         },
@@ -306,8 +314,7 @@ export default
             originMessage.style.position = "relative";
             originMessage.style.top = `${currentBottom + 50}px`;
           });
-
-        }
+        },
     },
     mounted() {
       // this.$nextTick(() => {
@@ -317,6 +324,13 @@ export default
       // setTimeout(() => {
       //   this.scrollToBottom();
       // }, 100);
+
+      // this.$nextTick(() => {
+      //   if(this.myConversations.length > 0)
+      //     this.SelectNewConversationInApp(0)
+      // });
+
+
     },
     components: {
         MessagesList,
@@ -330,7 +344,10 @@ export default
     computed: {
       selectedConversation()
       {
-        // console.log("my conversations: ", this.myConversations)
+        // do not remove these comments
+        // console.log("trying to return conv with index: ", this.selectedConversationIndexLocal)
+        // console.log("returning conv:  ", this.myConversations[this.selectedConversationIndexLocal])
+
         return this.myConversations && this.myConversations[this.selectedConversationIndexLocal]
         ? this.myConversations[this.selectedConversationIndexLocal] : null;
       },
@@ -343,7 +360,7 @@ export default
 </script>
 
 <template>
-    <div id="body" class="Flexbox">
+    <div id="body" class="Flexbox" style="width: calc(100vw - 6vh);">
         <div id="mainLeft">
             <div id="groupListParent" class="custom-scrollbar">
               <GroupList v-if="myConversations != null"
@@ -353,7 +370,8 @@ export default
             </div>
 
             <div id="AddNewGroup">
-              <AddGroup @openOverlayInMode="openOverlayInMode"/>
+              <AddGroup
+              @openOverlayInMode="openOverlayInMode"/>
             </div>
           
             <CurrentProfile
@@ -364,18 +382,22 @@ export default
             />
         </div>
 
-        <div id="main" v-if="myConversations != null">
+        <div id="main">
 
             <CurrentGroupHeader
             id="CurrentGroupHeader"
             ref="groupHeaderRef"
-            :selectedConversation="selectedConversation"
+            :selectedConversation="this.selectedConversation"
             @openOverlayInGroupMode="openOverlayInGroupMode"
             />
+
+            <div style="display:flex; margin-bottom:0px; margin-top:auto;">
+            </div>
 
             <MessagesList
             id="MessagesList"
             ref="messagesList"
+            v-if="myConversations != null"
             :textMessages="this.selectedConversation.Messages"
             :convType="this.selectedConversation.Type"
             :refreshKey="this.selectedConversationIndexLocal"
@@ -385,7 +407,9 @@ export default
 
             <div id="BottomPartWrapper">
 
-              <div id="spaceForBottom" style="display: block; width: 100%; height: 0px; border-top: 2px solid rgb(206, 215, 240); margin-bottom: 5px;">
+              <div id="spaceForBottom"
+              v-if="myConversations != null"
+              style="display: block; width: 100%; height: 0px; border-top: 2px solid rgb(206, 215, 240); margin-bottom: 5px;">
               </div>
 
               <OriginMessage id="OriginMessage" ref="OriginMessage"
@@ -394,7 +418,7 @@ export default
               :message="this.originMessage"
               />
         
-              <div id="TextAndSend" >
+              <div id="TextAndSend" v-if="myConversations != null">
                   
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
                   <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
@@ -427,6 +451,7 @@ export default
 
             <ContextMenu ref="contextMenu"
             v-show="contextMenuVisible"
+            v-if="myConversations != null"
             :conversationID="this.selectedConversation.Id"
             @click="closeContextMenu"
             @refreshLocalMessage="refreshLocalMessage"
@@ -445,8 +470,9 @@ export default
   display: block; 
   margin-left: auto;
   margin-top: -105px;
-  width: 200px;
-  height: calc(85vh - 105px);
+  width: 20%;
+  min-width: 125px;
+  height: calc(90vh - 105px);
 }
 
 #groupListParent {
@@ -455,10 +481,12 @@ export default
   padding: 5px;
   /*height: calc(70vh - 65px - 46px);*/
   height: 100%;
+  /*
   border-radius: 15px;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  background-color: rgba(0, 0, 0, 0.25);
+  */
+  background-color: var(--panel-bg);
 
   border: 3px solid rgba(0, 0, 0, .25);
   border-bottom: 0px;
@@ -472,15 +500,15 @@ export default
   margin-right: auto;
   padding: 5px;
   flex-direction: column;
-  background-color: rgba(0, 0, 0, .25);
+  background-color: var(--panel-bg);
   /*height: calc(70vh - 6px);*/
 
   
-  width: 70vw;
-  border-radius: 15px;
+  width: 80%;
+  /*border-radius: 15px;*/
 
   border: 3px solid rgba(0, 0, 0, .25);
-  height: calc(85vh);
+  height: calc(90vh);
 
   /*flex-grow: 1;*/
 
@@ -492,7 +520,7 @@ export default
   min-height: 75px;
   max-height: 75px;
 
-  background-color: rgba(0, 0, 0, .5);
+  background-color: rgba(0, 0, 0, .25);
   margin-bottom: 5px;
   border-radius: 15px;
 }
@@ -508,7 +536,7 @@ export default
 
   /*height: calc(85vh - 150px);*/
   height: auto;
-  max-height: calc(85vh - 150px);
+  max-height: calc(90vh - 150px);
 
   flex-grow: 1;
   flex-shrink: 1;

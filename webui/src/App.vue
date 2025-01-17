@@ -17,16 +17,22 @@ export default {
 
 
 <template>
-  <div style="background-color: var(--background-light); display: flex; flex-direction: column; height: 100vh;">
+  <div style="background-color: var(--main-outline); display: flex; flex-direction: column; height: 100vh;">
 
     <div style="display: block; height: 100vh">
-      <header id="header" style="display: flex; height: 10vh; padding:0; align-items: center; justify-content: center;">
-        <div class="content" style="color: var(--font-light); margin-bottom: 0; ">
-          <h1>WasaText</h1>
+      <header id="header">
+        <div class="content" style="color: var(--font-light); margin-bottom: 0; align-items: center; font-size: x-large;">
+          WasaText
         </div>
       </header>
-      <main style="display: block; height: 85vh">
-        <RouterView />
+      <main style="display: block;height: 90vh">
+        <div style="display: flex; ">
+          <div style="width:5vh; background-color: var(--main-outline);">
+          </div>
+
+          <RouterView />
+        </div>
+       
       </main>
     </div>
 
@@ -38,7 +44,9 @@ export default {
      
     </div> -->
     <footer style="height: 5vh">
-      <p style="display: flex; height: 5vh; align-items: center; justify-content: center; color: var(--font-light);"> Made by Barnabas Juhasz</p>
+      <div id="pageFooter">
+        Made by Barnabas Juhasz
+      </div>
     </footer>
 
   </div>
@@ -57,12 +65,22 @@ body, header, h1 {
 #header {
 	text-align: center;
   vertical-align: middle;
+  display: flex;
+  height: 5vh;
+  padding:0;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--main-outline);
 }
 
 
 #pageFooter {
-	height: 2vh;
-  
+  display: flex;
+  height: 5vh;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-light);
+  background-color: var(--main-outline);
 }
 
 </style>

@@ -10,6 +10,13 @@ export default {
       default: null,
     }
   },
+  watch:{
+    selectedConversation: {
+      handler(newValue, oldValue) {
+        this.getProfile();
+      },
+    },
+  },
   data() {
 		return {
       headerName: null,
@@ -17,24 +24,17 @@ export default {
 		}
 	},
 	mounted() {
-		this.getProfile();
+    // this.$nextTick(() => {
+    //   this.getProfile();
+    // }); 
   },
   methods: {
-    // GetHeaderName() {
-      
-    //   if(this.selectedConversation.Type == 'GroupType')
-    //     return this.selectedConversation.GroupName
-
-    //   // return the name of the other person in the one-on-one conversation
-    //   for (let i = 0; i < this.selectedConversation.Participants.length; i++) {
-    //     let participant = this.selectedConversation.Participants[i];
-    //     if (participant !== sharedData.UserSession.Username) {
-    //         return participant;
-    //     }
-    //   }
-    // },
     async getProfile()
 		{
+      // console.log("getting header: ", this.selectedConversation)
+      if(this.selectedConversation == null)
+        return;
+
 			if(this.selectedConversation.Type == 'UserType')
 			{
 				for (let i = 0; i < this.selectedConversation.Participants.length; i++)
@@ -57,13 +57,6 @@ export default {
   },
 	computed: {
 		formattedProfilePicture() {
-			// const isValidUrl = this.selectedConversation.GroupPicture.startsWith("http");
-
-			// if (isValidUrl) {
-			// 	return this.selectedConversation.GroupPicture; // Return URL directly if it's valid
-			// } else {
-			// 	return `data:image/png;base64,${this.selectedConversation.GroupPicture}`; // Return formatted Base64 string
-			// }
       return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
     },
   }	
@@ -76,23 +69,31 @@ export default {
   <div id="HeaderParent">
 
 		<div id=HeaderPicture class="image-container">
-				<img :src="formattedProfilePicture"/>
+				<img
+        v-if="this.selectedConversation != null"
+        :src="formattedProfilePicture"/>
 		</div>
 
     <div class="NameAndMessage">
     
-      <div id="HeaderGroupName">
+      <div id="HeaderGroupName"
+      v-if="this.selectedConversation != null"
+      >
           {{ headerName }}
       </div>
 
-      <div id="HeaderMemberCount" v-if="this.selectedConversation.Type != 'UserType'">
+      <div id="HeaderMemberCount"
+      v-if="this.selectedConversation != null && 
+      this.selectedConversation.Type != 'UserType'"
+      >
           {{ this.selectedConversation.Participants.length }} members
       </div>
 
     </div>
     
     <div id="settingsDots" class="image-container"
-      v-if="this.selectedConversation.Type != 'UserType'"
+      v-if="this.selectedConversation != null && 
+      this.selectedConversation.Type != 'UserType'"
       @click="this.$emit('openOverlayInGroupMode', this.selectedConversation)">
         <img src="https://icon-library.com/images/android-three-dots-icon/android-three-dots-icon-0.jpg"/>
     </div>
@@ -112,11 +113,11 @@ export default {
 
 
 #HeaderPicture {
-  height: 65px;
-  width: 65px;
+  height: 75px;
+  width: 75px;
 
-  min-width: 65px;
-	min-height: 65px;
+  min-width: 75px;
+	min-height: 75px;
 }
 
 #HeaderGroupName {
@@ -129,6 +130,9 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
+
+  margin-top: -5px;
+
 }
 
 #HeaderMemberCount {
@@ -140,6 +144,9 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis; 
   display: block;
+
+  margin-top: -5px;
+
 }
 
 

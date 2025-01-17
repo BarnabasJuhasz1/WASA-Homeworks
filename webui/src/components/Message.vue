@@ -213,10 +213,15 @@ export default {
 				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
 						{{ this.username }}
 				</div>
-
-				<div class="message"
-					:style="{ TimeStyle, fontStyle: this.message.HasBeenDeleted ? 'italic' : 'normal'}">
-						{{ this.message.Content }}
+				
+				<div
+				class="message"
+				:style="{
+					TimeStyle,
+					fontStyle: this.message.HasBeenDeleted ? 'italic' : 'normal',
+					fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
+				}">
+				{{ this.message.Content }}
 				</div>
 
 				<div class="timeAndCheckmark">
@@ -274,6 +279,14 @@ export default {
 
 #MessageParent {
 	display: flex;
+
+	/*
+	padding-left: 20px;
+	padding-right: 20px;
+	*/
+
+	padding-left: 5vw;
+	padding-right: 5vw;
 }
 
 #profileImageOfOtherPerson {

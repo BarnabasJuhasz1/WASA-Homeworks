@@ -57,7 +57,7 @@ export default {
   flex-direction: row;
   align-items: center;
   border-radius: 15px;
-  background-color: rgba(0, 0, 0, .25);
+  background-color: var(--panel-bg);
   height: 60px;
   margin-top: 5px;
 

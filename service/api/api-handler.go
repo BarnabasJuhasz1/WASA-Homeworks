@@ -13,6 +13,7 @@ func (rt *_router) Handler() http.Handler {
 	// add to API!
 	rt.router.GET("/user", rt.wrap(rt.getUser))
 	rt.router.GET("/user/fromName", rt.wrap(rt.getUserFromName))
+	rt.router.GET("/user/all", rt.wrap(rt.getAllUsers))
 
 	rt.router.PUT("/user/profilePicture", rt.wrap(rt.setMyPhoto))
 

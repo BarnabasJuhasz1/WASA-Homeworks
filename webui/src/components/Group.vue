@@ -35,19 +35,6 @@ export default {
 			// console.log('select group:', this.index);
 			this.$emit('SelectNewConversationAtGroupList', this.index)
 		},
-		// GetHeaderName() {
-      
-		// 	if(this.conversation.Type == 'GroupType')
-		// 		return conversation.GroupName
-
-		// 	// return the name of the other person in the one-on-one conversation
-		// 	for (let i = 0; i < this.conversation.Participants.length; i++) {
-		// 		let participant = this.conversation.Participants[i];
-		// 		if (participant !== sharedData.UserSession.Username) {
-		// 			return participant;
-		// 		}
-		// 	}
-		// },
 		async getProfile()
 		{
 			if(this.conversation.Type == 'UserType')
@@ -92,13 +79,33 @@ export default {
 		formattedProfilePicture() {
 			return `data:image/png;base64,${this.profilePic}`;
     	},
-		getLastMessageContent() {
-
+		getLastMessage() {
 			if (this.conversation.Messages == null || this.conversation.Messages.length == 0) {
-				return "";
+				return null;
 			}
-		
-			return (this.conversation.Messages[this.conversation.Messages.length-1]).Content;
+			console.log(this.conversation.Messages[this.conversation.Messages.length-1])
+			return (this.conversation.Messages[this.conversation.Messages.length-1]);
+		},
+		getFormattedLastMessageTimestamp() {
+			if (!this.getLastMessage)
+				return null;
+
+			const lastMessageTimestamp = new Date(this.getLastMessage.Timestamp);
+			const now = new Date();
+
+			// Check if the dates are the same
+			const isSameDay = 
+				lastMessageTimestamp.getFullYear() === now.getFullYear() &&
+				lastMessageTimestamp.getMonth() === now.getMonth() &&
+				lastMessageTimestamp.getDate() === now.getDate();
+
+			if (isSameDay) {
+				// return hour and minute
+				return lastMessageTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+			} else {
+				// return year month day
+				return lastMessageTimestamp.toLocaleDateString([], { year: 'numeric', month: '2-digit', day: '2-digit' });
+			}
 		},
 	
   	}
@@ -109,8 +116,8 @@ export default {
 <template>
 
 	<div id="Parent" @click="SelectThisGroup"
-		style="border-radius: 12px;"
-		:style="{outline: this.isSelected ? '2px solid orange': ''}">
+		style="border-radius: 5px; padding-bottom: 5px; padding-top: 5px;"
+		:style="{outline: this.isSelected ? '2px solid rgb(242, 157, 0, 0.75)': ''}">
 
 		<div class="image-container">
 			<img :src="formattedProfilePicture"/>
@@ -118,11 +125,18 @@ export default {
 
 		<div class="NameAndMessage"> 
 			<div id="GroupName">
-				{{ headerName }}
+				<div style="flex:1;">
+					{{ headerName }}
+				</div>
+				<div
+				style="text-align: right; width: 50px; font-weight: normal; padding-left:10px"
+				v-if="getLastMessage != null">
+					{{ getFormattedLastMessageTimestamp }}
+				</div>
 			</div>
 
-			<div id="LastMessage" v-if="getLastMessageContent != ''">
-				{{ this.lastMessageSender }}: {{ getLastMessageContent }}
+			<div id="LastMessage" v-if="getLastMessage != null">
+				{{ this.lastMessageSender }}: {{ getLastMessage.Content }}
 			</div>
 		</div>
 
@@ -142,25 +156,26 @@ export default {
 .NameAndMessage {
 	overflow: hidden;
   	text-overflow: ellipsis;
-	display: block;
+	display: flex;
+	flex-direction: column;
+
+	justify-content: center;
+	flex: 1;
 }
 
 #GroupName {
 	color: var(--font-light);
 	font-weight: bold;
 	padding-right: 5px;
-	padding-top: 5px;
-
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis; 
-  	display: block;
+  	display: flex;
 }
 
 #LastMessage {
 	color: var(--font-light);
 	padding-right: 5px;
-	padding-top: 5px;
 
 	white-space: nowrap;
 	overflow: hidden; 

@@ -1,7 +1,7 @@
 
 <script>
 import Message from './Message.vue';
-import ContextMenu from './ContextMenu.vue';
+// import ContextMenu from './ContextMenu.vue';
 
 import { sharedData } from '../views/sharedData.js';
 
@@ -9,7 +9,7 @@ export default {
   props: ['refreshKey', 'textMessages', 'convType'],
   components: {
     Message,
-    ContextMenu,
+    // ContextMenu,
   },
   mounted() {
     this.$.emit("onPageRefresh");
@@ -60,7 +60,6 @@ export default {
       v-for="(message) in textMessages"
       :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}`"
       >
-
       <Message
 
       :convType="this.convType"

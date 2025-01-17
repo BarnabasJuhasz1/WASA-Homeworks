@@ -67,11 +67,11 @@ export default {
 #MainGroupList {
   display: block; /* Enable Flexbox */
   /*justify-content: center; /* Center horizontally */
-  border: 2px solid rgba(0, 0, 0, .25);
   background-color: rgba(0, 0, 0, .25);
-  border-radius: 15px;
+  
+  border-radius: 5px;
+  
   margin-bottom: 5px;
-
   /*margin-left: 5px;
   margin-right: 5px;*/
 }

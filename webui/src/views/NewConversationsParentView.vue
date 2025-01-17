@@ -6,6 +6,7 @@ import {ref} from "vue";
 import { sharedData } from './sharedData.js';
 import EditGroupPopUp from "./EditGroupPopUp.vue";
 import NewConversationsView from "./NewConversationsView.vue";
+import WasaTextUsersOverlay from "./WasaTextUsersOverlay.vue";
 
 export default {
   components: {
@@ -13,6 +14,7 @@ export default {
     PopUpOverlay,
     CreatePopUpOverlay,
     EditGroupPopUp,
+    WasaTextUsersOverlay,
   },
   setup() {
     const myFetchedConversations = ref(null);
@@ -57,7 +59,7 @@ export default {
       overlayProfileText: "",
       overlayProfilePicture: "",
       inspectingConversation: null,
-      selectedConversationIndexLocal: null,
+      // selectedConversationIndexLocal: null,
     };
   },
   methods: {
@@ -74,7 +76,7 @@ export default {
     {
       this.openOverlayInMode("GROUP", conversation.GroupName, conversation.GroupPicture);
       this.inspectingConversation = conversation
-      this.selectedConversationIndexLocal = selectedConvIndexLocal
+      // this.selectedConversationIndexLocal = selectedConvIndexLocal
     },
     async closeOverlay() {
       // disable the overlay
@@ -84,6 +86,8 @@ export default {
 
       await this.GetMyConversations();
 
+      if(this.myFetchedConversations == null)
+        return;
       // if the overlay is closed because a new conversation was added,
       // we switch to that conversation
       if(convCount != this.myFetchedConversations.length)
@@ -94,7 +98,8 @@ export default {
       else // otherwise we update the currently selected one
       {
         const conversationsView = this.$refs.ConversationsViewRef;
-        conversationsView.SelectNewConversationInApp(this.selectedConversationIndexLocal);
+        //conversationsView.SelectNewConversationInApp(this.selectedConversationIndexLocal);
+        conversationsView.SelectNewConversationInApp(this.$route.params.id);
       }
     },
 
@@ -103,7 +108,7 @@ export default {
 </script>
 
 <template >
-  <div style="height: 85vh">
+  <div style="height: 90vh">
 
     <div class="background" style="height: 100%;">
       <NewConversationsView ref="ConversationsViewRef"
@@ -135,6 +140,14 @@ export default {
       />
 
       <CreatePopUpOverlay v-if="overlayMode=='CREATE_CONVERSATION'"
+        :profileText="overlayProfileText"
+        :profilePicture="overlayProfilePicture"
+        conversationID="0"
+        @closeOverlay="closeOverlay"
+        style="z-index: 1001;"
+      />
+
+      <WasaTextUsersOverlay v-if="overlayMode=='WASA_TEXT_USERS'"
         :profileText="overlayProfileText"
         :profilePicture="overlayProfilePicture"
         conversationID="0"
