@@ -39,7 +39,7 @@ paths:
                   description: "a unique identifier of the user"
                   example: "Maria"
                   pattern: "^.*$"
-                  minLength: 3
+                  minLength: 1
                   maxLength: 16
         required: true
       responses:
@@ -80,7 +80,7 @@ paths:
                   description: "a unique identifier of the user"
                   example: "Maria"
                   pattern: "^.*$"
-                  minLength: 3
+                  minLength: 1
                   maxLength: 16
         required: true
       responses:
@@ -209,7 +209,7 @@ paths:
                   description: "new name for the group"
                   example: "Maria"
                   pattern: "^.*$"
-                  minLength: 3
+                  minLength: 1
                   maxLength: 16
         required: true
       responses:
@@ -260,7 +260,7 @@ paths:
                   description: "User to add to the group"
                   example: "Maria"
                   pattern: "^.*$"
-                  minLength: 3
+                  minLength: 1
                   maxLength: 16
         required: true
       responses:
@@ -314,7 +314,7 @@ paths:
                   type: string
                   example: "Maria"
                   pattern: "^.*$"
-                  minLength: 3
+                  minLength: 1
                   maxLength: 16
       responses:
         "200":
@@ -582,7 +582,7 @@ components:
           type: string
           example: "Maria"
           pattern: "^.*$"
-          minLength: 3
+          minLength: 1
           maxLength: 20
         Group Picture:
           description: "the picture of the group"
