@@ -1,5 +1,5 @@
 <script>
-import { sharedData } from '../views/sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 export default {
 	props: {
@@ -83,7 +83,7 @@ export default {
 			if (this.conversation.Messages == null || this.conversation.Messages.length == 0) {
 				return null;
 			}
-			console.log(this.conversation.Messages[this.conversation.Messages.length-1])
+			// console.log(this.conversation.Messages[this.conversation.Messages.length-1])
 			return (this.conversation.Messages[this.conversation.Messages.length-1]);
 		},
 		getFormattedLastMessageTimestamp() {
@@ -129,7 +129,7 @@ export default {
 					{{ headerName }}
 				</div>
 				<div
-				style="text-align: right; width: 50px; font-weight: normal; padding-left:10px"
+				style="text-align: right; width: 100px; font-weight: normal; padding-left:10px; padding-right:5px;"
 				v-if="getLastMessage != null">
 					{{ getFormattedLastMessageTimestamp }}
 				</div>

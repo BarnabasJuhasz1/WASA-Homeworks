@@ -2,16 +2,11 @@
 <script>
 import ProfileObject from './ProfileObject.vue';
 
-// import { sharedData } from '../services/sharedData.js';
-
 export default {
   props: ['participants'],
   components: {
     ProfileObject,
   },
-//   mounted() {
-//     this.$.emit("onPageRefresh");
-//   },
   data() {
     return {
       

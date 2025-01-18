@@ -1,7 +1,7 @@
 
 <script>
 import PopUpProfileHeader from '../components/PopUpProfileHeader.vue';
-import { sharedData } from './sharedData';
+import { sharedData } from '../services/sharedData';
 
 export default 
 {

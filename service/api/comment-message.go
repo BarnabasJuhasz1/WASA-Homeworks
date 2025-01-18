@@ -132,8 +132,6 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func commentMessage Finished-----")
-
 	var encodeErr error
 	if ReactionToMake.Type == util.EmojiReaction {
 		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID])
@@ -146,4 +144,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func commentMessage Finished-----")
+
 }

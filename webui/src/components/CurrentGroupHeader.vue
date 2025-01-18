@@ -1,6 +1,6 @@
 
 <script>
-import { sharedData } from '../views/sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 export default {
   props: {
@@ -13,20 +13,25 @@ export default {
   watch:{
     selectedConversation: {
       handler(newValue, oldValue) {
-        this.getProfile();
+        if(newValue != oldValue){
+          this.groupParticipantNames = [];
+          this.getProfile();
+        }
       },
     },
+    
   },
   data() {
 		return {
       headerName: null,
-			profilePic: null
+			profilePic: null,
+
+      groupParticipantNames: [],
 		}
 	},
 	mounted() {
-    // this.$nextTick(() => {
-    //   this.getProfile();
-    // }); 
+    // this.groupParticipantNames = [];
+
   },
   methods: {
     async getProfile()
@@ -48,12 +53,32 @@ export default {
 					}
 				}
 			}
-			else
+			else if (this.groupParticipantNames.length == 0)
 			{
+
+        // this.groupParticipantNames = [];
         this.headerName = this.selectedConversation.GroupName;
 				this.profilePic = this.selectedConversation.GroupPicture;
+        // for (let i = 0; i < this.selectedConversation.Participants.length; i++)
+				// {
+				// 	let participant = await sharedData.getUserProfile(this.selectedConversation.Participants[i]);
+				// 	this.groupParticipantNames.push(participant.Username)
+				// }
+        this.groupParticipantNames = await this.getParticipantNames();
 			}
 		},
+    async getParticipantNames(){
+    
+      let participantNames = [];
+      this.headerName = this.selectedConversation.GroupName;
+      this.profilePic = this.selectedConversation.GroupPicture;
+      for (let i = 0; i < this.selectedConversation.Participants.length; i++)
+      {
+        let participant = await sharedData.getUserProfile(this.selectedConversation.Participants[i]);
+        participantNames.push(participant.Username)
+      }
+      return participantNames;
+    }
   },
 	computed: {
 		formattedProfilePicture() {
@@ -86,7 +111,11 @@ export default {
       v-if="this.selectedConversation != null && 
       this.selectedConversation.Type != 'UserType'"
       >
-          {{ this.selectedConversation.Participants.length }} members
+          {{ this.selectedConversation.Participants.length }}
+          members: 
+          <span v-if="this.groupParticipantNames.length > 0">
+            {{ this.groupParticipantNames.join(', ') }}
+          </span>
       </div>
 
     </div>

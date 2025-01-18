@@ -11,7 +11,7 @@ import axios from "../services/axios.js"
 
 import ContextMenu from '../components/ContextMenu.vue';
 
-import { sharedData } from './sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 import 'emoji-picker-element';
 
@@ -33,12 +33,12 @@ export default
   watch: {
     // Watch for changes in route parameters
     '$route'(to) {
-      console.log("Updated ROUTER PARAMS: ", to.params.id);
+      // console.log("Updated ROUTER PARAMS: ", to.params.id);
       // this.getConversation(to.params.id);
       this.SelectNewConversationInApp(to.params.id)
     },
     '$myconversations'(to){
-      console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
+      // console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
     }
   },
   data() {
@@ -189,8 +189,8 @@ export default
               }
             );
 
-            console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
-            console.log("CONV RECEIVED: ", response.data)
+            // console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
+            // console.log("CONV RECEIVED: ", response.data)
             this.myConversations[this.selectedConversationIndexLocal] = response.data;
           }
           catch (error) {
@@ -215,20 +215,20 @@ export default
 
           if(this.selectedConversationIndexLocal != localConvIndex)
           {
-            console.log("local index changed from ", this.selectedConversationIndexLocal, " to ", localConvIndex)
+            // console.log("local index changed from ", this.selectedConversationIndexLocal, " to ", localConvIndex)
             this.originMessage = null; 
             this.selectedConversationIndexLocal = localConvIndex
             this.currentMessage = "";
+
+              this.$nextTick(() => {
+                this.scrollToBottom();
+                this.adjustHeight();
+
+                  // const groupHeader = this.$refs.groupHeaderRef;
+                  // groupHeader.getProfile();
+              });
           }
-          console.log("LOCAL INVDEX: ", this.selectedConversationIndexLocal)
-
-          this.$nextTick(() => {
-            this.scrollToBottom();
-            this.adjustHeight();
-
-              const groupHeader = this.$refs.groupHeaderRef;
-              groupHeader.getProfile();
-          });
+          // console.log("LOCAL INVDEX: ", this.selectedConversationIndexLocal)
 
         },
         adjustHeight() {
@@ -270,6 +270,9 @@ export default
         openOverlayInGroupMode(conversation){
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
         },
+        openForwardOverlay(message){
+          this.$emit("openForwardOverlay", this.selectedConversation, message);
+        },
         onPageRefresh() {
           
           this.$nextTick(() => {
@@ -286,7 +289,7 @@ export default
           this.selectedMessageID = messageID;
           // console.log("selecting message: ", messageID)
           this.contextMenuVisible = true;
-          this.$refs.contextMenu.show(event.clientX, event.clientY, messageID, this.selectedConversation.Messages[messageID].Sender);
+          this.$refs.contextMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
           document.addEventListener('click', this.closeContextMenu);
         },
         closeContextMenu() {
@@ -315,21 +318,14 @@ export default
             originMessage.style.top = `${currentBottom + 50}px`;
           });
         },
+        logout(){
+          this.$router.push('/login');
+        },
+        openAttach(){
+
+        }
     },
     mounted() {
-      // this.$nextTick(() => {
-      //   this.adjustHeight();
-      //   this.scrollToBottom();
-      // });
-      // setTimeout(() => {
-      //   this.scrollToBottom();
-      // }, 100);
-
-      // this.$nextTick(() => {
-      //   if(this.myConversations.length > 0)
-      //     this.SelectNewConversationInApp(0)
-      // });
-
 
     },
     components: {
@@ -344,10 +340,6 @@ export default
     computed: {
       selectedConversation()
       {
-        // do not remove these comments
-        // console.log("trying to return conv with index: ", this.selectedConversationIndexLocal)
-        // console.log("returning conv:  ", this.myConversations[this.selectedConversationIndexLocal])
-
         return this.myConversations && this.myConversations[this.selectedConversationIndexLocal]
         ? this.myConversations[this.selectedConversationIndexLocal] : null;
       },
@@ -371,7 +363,9 @@ export default
 
             <div id="AddNewGroup">
               <AddGroup
-              @openOverlayInMode="openOverlayInMode"/>
+              @openOverlayInMode="openOverlayInMode"
+              @logout="logout"
+              />
             </div>
           
             <CurrentProfile
@@ -429,6 +423,10 @@ export default
                   @emoji-click="addEmojiToCurrentMessage"
                 />
 
+                <button id="sendButton" @click="openAttach()" class="sendButtonImageContainer"> 
+                  <img src="https://cdn-icons-png.flaticon.com/128/4859/4859820.png"/>
+                </button>
+
                 <div style="display: block; position: relative; width: 100%; max-height: 100px;">
                   <textarea id="currentTextArea"
                   rows="1"
@@ -456,6 +454,8 @@ export default
             @click="closeContextMenu"
             @refreshLocalMessage="refreshLocalMessage"
             @setOriginMessage="setOriginMessage"
+            @openOverlayInMode="openOverlayInMode"
+            @openForwardOverlay="openForwardOverlay"
             />
 
         </div>

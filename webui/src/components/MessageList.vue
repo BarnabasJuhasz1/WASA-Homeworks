@@ -3,7 +3,7 @@
 import Message from './Message.vue';
 // import ContextMenu from './ContextMenu.vue';
 
-import { sharedData } from '../views/sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 export default {
   props: ['refreshKey', 'textMessages', 'convType'],

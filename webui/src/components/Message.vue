@@ -1,5 +1,5 @@
 <script>
-import { sharedData } from '../views/sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 import OriginMessage from './OriginMessage.vue';
 
 export default {
@@ -214,24 +214,40 @@ export default {
 						{{ this.username }}
 				</div>
 				
-				<div
-				class="message"
-				:style="{
-					TimeStyle,
-					fontStyle: this.message.HasBeenDeleted ? 'italic' : 'normal',
-					fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
-				}">
-				{{ this.message.Content }}
-				</div>
+				
+				<div style="display: flex; gap: 20px;">
+					<div
+					class="message"
+					style="width:100%;"
+					:style="{
+						TimeStyle,
+						fontStyle: this.message.HasBeenDeleted ? 'italic' : 'normal',
+						fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
+					}">
+					
+					{{ this.message.Content }}
+							
+					</div>
 
-				<div class="timeAndCheckmark">
+					<div class="timeAndCheckmark">
+						
+						{{ formattedTimestamp() }}
+
+						<img
+						v-if="isCheckMarkVisible"
+						style="width:15px; height:15px; margin-bottom:3px;"
+						:src="this.currentCheckmarkImage"
+						>
+					</div>
+				</div>
+				<!-- <div class="timeAndCheckmark">
 					{{ formattedTimestamp() }}
 					<img
 					v-if="isCheckMarkVisible"
 					style="width:15px; height:15px;"
 					:src="this.currentCheckmarkImage"
 					>
-				</div>
+				</div> -->
 
 			</div>
 
@@ -294,11 +310,19 @@ export default {
 }
 
 .timeAndCheckmark {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-end;
+	gap: 2px;
+	flex-grow: 1;
+
 	stroke-width: 50%;
 	font-weight: 10;
 	font-style: italic;
 	/*margin-top: 5px;*/
 	text-align: right;
+
+	margin-top:10px;
 }
 
 #username {

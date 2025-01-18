@@ -25,6 +25,9 @@ export default {
     isInContainer: {
       default: false,
     },
+    hasCheckBox: {
+      default: false,
+    }
   },
   setup(props) {
     // console.log("username is ", props.username);
@@ -42,6 +45,7 @@ export default {
   data() {
     return {
       // editableUsername: username,
+      checked: false,
     };
   },
   computed: {
@@ -65,7 +69,8 @@ export default {
 
 <template>
   
-  <div :class="isInContainer ? 'container' : 'transparentContainer'" style="height: 60px; width: calc(100% - 10px); margin-top: 5px;" >
+  <div id="profileObjectParent"
+  :class="isInContainer ? 'container' : 'transparentContainer'">
 
 		<div id=ProfilePicture  class="image-container" :style="{ minHeight: `${50 * size}px`, minWidth: `${50 * size}px` }">
 				<img :src="formattedProfilePicture"/>
@@ -80,9 +85,20 @@ export default {
           :style="{ height: `${50 * size}px`, fontSize: `${18 * size}px` }"
           />
 
-    <div v-if="!editable" text id="ProfileName" :style="{ height: `${50 * size}px`, width: `${200 * size}px` }">
+    <div v-if="!editable" text id="ProfileName"
+    :style="{ height: `${50 * size}px`, width: `${200 * size}px` }"
+    style="display: flex; align-items: center;">
         {{ editableUsername }}
     </div>
+
+    <input
+    type="checkbox"
+    v-if="hasCheckBox"
+    v-model="checked"
+    @click="this.$emit('clickedCheckbox')"
+    style="display: flex; align-items: center; width: 25px; height: 25px; margin-right: 20px;"
+    />
+
   
 	</div>
 
@@ -90,6 +106,18 @@ export default {
 
 
 <style>
+
+#profileObjectParent{
+  display: flex;
+  height: 60px;
+  width: calc(100% - 10px);
+  margin-top: 5px;
+
+  justify-content: center;
+  align-items: center;
+
+  padding-left: 25px;
+}
 
 .transparentContainer {
   display: flex;

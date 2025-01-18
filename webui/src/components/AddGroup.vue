@@ -14,13 +14,29 @@ export default {
   
   <div id="AddToGroupParent" >
 
-		<div class="image-container2" @click="this.$emit('openOverlayInMode', 'CREATE_CONVERSATION')">
-				<img src="https://cdn-icons-png.flaticon.com/128/7887/7887095.png"/>
-		</div>
+    <div style="display:flex; flex:1; justify-content: center;">
+      <div class="image-container2"
+        @click="this.$emit('openOverlayInMode', 'WASA_TEXT_USERS')">
+          
+        <img src="https://cdn-icons-png.flaticon.com/128/200/200941.png"/>
+      </div>
+    </div>
 
-    <div class="image-container2" @click="this.$emit('openOverlayInMode', 'WASA_TEXT_USERS')">
-				<img src="https://cdn-icons-png.flaticon.com/128/200/200941.png"/>
-		</div>
+    <div style="display:flex; flex:1; justify-content: center;">
+      <div class="image-container2"
+        @click="this.$emit('openOverlayInMode', 'CREATE_CONVERSATION')">
+        
+        <img src="https://cdn-icons-png.flaticon.com/128/7887/7887095.png"/>
+      </div>
+    </div>
+
+    <div style="display:flex; flex:1; justify-content: center;">
+      <div class="image-container2"
+        @click="this.$emit('logout')">
+        <img src="https://cdn-icons-png.flaticon.com/128/7756/7756285.png"/>
+      </div>
+    </div>
+
 
 	</div>
 
@@ -40,18 +56,16 @@ export default {
 
   border: 3px solid rgba(0, 0, 0, .25);
   background-color: var(--panel-bg);
-
-  gap: 25px;
 }
 
 .image-container2 {
   padding: 5px;
 
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 
-	min-width: 30px;
-	min-height: 30px;
+	min-width: 40px;
+	min-height: 40px;
 
   border-radius: 50%;
   overflow: hidden;

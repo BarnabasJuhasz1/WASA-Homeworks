@@ -1,6 +1,6 @@
 
 <script>
-import { sharedData } from './sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 export default 
 {
@@ -51,9 +51,10 @@ export default
                 console.error(e.toString());
                 
                 alert("Login attempt failed!")
-
                 // reset textArea input
                 this.currentLoginUsernameText = "";
+
+                return e;
             }
         },
         // async GetMyConversations(){

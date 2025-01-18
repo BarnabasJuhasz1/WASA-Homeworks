@@ -30,7 +30,39 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func getConversation Finished-----")
+	// if logged in user is not part of the people who have seen the last messages
+	// of the conversation, then add him to it
+	for i := len(Conversation.Messages) - 1; i >= 0; i-- {
+		message := Conversation.Messages[i]
+
+		// if the message has not been read by everyone yet, and it has not been read by the logged in user
+		if message.Status != util.DoubleCheckmark && !contains(message.ReadBy, LoggedInUser.Id) {
+
+			message.ReadBy = append(message.ReadBy, LoggedInUser.Id)
+
+			// if everyone has read this message, flag it with double checkmark
+			if len(message.ReadBy) == len(Conversation.Participants) {
+				message.Status = util.DoubleCheckmark
+			}
+
+			// replace old message in conversation with new one
+			Conversation.Messages[i] = message
+
+		} else {
+			// if we found a message that has been read by the player then break,
+			// because everything before must have also been read by the player
+			break
+		}
+
+	}
+
+	// update conversation
+	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
+	if dberr != nil {
+		ctx.Logger.Errorln("Failed to update conversation:", dberr)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
@@ -39,6 +71,8 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func getConversation Finished-----")
 }
 
 // function to check if an int ID is present in a list of int IDs

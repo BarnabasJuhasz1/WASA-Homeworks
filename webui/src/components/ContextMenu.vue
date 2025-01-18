@@ -1,6 +1,6 @@
 
 <script>
-import { sharedData } from '../views/sharedData';
+import { sharedData } from '../services/sharedData';
 
 // import 'emoji-picker-element';
 
@@ -28,7 +28,7 @@ export default
             // mostUsedEmojis: ['😀', '😂', '😍', '😭', '😎', '😡', '👍', '👏', '🎉'],
             mostUsedEmojis: ['❤', '😂', '😭', '😡', '👍'],
 
-
+            message: null,
             messageID: null,
             sender: null,
         }
@@ -37,20 +37,47 @@ export default
         
     },
     methods: {
-        show(x, y, messageID, sender) {
+        show(x, y, message) {
             this.position = { x, y };
             this.visible = true;
 
-            this.messageID = messageID;
-            this.sender = sender
+            this.message = message;
+            this.messageID = message.Id;
+            this.sender = message.Sender
             // console.log("selected message ID: ", this.messageID, sender)
             
         },
         hide() {
             this.visible = false;
         },
-        async addEmoji(emoji) {
-            console.log("emoji added: ", emoji)
+        async addEmojiClicked(emoji) {
+
+            if(this.message.EmojiReactions == null || this.message.EmojiReactions.length == 0){
+                this.CommentEmojiRequest(emoji);
+                return;
+            }
+
+            // check if you have already the same emoji in this message
+            // if you do, then remove the emoji
+            for(let i=0; i < this.message.EmojiReactions.length; i++){
+                
+                if(this.message.EmojiReactions[i].UserWhoReacted == sharedData.UserSession.Username){
+                    
+                    if(this.message.EmojiReactions[i].Content == emoji){
+                        // uncomment old emoji
+                        this.UnCommentEmojiRequest();
+                        return;
+                    }
+                    else{
+                        // update old emoji with new one
+                        this.CommentEmojiRequest(emoji);
+                        return;
+                    }
+                }
+            }
+            
+        },
+        async CommentEmojiRequest(emoji){
             try{
                 let response = await this.$axios.put(
                 "/conversation/"+ this.conversationID
@@ -77,6 +104,30 @@ export default
             } catch (error) {
                 console.error("Error sending emoji! ", error);
                 alert("Error sending emoji!")
+            }
+        },
+        async UnCommentEmojiRequest(){
+            try{
+                let response = await this.$axios.delete(
+                "/conversation/"+ this.conversationID
+                + "/message/"+ this.messageID
+                + "/comment", 
+                // Headers:
+                {
+                    headers: {
+                    "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                    "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                // console.log(response.data)
+                // make sure conversation is reloaded
+                this.$emit('refreshLocalMessage', response.data)
+
+            } catch (error) {
+                console.error("Error unsending emoji! ", error);
+                alert("Error unsending emoji!")
             }
         },
         selectMessageToReplyTo() {
@@ -134,15 +185,43 @@ export default
     computed: {
         IamTheMessageSender(){
             return this.sender == sharedData.UserSession.UserID
+        },
+        ContextMenuStyle(){
+            if(this.message == null)
+                return "";
+
+            if (this.message.Sender == sharedData.UserSession.UserID) {
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+
+                const isBottomHalf = this.position.y > viewportHeight / 2;
+
+                const calculatedRight = viewportWidth - this.position.x; // Calculate distance from the right edge
+                const verticalPosition = isBottomHalf
+                    ? `bottom: ${viewportHeight - this.position.y}px;`
+                    : `top: ${this.position.y}px;`;
+
+                return `${verticalPosition} right: ${calculatedRight}px;`;
+            } else {
+                const viewportHeight = window.innerHeight;
+
+                const isBottomHalf = this.position.y > viewportHeight / 2;
+
+                const verticalPosition = isBottomHalf
+                    ? `bottom: ${viewportHeight - this.position.y}px;`
+                    : `top: ${this.position.y}px;`;
+
+                return `${verticalPosition} left: ${this.position.x}px;`;
+            }
         }
     }
 }
 </script>
 
 <template>
-    <div :style="{ top: `${position.y}px`, left: `${position.x}px` }">
-        <div id="ContextMenuParent" :style="{ top: `${position.y}px`, left: `${position.x}px` }">
-            <div id="ContextMenu" :style="{ top: `${position.y}px`, left: `${position.x}px` }">
+    <div :style="ContextMenuStyle">
+        <div id="ContextMenuParent" :style="ContextMenuStyle">
+            <div id="ContextMenu">
                 
                 <button class="ContextMenuButton"
                     @click="selectMessageToReplyTo">
@@ -150,7 +229,7 @@ export default
                 </button>
 
                 <button class="ContextMenuButton"
-                    @click="universalButtonClicked">
+                    @click="this.$emit('openForwardOverlay', this.message)">
                     Forward
                 </button>
 
@@ -169,7 +248,7 @@ export default
                     <span
                         v-for="emoji in mostUsedEmojis"
                         :key="emoji"
-                        @click="addEmoji(emoji)"
+                        @click="addEmojiClicked(emoji)"
                         class="emoji"
                     >
                         {{ emoji }}

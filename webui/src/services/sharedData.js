@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import axios from '../services/axios.js';
+import axios from './axios.js';
 
 function loadUserSessionFromLocalStorage() {
   const saved = localStorage.getItem('UserSession');

@@ -1,7 +1,7 @@
 
 <script>
 import ParticipantsList from '../components/ParticipantsList.vue';
-import { sharedData } from './sharedData';
+import { sharedData } from '../services/sharedData.js';
 import axios from "../services/axios.js"
 
 export default 
@@ -24,7 +24,7 @@ export default
                 let userProfile = await sharedData.getUserProfile(this.wasaTextUserIDs[i])
                 this.wasaTextUsers.push(userProfile)
             }
-            console.log("wasa text users: ", this.wasaTextUsers)
+            // console.log("wasa text users: ", this.wasaTextUsers)
         },
         async GetWasaTextUsers(){
             try {
@@ -38,7 +38,7 @@ export default
                     },
                 }
                 );
-                console.log("all userIDs received: ", response.data)
+                // console.log("all userIDs received: ", response.data)
                 this.wasaTextUserIDs = response.data
                 this.FetchAllUserProfiles()
             }
@@ -98,8 +98,8 @@ export default
                     />
                 </div>
 
-                <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px"
-                @click="universalButtonClicked">
+                <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px;"
+                @click="this.$emit('closeOverlay')">
                     Close
                 </button>
          

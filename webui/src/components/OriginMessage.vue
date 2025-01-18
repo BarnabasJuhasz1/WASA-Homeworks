@@ -1,5 +1,5 @@
 <script>
-import { sharedData } from '../views/sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 
 export default {
 	props: {
@@ -73,7 +73,7 @@ export default {
 
 <template >
 
-	<div id="MessageParent" style="text-align: left; border: 2px solid rgb(0, 0, 0, 0.5); white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis;"
+	<div id="MessageParent" style="text-align: left; border: 2px solid rgb(0, 0, 0, 0.5); white-space: nowrap; overflow-x: hidden; text-overflow: ellipsis; padding:0px;"
 		:style="{ backgroundColor: BackgroundColor() }">
 		
 		<div id="ComplexMessageAndEmoji" style="align-items: flex-start; white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis;">

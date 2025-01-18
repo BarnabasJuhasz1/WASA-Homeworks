@@ -3,10 +3,11 @@ import PopUpOverlay from "./PopUpOverlay.vue";
 import CreatePopUpOverlay from "./CreatePopUpOverlay.vue";
 import axios from "../services/axios.js"
 import {ref} from "vue";
-import { sharedData } from './sharedData.js';
+import { sharedData } from '../services/sharedData.js';
 import EditGroupPopUp from "./EditGroupPopUp.vue";
 import NewConversationsView from "./NewConversationsView.vue";
 import WasaTextUsersOverlay from "./WasaTextUsersOverlay.vue";
+import ForwardOverlay from "./ForwardOverlay.vue";
 
 export default {
   components: {
@@ -15,6 +16,7 @@ export default {
     CreatePopUpOverlay,
     EditGroupPopUp,
     WasaTextUsersOverlay,
+    ForwardOverlay,
   },
   setup() {
     const myFetchedConversations = ref(null);
@@ -59,6 +61,8 @@ export default {
       overlayProfileText: "",
       overlayProfilePicture: "",
       inspectingConversation: null,
+
+      messageToForward: null,
       // selectedConversationIndexLocal: null,
     };
   },
@@ -71,6 +75,11 @@ export default {
       this.overlayProfilePicture = profilePicture;
       // enable the overlay
       this.showOverlay = true;
+    },
+    openForwardOverlay(conversation, message){
+      this.openOverlayInMode("FORWARD", null, null);
+      this.messageToForward = message
+      this.inspectingConversation = conversation
     },
     openOverlayInGroupMode(conversation, selectedConvIndexLocal)
     {
@@ -114,6 +123,7 @@ export default {
       <NewConversationsView ref="ConversationsViewRef"
       @openOverlayInMode="openOverlayInMode"
       @openOverlayInGroupMode="openOverlayInGroupMode"
+      @openForwardOverlay="openForwardOverlay"
       :myConversations="myFetchedConversations"/>
     </div>
 
@@ -148,9 +158,14 @@ export default {
       />
 
       <WasaTextUsersOverlay v-if="overlayMode=='WASA_TEXT_USERS'"
-        :profileText="overlayProfileText"
-        :profilePicture="overlayProfilePicture"
-        conversationID="0"
+        @closeOverlay="closeOverlay"
+        style="z-index: 1001;"
+      />
+
+      <ForwardOverlay v-if="overlayMode=='FORWARD'"
+        :selectedConversation="inspectingConversation"
+        :myConversations="myFetchedConversations"
+        :messageToForward="this.messageToForward"
         @closeOverlay="closeOverlay"
         style="z-index: 1001;"
       />
