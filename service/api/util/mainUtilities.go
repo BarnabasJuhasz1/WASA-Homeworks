@@ -2,6 +2,7 @@ package util
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -42,21 +43,29 @@ func UserBelongsToConversation(conv Conversation, user User) bool {
 }
 
 func GetBasicUserPicture() ([]byte, error) {
-	return GetPicture("/default/basic_user_picture.png")
+	return GetPicture("/basic_user_picture.png")
 }
 
 func GetBasicGroupPicture() ([]byte, error) {
-	return GetPicture("/default/basic_group_picture.png")
+	return GetPicture("/basic_group_picture.png")
 }
-
 func GetPicture(imagePath string) ([]byte, error) {
-
 	cwd, _ := os.Getwd()
-	filePath := filepath.Join(filepath.Dir(filepath.Dir(cwd)), "/public/images", imagePath)
+	// filePath := filepath.Join(filepath.Dir(filepath.Dir(cwd)), "/public/images", imagePath)
+	filePath := filepath.Join(filepath.Dir(cwd), "/public/images/default", imagePath)
+
+	fmt.Println("current WD: ", filepath.Dir(cwd))
+	fmt.Println("Attempting to open file:", filePath)
+
+	// Check if the file exists
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return []byte{}, errors.New("image file does not exist: " + filePath)
+	}
 
 	// Open the file
 	imageFile, err := os.Open(filePath)
 	if err != nil {
+		fmt.Println("Error opening file:", filePath, "Error:", err)
 		return []byte{}, errors.New("failed to open image file: " + err.Error())
 	}
 	defer imageFile.Close()

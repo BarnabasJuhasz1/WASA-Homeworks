@@ -47,20 +47,21 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 
 	} else {
 
-		basicPic, picError := util.GetBasicUserPicture()
-		if picError != nil {
-			rt.baseLogger.Errorln("Error with picture of new user!")
-		}
+		// basicPic, picError := util.GetBasicUserPicture()
+		// if picError != nil {
+		// 	rt.baseLogger.Errorln("Error with picture of new user! ", picError)
+		// }
 
+		var emptyProfilePic []byte
 		// create a new user
 		user = util.User{
 			Username:       requestBody.Username,
-			ProfilePicture: basicPic,
+			ProfilePicture: emptyProfilePic,
 		}
 		// save new user in the database
 		userID, dberr := rt.db.InsertUser(user)
 		if dberr != nil {
-			rt.baseLogger.Errorln("Saving new User into DB error!")
+			rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
