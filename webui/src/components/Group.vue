@@ -1,6 +1,5 @@
 <script>
 import { sharedData } from '../services/sharedData.js';
-import { Formatting } from '../services/formatting.js';
 
 export default {
 	props: {
