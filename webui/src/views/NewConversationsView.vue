@@ -37,9 +37,9 @@ export default
       // this.getConversation(to.params.id);
       this.SelectNewConversationInApp(to.params.id)
     },
-    '$myconversations'(to){
-      // console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
-    }
+    // '$myconversations'(to){
+    //   // console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
+    // }
   },
   data() {
     return {
@@ -191,7 +191,10 @@ export default
 
             // console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
             // console.log("CONV RECEIVED: ", response.data)
-            this.myConversations[this.selectedConversationIndexLocal] = response.data;
+
+            const updatedConversation = response.data; // Assume this is your new data
+            this.$emit('update-conversation', this.selectedConversationIndexLocal, updatedConversation);
+            // this.myConversations[this.selectedConversationIndexLocal] = response.data;
           }
           catch (error) {
             console.error("Error getting conversation! ", error);

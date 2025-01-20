@@ -51,6 +51,8 @@ export default {
   computed: {
     // Prepend the Base64 string with the required prefix
     formattedProfilePicture() {
+      if(this.profilePicture == null)
+        return "";
       const isValidUrl = this.profilePicture.startsWith("http");
 
       if (isValidUrl) {

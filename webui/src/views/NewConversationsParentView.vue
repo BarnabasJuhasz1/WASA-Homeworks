@@ -111,6 +111,9 @@ export default {
         conversationsView.SelectNewConversationInApp(this.$route.params.id);
       }
     },
+    handleUpdateConversation(index, newConversation) {
+      this.myFetchedConversations[index] = newConversation;
+    },
 
   },
 };
@@ -124,6 +127,7 @@ export default {
       @openOverlayInMode="openOverlayInMode"
       @openOverlayInGroupMode="openOverlayInGroupMode"
       @openForwardOverlay="openForwardOverlay"
+      @update-conversation="handleUpdateConversation"
       :myConversations="myFetchedConversations"/>
     </div>
 

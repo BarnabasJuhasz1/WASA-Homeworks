@@ -32,6 +32,9 @@ export const sharedData = reactive({
       });
 
       // console.log("user with id: ", userID, "fetched: ", response.data)
+      // if(response.data.ProfilePicture == null)
+        // response.data.ProfilePicture = "https://cdn-icons-png.flaticon.com/128/668/668709.png";
+      // console.log("USER FETCHED: ", response.data)
       return response.data;
       
     } catch (e) {
