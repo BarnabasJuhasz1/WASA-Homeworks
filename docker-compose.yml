@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    volumes:
+      - ./public/images/default
+      - ./tmp/wasatext.db
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "4173:4173"
+
+volumes:
+  images_data:
+  db_data:

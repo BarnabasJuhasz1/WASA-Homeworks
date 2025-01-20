@@ -95,13 +95,13 @@ export default {
 			if(this.profilePic == null)
 				return "";
 
-			// const isValidUrl = this.profilePic.startsWith("http");
+			const isValidUrl = this.profilePic.startsWith("http");
 
-			// if (isValidUrl) {
-			//	return this.profilePic; // Return URL directly if it's valid
-			// } else {
-				return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
-			//}
+			if (isValidUrl) {
+				return this.profilePic;
+			} else {
+				return `data:image/png;base64,${this.profilePic}`;
+			}
     	},
 		hasEmojiReactions(){
 			return this.message.EmojiReactions != null && this.message.EmojiReactions.length > 0;

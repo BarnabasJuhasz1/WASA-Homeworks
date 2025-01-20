@@ -48,12 +48,21 @@ export default
             }
         },
         async GetFormattedPicture(){
+
+            console.log("Getting formated prof pic for wasatext")
+            if(this.currentProfilePicture == null)
+                return "";
+
             let formattedProfilePic;
             try{
+                console.log("Getting formated prof pic for wasatext 2")
+
                 // make sure profile picture is in base 64
                 if(typeof this.currentProfilePicture === "string"
                     && this.currentProfilePicture.startsWith("https")) 
                 {
+                    console.log("Getting formated prof pic for wasatext 3")
+
                     const response = await fetch(this.currentProfilePicture);
                     const blob = await response.blob();
 
@@ -69,12 +78,16 @@ export default
                 }
                 else
                 {
+                    console.log("Getting formated prof pic for wasatext 4")
+
                     formattedProfilePic = this.currentProfilePicture;
                 }
             } catch (e) {
                 console.error(e.toString());
                 alert("profile pic conversion attempt failed!")
             }
+            console.log("Getting formated prof pic for wasatext returning: ", formattedProfilePic)
+
             return formattedProfilePic;
         },
     },
