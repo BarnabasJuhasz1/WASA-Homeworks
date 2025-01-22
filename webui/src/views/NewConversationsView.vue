@@ -12,6 +12,7 @@ import axios from "../services/axios.js"
 import ContextMenu from '../components/ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
+import { ref } from "vue";
 
 import 'emoji-picker-element';
 
@@ -82,7 +83,7 @@ export default
             }
             // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
             // send the message content to backend
-            console.log("New Message Sent: ", newMessage)
+            // console.log("New Message Sent: ", newMessage)
 
             if (!this.selectedConversation.Messages){
               this.selectedConversation.Messages = [];
@@ -163,7 +164,7 @@ export default
             );
 
             // console.log(response.data)
-            console.log("new reply has been received on server: ", response.data)
+            // console.log("new reply has been received on server: ", response.data)
 
             setTimeout(() => {
               this.selectedConversation.Messages[newMessageID] = response.data
@@ -325,8 +326,35 @@ export default
           this.$router.push('/');
         },
         openAttach(){
+          this.$refs.fileInput.click();
+        },
+        uploadPicture(event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
 
-        }
+            // Read file as binary string
+            reader.readAsArrayBuffer(file);
+
+            // When the file is loaded
+            reader.onload = (e) => {
+              const arrayBuffer = e.target.result;
+              const base64String = btoa(
+                  new Uint8Array(arrayBuffer)
+                      .reduce((data, byte) => data + String.fromCharCode(byte), "")
+              );
+              // this.currentMessage = base64String;
+              this.currentMessage = `data:image/png;base64,${base64String}`;
+              // console.log("File uploaded as Base64:", this.currentMessage);
+              this.sendMessage()
+            };
+
+            reader.onerror = (e) => {
+                console.error("Error reading file:", e);
+                alert("Error reading file!")
+            };
+          }
+        },
     },
     mounted() {
 
@@ -420,6 +448,8 @@ export default
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
                   <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
                 </button>
+
+                <input type="file" ref="fileInput" @change="uploadPicture" style="display: none;" />
 
                 <emoji-picker id="EmojiPicker"
                   v-if="emojiPanelVisible"

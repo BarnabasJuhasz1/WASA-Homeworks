@@ -176,6 +176,10 @@ export default {
 				&& !this.message.HasBeenDeleted
 				&& !this.currentCheckmarkState == 0;
 		},
+		isBase64Image() {
+			return this.message.Content.startsWith("data:image/")
+			&& this.message.Content.includes(";base64,");
+		}
   	}
 }
 </script>
@@ -225,8 +229,14 @@ export default {
 						fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
 					}">
 					
-					{{ this.message.Content }}
-							
+						<div v-if="!this.isBase64Image" style="max-width: 100px;">
+							{{ this.message.Content }}
+						</div>
+
+						<div v-if="this.isBase64Image">
+							<img :src="this.message.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 200px;"/>
+						</div>
+
 					</div>
 
 					<div class="timeAndCheckmark">

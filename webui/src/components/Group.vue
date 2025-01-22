@@ -107,6 +107,11 @@ export default {
 				return lastMessageTimestamp.toLocaleDateString([], { year: 'numeric', month: '2-digit', day: '2-digit' });
 			}
 		},
+		isBase64Image() {
+
+			return this.getLastMessage.Content.startsWith("data:image/")
+			&& this.getLastMessage.Content.includes(";base64,");
+		},
 	
   	}
 }
@@ -131,12 +136,22 @@ export default {
 				<div
 				style="text-align: right; width: 100px; font-weight: normal; padding-left:10px; padding-right:5px;"
 				v-if="getLastMessage != null">
-					{{ getFormattedLastMessageTimestamp }}
+
+				{{ getFormattedLastMessageTimestamp }}
+			
 				</div>
 			</div>
 
 			<div id="LastMessage" v-if="getLastMessage != null">
-				{{ this.lastMessageSender }}: {{ getLastMessage.Content }}
+				{{ this.lastMessageSender }}: &nbsp;
+				
+				<div v-if="!this.isBase64Image">
+					{{ getLastMessage.Content }}
+				</div>
+
+				<div v-if="this.isBase64Image">
+					<img :src="getLastMessage.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 24px;"/>
+				</div>
 			</div>
 		</div>
 
@@ -180,7 +195,8 @@ export default {
 	white-space: nowrap;
 	overflow: hidden; 
 	text-overflow: ellipsis;
-	display: block;
+	display: flex;
+
 }
 
 .image-container {

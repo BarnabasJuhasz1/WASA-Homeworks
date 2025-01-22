@@ -65,7 +65,10 @@ export default {
 
 			return `data:image/png;base64,${this.profilePic}`;
     	},
-		
+		isBase64Image() {
+			return this.message.Content.startsWith("data:image/")
+			&& this.message.Content.includes(";base64,");
+		},
   	}
 }
 </script>
@@ -85,7 +88,15 @@ export default {
 				</div>
 
 				<div class="message" style="white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis;">
-					{{ this.message.Content }}
+
+					<div v-if="!this.isBase64Image" style="max-width: 100px;">
+							{{ this.message.Content }}
+					</div>
+
+					<div v-if="this.isBase64Image">
+						<img :src="this.message.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 50px;"/>
+					</div>
+
 				</div>
 
 			</div>

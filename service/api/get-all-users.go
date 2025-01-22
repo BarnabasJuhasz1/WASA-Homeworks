@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"sapienza/wasatext/service/api/reqcontext"
 
@@ -21,9 +20,7 @@ func (rt *_router) getAllUsers(w http.ResponseWriter, r *http.Request, ps httpro
 	if searchQuery == "" {
 		userIDs, dbErr = rt.db.GetAllUsers()
 	} else {
-		fmt.Println("SEARCH QUERY; ", searchQuery)
 		userIDs, dbErr = rt.db.GetUsersFromQuery(searchQuery)
-		fmt.Println("RETURNED QUERY; ", userIDs)
 	}
 
 	if dbErr != nil {

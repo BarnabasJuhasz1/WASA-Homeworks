@@ -28,7 +28,7 @@ export default
             // console.log("wasa text users: ", this.wasaTextUsers)
         },
         async GetWasaTextUsers(){
-            const searchQuery = this.currentUsernameToSearch != "" ? `?search=${encodeURIComponent(this.currentUsernameToSearch)}` : "";
+            const searchQuery = this.currentUsernameToSearch != "" ? `${encodeURIComponent(this.currentUsernameToSearch)}` : "";
 
             try {
                 let response = await axios.get(
@@ -41,7 +41,7 @@ export default
                     },
                 }
                 );
-                console.log("all userIDs received: ", response.data)
+                // console.log("all userIDs received: ", response.data)
                 this.wasaTextUsers = []
             
                 if(response.data != null){
@@ -50,8 +50,8 @@ export default
                 }
             }
             catch (error) {
-                console.error("Error getting conversation! ", error);
-                alert("Error getting conversation!")
+                console.error("Error getting wasaText users! ", error);
+                alert("Error getting wasaText users!")
             }
         },
         async GetFormattedPicture(){

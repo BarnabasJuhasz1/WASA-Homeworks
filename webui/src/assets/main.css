@@ -14,6 +14,9 @@
     --button: rgb(255, 209, 0);
 
 
-    --main-outline: rgb(19, 22, 28);
-    --panel-bg: rgb(39, 44, 58);
+    /* --main-outline: rgb(19, 22, 28);
+    --panel-bg: rgb(39, 44, 58); */
+
+    --main-outline: rgb(39, 44, 58);
+    --panel-bg: rgb(64, 73, 96); 
 }

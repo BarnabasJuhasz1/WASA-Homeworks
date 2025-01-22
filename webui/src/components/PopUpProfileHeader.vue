@@ -49,7 +49,7 @@ export default {
       this.$refs.fileInput.click();
     },
     
-    // Handle the file change (file selected)
+    // Handle file change
     handleFileChange(event) {
       const file = event.target.files[0];
       if (file) {
