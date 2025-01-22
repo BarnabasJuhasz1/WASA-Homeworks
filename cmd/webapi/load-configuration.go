@@ -26,7 +26,7 @@ type WebAPIConfiguration struct {
 	}
 	Debug bool
 	DB    struct {
-		Filename string `conf:"default:/tmp/wasatext.db"`
+		Filename string `conf:"default:temporary/wasatext.db"`
 	}
 }
 
@@ -56,10 +56,13 @@ func LoadConfiguration() (WebAPIConfiguration, error) {
 	// configPath := filepath.Join(filepath.Dir(filepath.Dir(cwd)), cfg.Config.Path)
 	// cfg.Config.Path = configPath
 	// cfg.DB.Filename = filepath.Join(filepath.Dir(filepath.Dir(cwd)), cfg.DB.Filename)
-	configPath := cfg.Config.Path
+	// configPath := cfg.Config.Path
+	cwd, _ := os.Getwd()
+	fmt.Println("WORK DIR: ", cwd)
+	fmt.Println("COFMIG PATH: ", cfg.Config.Path)
 
 	// Override values from YAML if specified and if it exists (useful in k8s/compose)
-	fp, err := os.Open(configPath)
+	fp, err := os.Open(cfg.Config.Path)
 	if err != nil && !os.IsNotExist(err) {
 		return cfg, fmt.Errorf("can't read the config file, while it exists: %w", err)
 	} else if err == nil {
