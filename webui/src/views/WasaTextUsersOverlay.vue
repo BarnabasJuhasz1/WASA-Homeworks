@@ -121,7 +121,7 @@ export default
                     style="margin-top: 5px;"
                     v-model="currentUsernameToSearch"
                     placeholder="Search Username"
-                    @keydown.enter="GetWasaTextUsers"
+                    @input="GetWasaTextUsers"
                  />
 
                 <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">

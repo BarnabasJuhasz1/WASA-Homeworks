@@ -239,7 +239,7 @@ export default
                     Delete
                 </button>
 
-                <div id="EmojiRow">
+                <div id="EmojiRow" v-if="!IamTheMessageSender">
                     <!-- <emoji-picker id="EmojiPicker"
                     v-if="visible"
                     @emoji-click="addEmoji"
