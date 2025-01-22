@@ -10,6 +10,7 @@ export default
         return {
             wasaTextUserIDs: null,
             wasaTextUsers: [],
+            currentUsernameToSearch: "",
         }
     },
     components:{
@@ -27,9 +28,11 @@ export default
             // console.log("wasa text users: ", this.wasaTextUsers)
         },
         async GetWasaTextUsers(){
+            const searchQuery = this.currentUsernameToSearch != "" ? `?search=${encodeURIComponent(this.currentUsernameToSearch)}` : "";
+
             try {
                 let response = await axios.get(
-                "/user/all",
+                "/user/all?search="+searchQuery,
                 // Headers:
                 {
                     headers: {
@@ -38,9 +41,13 @@ export default
                     },
                 }
                 );
-                // console.log("all userIDs received: ", response.data)
-                this.wasaTextUserIDs = response.data
-                this.FetchAllUserProfiles()
+                console.log("all userIDs received: ", response.data)
+                this.wasaTextUsers = []
+            
+                if(response.data != null){
+                    this.wasaTextUserIDs = response.data
+                    this.FetchAllUserProfiles()
+                }
             }
             catch (error) {
                 console.error("Error getting conversation! ", error);
@@ -90,6 +97,9 @@ export default
 
             return formattedProfilePic;
         },
+        async SearchUser(){
+
+        },
     },
     computed: {
 
@@ -103,8 +113,17 @@ export default
             <div id="OverlayTop" class="SimpleContainer">
                 WasaText Users
             </div>
+
             <div id="OverlayBottom" class="SimpleContainer" style="display: flex; max-height: 600px;">
-                
+                <input
+                    type="text"
+                    class="basicTextField"
+                    style="margin-top: 5px;"
+                    v-model="currentUsernameToSearch"
+                    placeholder="Search Username"
+                    @keydown.enter="GetWasaTextUsers"
+                 />
+
                 <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">
                     <ParticipantsList
                         :participants="this.wasaTextUsers"

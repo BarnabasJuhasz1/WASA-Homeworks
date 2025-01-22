@@ -15,7 +15,6 @@ export default {
 </script>
 
 
-
 <template>
   <div style="background-color: var(--main-outline); display: flex; flex-direction: column; height: 100vh;">
 
