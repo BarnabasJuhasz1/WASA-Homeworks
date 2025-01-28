@@ -97,9 +97,11 @@ export default
 
             return formattedProfilePic;
         },
-        async SearchUser(){
-
+        textPerson(profile){
+             this.$emit('textPerson', profile);
+            // this.CreateConversation(profile.Id)
         },
+        
     },
     computed: {
 
@@ -127,7 +129,10 @@ export default
                 <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">
                     <ParticipantsList
                         :participants="this.wasaTextUsers"
+                        :buttonForEachElement="true"
+                        @textPerson="textPerson"
                     />
+
                 </div>
 
                 <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px;"
