@@ -94,6 +94,7 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		EmojiReactions:  emptyReactions,
 		OriginMessageId: -1,
 		HasBeenDeleted:  false,
+		WasForwarded:    false,
 		ReadBy:          newMessageReadBy,
 	}
 	// modify conversation by adding the new message

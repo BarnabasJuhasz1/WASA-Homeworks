@@ -86,7 +86,6 @@ export default
 
         },
         async GetConversationNameAndPicture(){
-            console.log("Getting profiles!")
             this.conversationProfiles = []
 
             for(let i = 0; i < this.myConversations.length; i++){

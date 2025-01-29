@@ -55,11 +55,14 @@ export default {
 
 
 <template>
+  
   <div class="custom-scrollbar">
+
     <div id="mainList"
       v-for="(message) in textMessages"
       :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}`"
       >
+
       <Message
 
       :convType="this.convType"
@@ -72,8 +75,8 @@ export default {
       />
     </div>
 
-
   </div>
+
 </template>
 
 
@@ -81,8 +84,30 @@ export default {
 
 #mainList {
   display: block; 
-  padding-right: 5px; /* Adds a margin-like effect to the scrollbar */
+  padding-right: 5px;
 }
+
+#messageListBackgroundImage {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  
+  mix-blend-mode: multiply;
+  background-image: url('https://img.freepik.com/premium-photo/white-minimal-geometry-background_231311-1693.jpg?w=1380');
+  background-repeat: repeat;
+  background-position: center;
+  background-size: auto;
+  
+  opacity: 0.5;
+  z-index: 0;
+  pointer-events: none;
+
+  mask-image: linear-gradient(black, black);
+  -webkit-mask-image: linear-gradient(black, black);
+}
+
 
 </style>
 

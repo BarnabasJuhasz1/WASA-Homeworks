@@ -431,7 +431,10 @@ export default
             />
         </div>
 
-        <div id="main">
+        <div id="main" style="position: relative;">
+
+            <div id="messageListBackgroundImage">
+            </div>
 
             <CurrentGroupHeader
             id="CurrentGroupHeader"
@@ -442,7 +445,7 @@ export default
 
             <div style="display:flex; margin-bottom:0px; margin-top:auto;">
             </div>
-
+            
             <MessagesList
             id="MessagesList"
             ref="messagesList"
@@ -536,6 +539,8 @@ export default
   width: 20%;
   min-width: 125px;
   height: calc(90vh - 105px);
+  z-index: 1;
+
 }
 
 #groupListParent {
@@ -574,7 +579,6 @@ export default
   height: calc(90vh);
 
   /*flex-grow: 1;*/
-
 }
 
 #CurrentGroupHeader {
@@ -583,9 +587,11 @@ export default
   min-height: 75px;
   max-height: 75px;
 
-  background-color: rgba(0, 0, 0, .25);
   margin-bottom: 5px;
   border-radius: 15px;
+  
+  background-color: var(--main-outline);
+  z-index: 1;
 }
 
 #MessagesList {
@@ -798,6 +804,8 @@ export default
   display: flex;
   flex-direction: column;
 
+  background-color: var(--panel-bg);
+  z-index: 1;
 }
 
 

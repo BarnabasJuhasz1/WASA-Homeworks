@@ -42,6 +42,8 @@ type Message struct {
 	OriginMessageId int
 	// flag that is set to true if the message has been deleted
 	HasBeenDeleted bool
+	// flag that is set to true if the message was forwarded
+	WasForwarded bool
 	// list of userIDs that have read the message
 	ReadBy []int
 }

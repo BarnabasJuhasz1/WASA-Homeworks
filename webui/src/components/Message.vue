@@ -188,8 +188,9 @@ export default {
 <template>
 
 	<div id="MessageParent"
-		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}">
-
+		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}"		
+	>
+		
 		<div v-if="!this.msgStyle.wasSentByUser
 					&& this.profilePic != null
 					&& this.convType != 'UserType'"
@@ -212,6 +213,13 @@ export default {
 					:message="this.originMessage"
 					>
 				</OriginMessage>
+
+				
+				<div
+				style="font-style: italic; border-radius: 10px; max-width: 500px;"
+				v-if="this.message.WasForwarded">
+					Forwarded
+				</div>
 
 
 				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
@@ -315,6 +323,8 @@ export default {
 
 	padding-left: 5vw;
 	padding-right: 5vw;
+
+	z-index:1;
 }
 
 #profileImageOfOtherPerson {
@@ -363,7 +373,7 @@ export default {
 	padding-top: 5px;
 
 	max-width: 75%;
-	
+	z-index:1;
 }
 
 .message {
