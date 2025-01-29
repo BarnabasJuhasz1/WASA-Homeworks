@@ -176,6 +176,10 @@ export default {
 				&& !this.message.HasBeenDeleted
 				&& !this.currentCheckmarkState == 0;
 		},
+		isBase64Image() {
+			return this.message.Content.startsWith("data:image/")
+			&& this.message.Content.includes(";base64,");
+		}
   	}
 }
 </script>
@@ -225,8 +229,14 @@ export default {
 						fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
 					}">
 					
-					{{ this.message.Content }}
-							
+						<div v-if="!this.isBase64Image" style="max-width: 100%;">
+							{{ this.message.Content }}
+						</div>
+
+						<div v-if="this.isBase64Image">
+							<img :src="this.message.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 200px;"/>
+						</div>
+
 					</div>
 
 					<div class="timeAndCheckmark">
@@ -254,6 +264,7 @@ export default {
 			<div id="EmojiAndCount"
 			v-if="!this.message.HasBeenDeleted"
 			v-show="this.hasEmojiReactions"
+			@contextmenu.prevent="this.$emit('openReactionsMenu')"
 			:style="{
 				backgroundColor: msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)',
 				marginLeft: msgStyle.wasSentByUser ? '0px' : '10px',
@@ -278,7 +289,8 @@ export default {
 					</div>
 				</div>
 
-				<div id = "emojiCount" v-show="reactedEmojis.count > 1">
+				<div id = "emojiCount" style="font-weight: 600;"
+					v-show="reactedEmojis.count > 1">
 					{{ reactedEmojis.count }}
 				</div>
 			</div>
@@ -337,6 +349,7 @@ export default {
 
   	flex-direction: column;
 	padding-bottom: 5px;
+
 }
 
 #ComplexMessage{
@@ -350,10 +363,11 @@ export default {
 	padding-top: 5px;
 
 	max-width: 75%;
-
+	
 }
 
 .message {
+
 	display: block; 
 
   	word-break: break-word; 

@@ -47,7 +47,7 @@ type Message struct {
 }
 
 type Reaction struct {
-	UserWhoReacted string
+	UserWhoReacted int
 	Type           ReactionType
 	// the content of the reaction. if the reaction is a message, this is a reply and so the content is the message content.
 	// if the reaction is an emoji, this is the encoding of the emoji

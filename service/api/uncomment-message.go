@@ -45,7 +45,7 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 	for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 		// if the user has a reaction to this message already, replace that reaction with the new one
-		if ReactionAti.UserWhoReacted == LoggedInUser.Username {
+		if ReactionAti.UserWhoReacted == LoggedInUser.Id {
 
 			// remove your emoji reactions from the list of emoji reactions
 			Conversation.Messages[messageID].EmojiReactions = append(Conversation.Messages[messageID].EmojiReactions[:i], Conversation.Messages[messageID].EmojiReactions[i+1:]...)

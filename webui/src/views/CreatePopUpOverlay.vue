@@ -172,8 +172,8 @@ export default
             }
 
             let formattedProfilePic = await this.GetFormattedPicture();
-            console.log(this.currentProfileText)
-            console.log(formattedProfilePic)
+            // console.log(this.currentProfileText)
+            // console.log(formattedProfilePic)
             try {
                 let response = await this.$axios.post(
                 "/create/conversation", 
@@ -193,7 +193,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
+                // console.log(response.data);
                 this.$emit('closeOverlay')
 
             } catch (e) {

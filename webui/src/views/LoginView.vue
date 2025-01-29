@@ -118,14 +118,14 @@ export default
 
 .SimpleContainer {
     display: block;
-    background-color: rgba(0, 0, 0, .25);
+    background-color: var(--background-light);
     border-radius: 15px;
 }
 
 #LoginTop {
     height: 25%;
     margin-bottom: 5px;
-    background-color: rgba(0, 0, 0, .5);
+    background-color: rgba(0, 0, 0, .25);
     border: 2px solid rgba(0, 0, 0, .25);
     color: var(--font-light);
     font-size: xx-large;
@@ -166,7 +166,7 @@ export default
     padding-bottom: 15px;
     font-size: larger;
 
-    background-color: rgb(0, 0, 0, 0.25);
+    background-color: var(--background-light);
     outline: none;
 
     color: var(--font-light);

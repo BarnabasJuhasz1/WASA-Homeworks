@@ -12,8 +12,10 @@ import axios from "../services/axios.js"
 import ContextMenu from '../components/ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
+import { ref } from "vue";
 
 import 'emoji-picker-element';
+import PopUpReactions from '../components/PopUpReactions.vue';
 
 export default
 {
@@ -50,6 +52,7 @@ export default
         selectedConversationIndexLocal : 0,
 
         contextMenuVisible: false,
+        popUpReactionsVisible: false,
         selectedMessageID: null,
 
         emojiPanelVisible: false,
@@ -82,7 +85,7 @@ export default
             }
             // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
             // send the message content to backend
-            console.log("New Message Sent: ", newMessage)
+            // console.log("New Message Sent: ", newMessage)
 
             if (!this.selectedConversation.Messages){
               this.selectedConversation.Messages = [];
@@ -163,7 +166,7 @@ export default
             );
 
             // console.log(response.data)
-            console.log("new reply has been received on server: ", response.data)
+            // console.log("new reply has been received on server: ", response.data)
 
             setTimeout(() => {
               this.selectedConversation.Messages[newMessageID] = response.data
@@ -289,16 +292,36 @@ export default
           
         },
         openContextMenu(messageID) {
-          this.selectedMessageID = messageID;
+          this.closeContextMenu();
           // console.log("selecting message: ", messageID)
+          this.selectedMessageID = messageID;
           this.contextMenuVisible = true;
           this.$refs.contextMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
           document.addEventListener('click', this.closeContextMenu);
         },
         closeContextMenu() {
-          this.$refs.contextMenu.hide();
+          if(this.contextMenuVisible){
+            this.$refs.contextMenu.hide();
+            this.contextMenuVisible = false;
+          }
+          if(this.popUpReactionsVisible){
+            this.$refs.reactionsMenu.hide();
+            this.popUpReactionsVisible = false;
+          }
           document.removeEventListener('click', this.closeContextMenu);
-          this.contextMenuVisible = false;
+        },
+        openReactionsMenu(messageID){
+          this.closeContextMenu();
+          // console.log("selecting message: ", messageID)
+          this.selectedMessageID = messageID;
+          this.popUpReactionsVisible = true;
+          // console.log("WOW-1 ", this.popUpReactionsVisible)
+          this.$refs.reactionsMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
+          this.$nextTick(() => {
+            setTimeout(() => {
+              document.addEventListener('click', this.closeContextMenu);
+            }, 0.01);
+          });
         },
         refreshLocalMessage(newMessage){
           this.selectedConversation.Messages[newMessage.Id] = newMessage
@@ -325,8 +348,36 @@ export default
           this.$router.push('/');
         },
         openAttach(){
+          this.$refs.fileInput.click();
+        },
+        uploadPicture(event) {
+          const file = event.target.files[0];
+          if (file) {
+            const reader = new FileReader();
 
-        }
+            // Read file as binary string
+            reader.readAsArrayBuffer(file);
+
+            // When the file is loaded
+            reader.onload = (e) => {
+              const arrayBuffer = e.target.result;
+              const base64String = btoa(
+                  new Uint8Array(arrayBuffer)
+                      .reduce((data, byte) => data + String.fromCharCode(byte), "")
+              );
+              // this.currentMessage = base64String;
+              this.currentMessage = `data:image/png;base64,${base64String}`;
+              // console.log("File uploaded as Base64:", this.currentMessage);
+              this.sendMessage()
+            };
+
+            reader.onerror = (e) => {
+                console.error("Error reading file:", e);
+                alert("Error reading file!")
+            };
+          }
+        },
+        
     },
     mounted() {
 
@@ -338,7 +389,8 @@ export default
         CurrentProfile,
         AddGroup,
         ContextMenu,
-        OriginMessage
+        OriginMessage,
+        PopUpReactions,
     },
     computed: {
       selectedConversation()
@@ -400,6 +452,7 @@ export default
             :refreshKey="this.selectedConversationIndexLocal"
             @onPageRefresh="onPageRefresh"
             @openContextMenu="openContextMenu"
+            @openReactionsMenu="openReactionsMenu"
             />
 
             <div id="BottomPartWrapper">
@@ -420,6 +473,8 @@ export default
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
                   <img src="https://cdn-icons-png.flaticon.com/128/11202/11202612.png"/>
                 </button>
+
+                <input type="file" ref="fileInput" @change="uploadPicture" style="display: none;" />
 
                 <emoji-picker id="EmojiPicker"
                   v-if="emojiPanelVisible"
@@ -459,6 +514,11 @@ export default
             @setOriginMessage="setOriginMessage"
             @openOverlayInMode="openOverlayInMode"
             @openForwardOverlay="openForwardOverlay"
+            />
+
+            <PopUpReactions ref="reactionsMenu"
+            v-show="popUpReactionsVisible"
+            @click="closeContextMenu"
             />
 
         </div>

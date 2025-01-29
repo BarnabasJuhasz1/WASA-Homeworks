@@ -10,6 +10,7 @@ export default
         return {
             wasaTextUserIDs: null,
             wasaTextUsers: [],
+            currentUsernameToSearch: "",
         }
     },
     components:{
@@ -27,9 +28,11 @@ export default
             // console.log("wasa text users: ", this.wasaTextUsers)
         },
         async GetWasaTextUsers(){
+            const searchQuery = this.currentUsernameToSearch != "" ? `${encodeURIComponent(this.currentUsernameToSearch)}` : "";
+
             try {
                 let response = await axios.get(
-                "/user/all",
+                "/user/all?search="+searchQuery,
                 // Headers:
                 {
                     headers: {
@@ -39,12 +42,16 @@ export default
                 }
                 );
                 // console.log("all userIDs received: ", response.data)
-                this.wasaTextUserIDs = response.data
-                this.FetchAllUserProfiles()
+                this.wasaTextUsers = []
+            
+                if(response.data != null){
+                    this.wasaTextUserIDs = response.data
+                    this.FetchAllUserProfiles()
+                }
             }
             catch (error) {
-                console.error("Error getting conversation! ", error);
-                alert("Error getting conversation!")
+                console.error("Error getting wasaText users! ", error);
+                alert("Error getting wasaText users!")
             }
         },
         async GetFormattedPicture(){
@@ -90,6 +97,11 @@ export default
 
             return formattedProfilePic;
         },
+        textPerson(profile){
+             this.$emit('textPerson', profile);
+            // this.CreateConversation(profile.Id)
+        },
+        
     },
     computed: {
 
@@ -103,12 +115,24 @@ export default
             <div id="OverlayTop" class="SimpleContainer">
                 WasaText Users
             </div>
+
             <div id="OverlayBottom" class="SimpleContainer" style="display: flex; max-height: 600px;">
-                
+                <input
+                    type="text"
+                    class="basicTextField"
+                    style="margin-top: 5px;"
+                    v-model="currentUsernameToSearch"
+                    placeholder="Search Username"
+                    @input="GetWasaTextUsers"
+                 />
+
                 <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">
                     <ParticipantsList
                         :participants="this.wasaTextUsers"
+                        :buttonForEachElement="true"
+                        @textPerson="textPerson"
                     />
+
                 </div>
 
                 <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px;"

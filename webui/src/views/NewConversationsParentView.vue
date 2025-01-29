@@ -114,7 +114,64 @@ export default {
     handleUpdateConversation(index, newConversation) {
       this.myFetchedConversations[index] = newConversation;
     },
+    async textPerson(profile){
+      
+      // console.log("Want to text person: ", profile)
 
+      await this.GetMyConversations();
+
+      // if we already have a conversation with that person,
+      // then we just switch to that conversation
+      if(this.myFetchedConversations != null)
+      {
+        for(let i = 0; i < this.myFetchedConversations.length; i++)
+        {
+          if(this.myFetchedConversations[i].Type == "UserType"){
+            if((this.myFetchedConversations[i].Participants[0] == sharedData.UserSession.UserID &&
+            this.myFetchedConversations[i].Participants[1] == profile.Id) || 
+            (this.myFetchedConversations[i].Participants[1] == sharedData.UserSession.UserID &&
+            this.myFetchedConversations[i].Participants[0] == profile.Id) )
+            {
+              this.showOverlay = false;
+              const conversationsView = this.$refs.ConversationsViewRef;
+              conversationsView.SelectNewConversationInApp(i);
+              return;
+            }
+          }
+        }
+      }
+      
+      this.CreateConversation(profile.Id)
+
+    },
+    async CreateConversation(profileID) {
+
+      try {
+          let response = await this.$axios.post(
+          "/create/conversation", 
+          // JSON body:
+          {
+              ConversationType: "UserType",
+              Participants: [profileID],
+              ConversationName: "",
+              ConversationPicture: "",
+          },
+          // Headers:
+          {
+              headers: {
+                  "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                  "Content-Type": "application/json",
+              },
+          }
+          );
+          this.closeOverlay();
+
+      } catch (e) {
+          console.error(e.toString());
+          
+          alert("Texting user attempt failed!")
+      }
+    }
   },
 };
 </script>
@@ -163,6 +220,7 @@ export default {
 
       <WasaTextUsersOverlay v-if="overlayMode=='WASA_TEXT_USERS'"
         @closeOverlay="closeOverlay"
+        @textPerson="textPerson"
         style="z-index: 1001;"
       />
 

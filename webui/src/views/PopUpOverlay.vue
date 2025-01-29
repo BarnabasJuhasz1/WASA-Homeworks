@@ -327,7 +327,6 @@ export default
     margin-bottom: auto;
     margin-left: auto;
     margin-right: auto;
-
 }
 
 </style>

@@ -65,16 +65,20 @@ export default
                     
                     if(this.message.EmojiReactions[i].Content == emoji){
                         // uncomment old emoji
+                        console.log("about to uncomment old emoji")
                         this.UnCommentEmojiRequest();
                         return;
                     }
                     else{
                         // update old emoji with new one
+                        console.log("about to COMMENT new emoji")
                         this.CommentEmojiRequest(emoji);
                         return;
                     }
                 }
             }
+
+            this.CommentEmojiRequest(emoji);
             
         },
         async CommentEmojiRequest(emoji){
@@ -97,7 +101,7 @@ export default
                 }
                 );
 
-                // console.log(response.data)
+                console.log(response.data)
                 // make sure conversation is reloaded
                 this.$emit('refreshLocalMessage', response.data)
 
@@ -239,7 +243,7 @@ export default
                     Delete
                 </button>
 
-                <div id="EmojiRow">
+                <div id="EmojiRow" v-if="!IamTheMessageSender">
                     <!-- <emoji-picker id="EmojiPicker"
                     v-if="visible"
                     @emoji-click="addEmoji"
