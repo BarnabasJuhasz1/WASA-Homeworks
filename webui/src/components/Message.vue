@@ -229,7 +229,7 @@ export default {
 						fontSize: /^(\p{Emoji_Presentation}|\p{Extended_Pictographic})$/u.test(this.message.Content.trim()) ? '4rem' : '1rem'
 					}">
 					
-						<div v-if="!this.isBase64Image" style="max-width: 100px;">
+						<div v-if="!this.isBase64Image" style="max-width: 100%;">
 							{{ this.message.Content }}
 						</div>
 
@@ -264,6 +264,7 @@ export default {
 			<div id="EmojiAndCount"
 			v-if="!this.message.HasBeenDeleted"
 			v-show="this.hasEmojiReactions"
+			@contextmenu.prevent="this.$emit('openReactionsMenu')"
 			:style="{
 				backgroundColor: msgStyle.wasSentByUser ? 'var(--message-own)' : 'var(--message-other)',
 				marginLeft: msgStyle.wasSentByUser ? '0px' : '10px',
@@ -288,7 +289,8 @@ export default {
 					</div>
 				</div>
 
-				<div id = "emojiCount" v-show="reactedEmojis.count > 1">
+				<div id = "emojiCount" style="font-weight: 600;"
+					v-show="reactedEmojis.count > 1">
 					{{ reactedEmojis.count }}
 				</div>
 			</div>
@@ -347,6 +349,7 @@ export default {
 
   	flex-direction: column;
 	padding-bottom: 5px;
+
 }
 
 #ComplexMessage{
@@ -360,10 +363,11 @@ export default {
 	padding-top: 5px;
 
 	max-width: 75%;
-
+	
 }
 
 .message {
+
 	display: block; 
 
   	word-break: break-word; 

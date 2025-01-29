@@ -15,6 +15,7 @@ import { sharedData } from '../services/sharedData.js';
 import { ref } from "vue";
 
 import 'emoji-picker-element';
+import PopUpReactions from '../components/PopUpReactions.vue';
 
 export default
 {
@@ -51,6 +52,7 @@ export default
         selectedConversationIndexLocal : 0,
 
         contextMenuVisible: false,
+        popUpReactionsVisible: false,
         selectedMessageID: null,
 
         emojiPanelVisible: false,
@@ -290,16 +292,36 @@ export default
           
         },
         openContextMenu(messageID) {
-          this.selectedMessageID = messageID;
+          this.closeContextMenu();
           // console.log("selecting message: ", messageID)
+          this.selectedMessageID = messageID;
           this.contextMenuVisible = true;
           this.$refs.contextMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
           document.addEventListener('click', this.closeContextMenu);
         },
         closeContextMenu() {
-          this.$refs.contextMenu.hide();
+          if(this.contextMenuVisible){
+            this.$refs.contextMenu.hide();
+            this.contextMenuVisible = false;
+          }
+          if(this.popUpReactionsVisible){
+            this.$refs.reactionsMenu.hide();
+            this.popUpReactionsVisible = false;
+          }
           document.removeEventListener('click', this.closeContextMenu);
-          this.contextMenuVisible = false;
+        },
+        openReactionsMenu(messageID){
+          this.closeContextMenu();
+          // console.log("selecting message: ", messageID)
+          this.selectedMessageID = messageID;
+          this.popUpReactionsVisible = true;
+          // console.log("WOW-1 ", this.popUpReactionsVisible)
+          this.$refs.reactionsMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
+          this.$nextTick(() => {
+            setTimeout(() => {
+              document.addEventListener('click', this.closeContextMenu);
+            }, 0.01);
+          });
         },
         refreshLocalMessage(newMessage){
           this.selectedConversation.Messages[newMessage.Id] = newMessage
@@ -367,7 +389,8 @@ export default
         CurrentProfile,
         AddGroup,
         ContextMenu,
-        OriginMessage
+        OriginMessage,
+        PopUpReactions,
     },
     computed: {
       selectedConversation()
@@ -429,6 +452,7 @@ export default
             :refreshKey="this.selectedConversationIndexLocal"
             @onPageRefresh="onPageRefresh"
             @openContextMenu="openContextMenu"
+            @openReactionsMenu="openReactionsMenu"
             />
 
             <div id="BottomPartWrapper">
@@ -490,6 +514,11 @@ export default
             @setOriginMessage="setOriginMessage"
             @openOverlayInMode="openOverlayInMode"
             @openForwardOverlay="openForwardOverlay"
+            />
+
+            <PopUpReactions ref="reactionsMenu"
+            v-show="popUpReactionsVisible"
+            @click="closeContextMenu"
             />
 
         </div>

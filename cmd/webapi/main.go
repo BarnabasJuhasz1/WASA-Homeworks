@@ -28,6 +28,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"os"
@@ -98,6 +99,19 @@ func run() error {
 		logger.WithError(err).Error("error creating AppDatabase")
 		return fmt.Errorf("creating AppDatabase: %w", err)
 	}
+
+	// Ensure all pending writes are flushed before resetting
+	// if _, err := dbconn.Exec("PRAGMA wal_checkpoint(FULL);"); err != nil {
+	// 	logger.WithError(err).Error("Failed to checkpoint WAL")
+	// 	return fmt.Errorf("checkpoint WAL: %w", err)
+	// }
+
+	// logger.Warn("Resetting database: Dropping all tables...")
+	// if err := resetDatabase(cfg.DB.Filename); err != nil {
+	// 	logger.WithError(err).Error("Failed to reset database")
+	// 	return fmt.Errorf("resetting database: %w", err)
+	// }
+	// logger.Info("Database reset successful")
 
 	// Start (main) API server
 	logger.Info("initializing API server")
@@ -180,6 +194,58 @@ func run() error {
 		case err != nil:
 			return fmt.Errorf("could not stop server gracefully: %w", err)
 		}
+	}
+
+	return nil
+}
+
+func resetDatabase(dbPath string) error {
+	// 🔹 Open a new, exclusive connection for resetting the DB
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return fmt.Errorf("failed to open database for reset: %w", err)
+	}
+	defer db.Close() // Ensure this connection is closed after reset
+
+	// 🔹 Ensure no other process is using the database
+	if _, err := db.Exec("PRAGMA wal_checkpoint(FULL);"); err != nil {
+		return fmt.Errorf("failed to checkpoint WAL: %w", err)
+	}
+
+	// 🔹 Disable foreign key constraints
+	if _, err := db.Exec("PRAGMA foreign_keys=off;"); err != nil {
+		return fmt.Errorf("failed to disable foreign keys: %w", err)
+	}
+
+	// 🔹 Query to get all tables
+	rows, err := db.Query(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';`)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve tables: %w", err)
+	}
+	defer rows.Close()
+
+	// 🔹 Drop all tables
+	for rows.Next() {
+		var tableName string
+		if err := rows.Scan(&tableName); err != nil {
+			return fmt.Errorf("failed to scan table name: %w", err)
+		}
+
+		dropQuery := fmt.Sprintf("DROP TABLE IF EXISTS %s;", tableName)
+		if _, err := db.Exec(dropQuery); err != nil {
+			return fmt.Errorf("failed to drop table %s: %w", tableName, err)
+		}
+		log.Printf("Dropped table: %s", tableName)
+	}
+
+	// 🔹 Re-enable foreign keys
+	if _, err := db.Exec("PRAGMA foreign_keys=on;"); err != nil {
+		return fmt.Errorf("failed to enable foreign keys: %w", err)
+	}
+
+	// 🔹 Optimize database after dropping tables
+	if _, err := db.Exec("VACUUM;"); err != nil {
+		return fmt.Errorf("failed to vacuum database: %w", err)
 	}
 
 	return nil

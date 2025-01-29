@@ -57,7 +57,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 
 	// create the instance of the reaction struct
 	ReactionToMake := util.Reaction{
-		UserWhoReacted: LoggedInUser.Username,
+		UserWhoReacted: LoggedInUser.Id,
 		Type:           requestBody.TypeOfReaction,
 		Content:        requestBody.ContentOfReaction,
 	}
@@ -76,7 +76,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 			for i, ReactionAti := range Conversation.Messages[messageID].EmojiReactions {
 
 				// if the user has a reaction to this message already, replace that reaction with the new one
-				if ReactionAti.UserWhoReacted == LoggedInUser.Username {
+				if ReactionAti.UserWhoReacted == LoggedInUser.Id {
 
 					messageToReplace := Conversation.Messages[messageID]
 					// if you are placing a new emoji on the message
