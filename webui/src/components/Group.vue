@@ -150,7 +150,7 @@ export default {
 				</div>
 
 				<div v-if="this.isBase64Image">
-					<img :src="getLastMessage.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 24px;"/>
+					<img :src="getLastMessage.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 24px; max-height: 24px;"/>
 				</div>
 			</div>
 		</div>

@@ -22,8 +22,7 @@ export default
     },
     data() {
         return {
-            wasaTextUserIDs: null,
-            wasaTextUsers: [],
+            conversationProfiles: [],
 
             forwardToConversationsLocal: [],
         }
@@ -32,7 +31,7 @@ export default
         ProfileObject,
     },
     mounted(){
-
+        this.GetConversationNameAndPicture();
     },
     methods: {
         clickedCheckbox(index) {
@@ -86,9 +85,39 @@ export default
             }
 
         },
+        async GetConversationNameAndPicture(){
+            console.log("Getting profiles!")
+            this.conversationProfiles = []
+
+            for(let i = 0; i < this.myConversations.length; i++){
+                if(this.myConversations[i].Type == "GroupType"){
+                    this.conversationProfiles.push({
+                        Name: this.myConversations[i].GroupName,
+                        Picture: this.myConversations[i].GroupPicture
+                    })
+                }
+                else{
+                    // if I am the first participant, return the other user
+                    if(this.myConversations[i].Participants[0] == sharedData.UserSession.UserID){
+                        let prof = await sharedData.getUserProfile(this.myConversations[i].Participants[1])
+                        this.conversationProfiles.push({
+                            Name: prof.Username,
+                            Picture: prof.ProfilePicture 
+                        })
+                    }
+                    else{
+                        let prof = await sharedData.getUserProfile(this.myConversations[i].Participants[0])
+                        this.conversationProfiles.push({
+                            Name: prof.Username,
+                            Picture: prof.ProfilePicture 
+                        })
+                    }
+                }
+            }
+        },
     },
     computed: {
-
+ 
     },
 }
 </script>
@@ -105,9 +134,10 @@ export default
                     <div class="custom-scrollbar">
                         <div id="mainList" v-for="(conv, index) in myConversations" :key="index">
                         
-                        <ProfileObject      
-                            :username="conv.GroupName"
-                            :profilePicture="conv.GroupPicture"
+                        <ProfileObject   
+                            v-if="conversationProfiles[index] != null"   
+                            :username="conversationProfiles[index].Name"
+                            :profilePicture="conversationProfiles[index].Picture"
                             :editable="false"
                             :hasCheckBox="true"
                             @clickedCheckbox="clickedCheckbox(index)"
