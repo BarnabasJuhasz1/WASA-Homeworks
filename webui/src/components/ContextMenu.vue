@@ -88,7 +88,7 @@ export default
                 + "/message/"+ this.messageID
                 + "/comment", 
                 // JSON body:
-                {   
+                {
                     TypeOfReaction: "EmojiReaction",
                     ContentOfReaction: emoji
                 },
@@ -200,10 +200,10 @@ export default
 
                 const isBottomHalf = this.position.y > viewportHeight / 2;
 
-                const calculatedRight = viewportWidth - this.position.x; // Calculate distance from the right edge
+                const calculatedRight = viewportWidth - this.position.x -10; // Calculate distance from the right edge
                 const verticalPosition = isBottomHalf
-                    ? `bottom: ${viewportHeight - this.position.y}px;`
-                    : `top: ${this.position.y}px;`;
+                    ? `bottom: ${viewportHeight - this.position.y - 50}px;`
+                    : `top: ${this.position.y - 50}px;`;
 
                 return `${verticalPosition} right: ${calculatedRight}px;`;
             } else {
@@ -223,7 +223,7 @@ export default
 </script>
 
 <template>
-    <div :style="ContextMenuStyle">
+    <div :style="ContextMenuStyle" style="z-index: 2;">
         <div id="ContextMenuParent" :style="ContextMenuStyle">
             <div id="ContextMenu">
                 

@@ -18,7 +18,9 @@ export default {
 		msgStyle: {
 			required: true,
 		},
-
+		isProfileVisible: {
+			required: true,
+		},
 	},
 	methods: {
 		async getProfile(userID) {
@@ -188,12 +190,15 @@ export default {
 <template>
 
 	<div id="MessageParent"
-		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}"		
+		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left',
+			marginLeft: this.isProfileVisible ? '0px;' : '50px',
+		}"
 	>
 		
 		<div v-if="!this.msgStyle.wasSentByUser
 					&& this.profilePic != null
-					&& this.convType != 'UserType'"
+					&& this.convType != 'UserType'
+					&& this.isProfileVisible"
 			id="profileImageOfOtherPerson {{content}}" class="image-container">
 
 				<img :src="formattedProfilePicture"/>
@@ -217,12 +222,16 @@ export default {
 				
 				<div
 				style="font-style: italic; border-radius: 10px; max-width: 500px;"
-				v-if="this.message.WasForwarded">
+				v-if="this.message.WasForwarded && !this.message.HasBeenDeleted">
 					Forwarded
 				</div>
 
 
-				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
+				<div  id="username"
+					v-if="!this.msgStyle.wasSentByUser
+						&& this.convType != 'UserType'
+						&& this.isProfileVisible"
+				>
 						{{ this.username }}
 				</div>
 				
@@ -278,6 +287,7 @@ export default {
 				marginLeft: msgStyle.wasSentByUser ? '0px' : '10px',
 				marginRight: msgStyle.wasSentByUser ? '10px' : '0px'
 				}"
+			style="z-index: 1;"
 			>
 		
 				<!-- <div id = "messageEmoji">

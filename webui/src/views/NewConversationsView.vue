@@ -132,7 +132,7 @@ export default
               }
             );
             
-            console.log("new message has been received on server: ", response.data)
+            // console.log("new message has been received on server: ", response.data)
             setTimeout(() => {
               this.selectedConversation.Messages[newMessageID] = response.data
             }, 150)
@@ -377,6 +377,9 @@ export default
             };
           }
         },
+        cancelReply(){
+          this.originMessage=null;
+        },
         
     },
     mounted() {
@@ -402,6 +405,12 @@ export default
       {
           return this.currentMessage;
       },
+      originMessageBGcolor(){
+        if(this.originMessage.Sender == sharedData.UserSession.UserID)
+          return "backgroundColor: var(--message-own)"
+        else  
+          return "backgroundColor: var(--message-other)"
+      }
     }
   }
 </script>
@@ -465,12 +474,31 @@ export default
               style="display: block; width: 100%; height: 0px; border-top: 2px solid rgb(206, 215, 240); margin-bottom: 5px;">
               </div>
 
-              <OriginMessage id="OriginMessage" ref="OriginMessage"
+              <div id="OriginMessage" ref="OriginMessage"
+              :style=originMessageBGcolor
+              style="display: flex; flex-direction: row;"
               v-if="this.originMessage != null"
-              :convType="this.selectedConversation.Type"
-              :message="this.originMessage"
-              />
-        
+              >
+
+                <OriginMessage
+                id="OriginMessage"
+                style="flex-grow: 1; margin-left: 0px; margin-right: 0px; border: 0px; background-color: unset;"
+                :convType="this.selectedConversation.Type"
+                :message="this.originMessage"
+                />
+
+                <div style="display: flex; min-width: 55px; justify-content: center; align-items: center;"
+                  @click="cancelReply"
+                >
+                  <img
+                  src="https://cdn-icons-png.flaticon.com/128/190/190406.png"
+                  style="max-width: 25px; max-height: 25px;"
+                  />
+                </div>
+               
+
+              </div>
+
               <div id="TextAndSend" v-if="myConversations != null">
                   
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 

@@ -97,17 +97,17 @@ export default
                 });
 
                 // return response.data.ProfilePicture;
-                console.log("response:", response.data)
-                console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
-                console.log("me:", sharedData.UserSession.UserID)
+                // console.log("response:", response.data)
+                // console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
+                // console.log("me:", sharedData.UserSession.UserID)
 
                 this.currentUsernameToAddText = ""
 
                 // check if you were trying to add yourself
                 if(response.data.Id == sharedData.UserSession.UserID)
                 {
-                    console.error('User is already part of conversation!');
-                    alert('User is already part of conversation!');
+                    console.error('You cannot add yourself!');
+                    alert('You cannot add yourself!');
                     return;
                 }
                 for(let i = 0; i < this.currentParticipantIDs.length; i++)
@@ -122,6 +122,13 @@ export default
                 }
 
                 this.currentParticipantIDs.push(response.data.Id)
+
+                // if profile pic is unset, grab default picture instead of null
+                if(response.data.ProfilePicture == null){
+                    const profile = await sharedData.getUserProfile(response.data.Id)
+                    response.data.ProfilePicture = profile.ProfilePicture
+                }
+
                 this.currentParticipants.push(response.data)
              
                 if(this.currentConversationType == "UserType"){
@@ -160,8 +167,8 @@ export default
                     formattedProfilePic = this.currentProfilePicture;
                 }
             } catch (e) {
-                console.error(e.toString());
-                alert("profile pic conversion attempt failed!")
+                console.error("profile picture conversion attempt failed: ", e.toString());
+                // alert("profile pic conversion attempt failed!")
             }
             return formattedProfilePic;
         },

@@ -59,8 +59,8 @@ export default {
   <div class="custom-scrollbar">
 
     <div id="mainList"
-      v-for="(message) in textMessages"
-      :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}`"
+      v-for="(message, index) in textMessages"
+      :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}-${convType == 'GroupType' && (index == 0 || textMessages[index-1].Sender != message.Sender)}`"
       >
 
       <Message
@@ -69,7 +69,8 @@ export default {
       :message="message"
       :originMessage="getOriginMessage(message)"
       :msgStyle="computedStyle(message)" 
-      
+      :isProfileVisible="convType == 'GroupType' && (index == 0 || textMessages[index-1].Sender != message.Sender)"      
+
       @openContextMenu="this.$emit('openContextMenu', message.Id)"
       @openReactionsMenu="this.$emit('openReactionsMenu', message.Id)"
       />
@@ -100,7 +101,7 @@ export default {
   background-position: center;
   background-size: auto;
   
-  opacity: 0.5;
+  opacity: 0.75;
   z-index: 0;
   pointer-events: none;
 

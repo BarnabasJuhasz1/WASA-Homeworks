@@ -32,14 +32,17 @@ export const sharedData = reactive({
       });
 
       // console.log("user with id: ", userID, "fetched: ", response.data)
-      // if(response.data.ProfilePicture == null)
-        // response.data.ProfilePicture = "https://cdn-icons-png.flaticon.com/128/668/668709.png";
+
+      if(response.data.ProfilePicture == null){
+        // console.log("has no prof pic: ", response.data)
+        response.data.ProfilePicture = await getDefaultImage();
+      }
       // console.log("USER FETCHED: ", response.data)
       return response.data;
       
     } catch (e) {
       console.error('Error fetching user:', e);
-      alert('Fetching other user attempt failed!');
+      // alert('Fetching other user attempt failed!');
     }
   },
 
@@ -57,6 +60,20 @@ export const sharedData = reactive({
     return userProfile;
   },
 });
+
+async function getDefaultImage() {
+  const response = await fetch('/images/default/basic_user_picture.png');
+  const blob = await response.blob();
+
+  return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result.split(',')[1];  
+        resolve(base64String)
+      };
+      reader.readAsDataURL(blob);
+  });
+}
 
 // Watch for changes to UserSession and persist them to localStorage
 import { watch } from 'vue';
