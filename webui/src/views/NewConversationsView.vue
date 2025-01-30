@@ -458,7 +458,7 @@ export default
             <MessagesList
             id="MessagesList"
             ref="messagesList"
-            v-if="myConversations != null"
+            v-if="myConversations != null && this.selectedConversation != null"
             :textMessages="this.selectedConversation.Messages"
             :convType="this.selectedConversation.Type"
             :refreshKey="this.selectedConversationIndexLocal"
@@ -538,7 +538,7 @@ export default
 
             <ContextMenu ref="contextMenu"
             v-show="contextMenuVisible"
-            v-if="myConversations != null"
+            v-if="myConversations != null && this.selectedConversation != null"
             :conversationID="this.selectedConversation.Id"
             @click="closeContextMenu"
             @refreshLocalMessage="refreshLocalMessage"

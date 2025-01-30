@@ -38,11 +38,11 @@ export default
                 // response.data contains JSON
                 // console.log(response.data);
 
+                sharedData.UserSession.SessionToken = response.data.SessionToken;
                 sharedData.UserSession.UserID = response.data.User.Id;
                 sharedData.UserSession.Username = response.data.User.Username;
                 const prof = await sharedData.getUserProfile(response.data.User.Id)
                 sharedData.UserSession.ProfilePicture = prof.ProfilePicture;
-                sharedData.UserSession.SessionToken = response.data.SessionToken;
 
                 // console.log("User session updated:", sharedData.UserSession.UserID , ":", sharedData.UserSession.Username);
 
