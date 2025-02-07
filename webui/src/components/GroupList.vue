@@ -17,6 +17,7 @@ export default {
   components: {
     Group,
   },
+
   data() {
     return {
     };
@@ -46,11 +47,14 @@ export default {
   <div>
     <div>
       <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="`${conversation.GroupName}-${conversation.GroupPicture}-${conversation.Messages}-${index}`">
+        
         <Group
-        :conversation="conversation"
-        :index="index"
-        :isSelected="this.selectedConversationIndexLocal == index"
-        @SelectNewConversationAtGroupList="SelectNewConversation"/>
+          :conversation="conversation"
+          :index="index"
+          :isSelected="this.selectedConversationIndexLocal == index"
+          @SelectNewConversationAtGroupList="SelectNewConversation"
+        />
+
       </div>
     </div>
 

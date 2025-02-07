@@ -39,9 +39,7 @@ export default
       // this.getConversation(to.params.id);
       this.SelectNewConversationInApp(to.params.id)
     },
-    // '$myconversations'(to){
-    //   // console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
-    // }
+    
   },
   data() {
     return {
@@ -59,9 +57,26 @@ export default
 
         originMessage: null,
 
+        intervalId: null,
+
         };
     },
+    beforeDestroy() {
+      clearInterval(this.intervalId);
+    },
     methods: {
+        startPolling() {
+          this.intervalId = setInterval(() => {
+            // console.log("auto-refresh conv:", this.myConversations)
+            this.RefreshSelectedConversation();
+          }, 1000);
+          // console.log("Polling started with ID:", this.intervalId);
+        },
+        stopRefreshing(){
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+          // console.log("Refreshing stopped at convView!");
+        },
         sendMessage(event) {
             if(event)
               event.preventDefault();
@@ -180,6 +195,9 @@ export default
           }
         },
         async getConversation(convID) {
+          if(this.myConversations.length <= convID)
+            return;
+
           try {
             let response = await axios.get(
               "/conversation/"+ convID,
@@ -195,8 +213,20 @@ export default
             // console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
             // console.log("CONV RECEIVED: ", response.data)
 
-            const updatedConversation = response.data; // Assume this is your new data
+            const updatedConversation = response.data;
+            // console.log("COMPARING: ", this.myConversations[this.selectedConversationIndexLocal].Messages.length
+            //   , " with new:", updatedConversation.Messages.length)
+          
+            // let oldMessageCount = this.myConversations[this.selectedConversationIndexLocal].Messages.length
             this.$emit('update-conversation', this.selectedConversationIndexLocal, updatedConversation);
+            
+            // if(oldMessageCount != updatedConversation.Messages.length){
+            //   console.log("NEW MSG! SCROLL")
+            //   setTimeout(() => {
+            //     this.scrollToBottom();
+            //     this.adjustHeight();
+            //   }, 1000);
+            // }
             // this.myConversations[this.selectedConversationIndexLocal] = response.data;
           }
           catch (error) {
@@ -217,6 +247,8 @@ export default
           // this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
           this.$router.push('/conversation/'+localConvIndex);
 
+          // let oldMessageCount = this.myConversations[localConvIndex].Messages.length;
+          // console.log("old message count: ", oldMessageCount)
           this.getConversation(this.myConversations[localConvIndex].Id);
 
           if(this.selectedConversationIndexLocal != localConvIndex)
@@ -226,16 +258,39 @@ export default
             this.selectedConversationIndexLocal = localConvIndex
             this.currentMessage = "";
 
-              this.$nextTick(() => {
-                this.scrollToBottom();
-                this.adjustHeight();
-
-                  // const groupHeader = this.$refs.groupHeaderRef;
-                  // groupHeader.getProfile();
-              });
+            // this.$nextTick(()=>
+            // {
+            //   this.adjustHeight();
+            //   this.scrollToBottom();
+            // });
+            setTimeout(() => {
+              this.scrollToBottom();
+              this.adjustHeight();
+            }, 100);
           }
-          // console.log("LOCAL INVDEX: ", this.selectedConversationIndexLocal)
+        },
+        async RefreshSelectedConversation(){
+          if(this.myConversations == null || this.myConversations[this.selectedConversationIndexLocal] == null){
+            return;
+          }
 
+          if(this.myConversations[this.selectedConversationIndexLocal].Messages == null){
+            await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
+            return;
+          }
+
+          // this.$refs.messagesList.refreshMessageList();
+
+          let oldMessageCount = this.myConversations[this.selectedConversationIndexLocal].Messages.length;
+          
+          await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
+
+          if(oldMessageCount != this.myConversations[this.selectedConversationIndexLocal].Messages.length){
+            setTimeout(() => {
+              this.scrollToBottom();
+              this.adjustHeight();
+            }, 100);
+          }
         },
         adjustHeight() {
 
@@ -346,6 +401,7 @@ export default
         },
         logout(){
           this.$router.push('/');
+          clearInterval(this.intervalId);
         },
         openAttach(){
           this.$refs.fileInput.click();
@@ -383,7 +439,7 @@ export default
         
     },
     mounted() {
-
+      this.startPolling();
     },
     components: {
         MessagesList,
@@ -462,6 +518,7 @@ export default
             :textMessages="this.selectedConversation.Messages"
             :convType="this.selectedConversation.Type"
             :refreshKey="this.selectedConversationIndexLocal"
+            @refreshMessageList="refreshMessageList"
             @onPageRefresh="onPageRefresh"
             @openContextMenu="openContextMenu"
             @openReactionsMenu="openReactionsMenu"

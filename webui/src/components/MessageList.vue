@@ -12,11 +12,23 @@ export default {
     // ContextMenu,
   },
   mounted() {
-    this.$.emit("onPageRefresh");
+    this.$emit("onPageRefresh");
+    this.messages = this.textMessages;
+  },
+  watch: {
+    textMessages: {
+      handler(newValue, oldValue) {
+        this.messages = newValue;
+        // console.error("updated text msgs")
+        // this.$emit("refreshMessageList");
+      },
+      deep: true,
+    }
   },
   data() {
     return {
       // contextMenuVisible: false,
+      messages: []
     };
   },
   methods: {
@@ -36,8 +48,9 @@ export default {
         return null
       }
 
-      return this.textMessages[message.OriginMessageId]
-    }
+      return this.messages[message.OriginMessageId]
+    },
+
     // openContextMenu() {
     //   this.contextMenuVisible = true;
     //   console.log("contextmenu found? ", this.$refs.contextMenu)
@@ -59,8 +72,8 @@ export default {
   <div class="custom-scrollbar">
 
     <div id="mainList"
-      v-for="(message, index) in textMessages"
-      :key="`${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}-${convType == 'GroupType' && (index == 0 || textMessages[index-1].Sender != message.Sender)}`"
+      v-for="(message, index) in messages"
+      :key="`${messages}-${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}-${convType == 'GroupType' && (index == 0 || messages[index-1].Sender != message.Sender)}`"
       >
 
       <Message
@@ -69,7 +82,7 @@ export default {
       :message="message"
       :originMessage="getOriginMessage(message)"
       :msgStyle="computedStyle(message)" 
-      :isProfileVisible="convType == 'GroupType' && (index == 0 || textMessages[index-1].Sender != message.Sender)"      
+      :isProfileVisible="convType == 'GroupType' && (index == 0 || messages[index-1].Sender != message.Sender)"      
 
       @openContextMenu="this.$emit('openContextMenu', message.Id)"
       @openReactionsMenu="this.$emit('openReactionsMenu', message.Id)"

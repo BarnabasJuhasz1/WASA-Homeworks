@@ -47,10 +47,10 @@ export const sharedData = reactive({
   },
 
   async getUserProfile(userID) {
-    if (this.userProfileCache[userID]) {
-      // console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
-      return this.userProfileCache[userID];
-    }
+    // if (this.userProfileCache[userID]) {
+    //   // console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
+    //   return this.userProfileCache[userID];
+    // }
 
     // console.log('Cache miss for', userID);
     const userProfile = await this.fetchUserProfile(userID);

@@ -24,6 +24,7 @@ export default {
     // console.log("TOKEN: ", sharedData.UserSession.SessionToken)
     // Define a method
     const GetMyConversations = async () => {
+      // console.log("trying to get conversations belonging to user token: ", sharedData.UserSession.SessionToken)
       try {
         let response = await axios.get(
           "/user/myConversations", 
@@ -35,10 +36,10 @@ export default {
           }
         );
 
-        // console.log("myconversations: ", response.data);
+        // console.log("myconversations at parent: ", response.data);
         myFetchedConversations.value = response.data;
         
-        //this.myFetchedConversations2 = response.data;
+        // this.myFetchedConversations2 = response.data;
       }
       catch (error) {
         console.error("Error fetching conversations! ", error);
@@ -54,6 +55,12 @@ export default {
       GetMyConversations,
     };
   },
+  mounted(){
+    this.startPolling();
+  },
+  beforeDestroy() {
+    clearInterval(this.intervalId);
+  },
   data() {
     return {
       showOverlay: false,
@@ -63,10 +70,25 @@ export default {
       inspectingConversation: null,
 
       messageToForward: null,
+
+      intervalId: null,
       // selectedConversationIndexLocal: null,
     };
   },
   methods: {
+    startPolling() {
+      this.intervalId = setInterval(() => {
+        this.GetMyConversations();
+      }, 1000);
+      // console.log("Polling started in parent with ID:", this.intervalId);
+    },
+    stopRefreshing(){
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      const conversationsView = this.$refs.ConversationsViewRef;
+      conversationsView.stopRefreshing();
+      // console.log("refreshing stopped at parent!")
+    },
     openOverlayInMode(mode, profileText, profilePicture) {
       // console.log("grandparent user: ", profileText)
       // set the overlay mode enum ["USER", "GROUP", "CREATE_CONVERSATION"]
@@ -97,22 +119,31 @@ export default {
 
       if(this.myFetchedConversations == null)
         return;
+
+      const conversationsView = this.$refs.ConversationsViewRef;
+
       // if the overlay is closed because a new conversation was added,
       // we switch to that conversation
       if(convCount != this.myFetchedConversations.length)
       {
-        const conversationsView = this.$refs.ConversationsViewRef;
         conversationsView.SelectNewConversationInApp(this.myFetchedConversations.length-1);
       }
       else // otherwise we update the currently selected one
       {
-        const conversationsView = this.$refs.ConversationsViewRef;
         //conversationsView.SelectNewConversationInApp(this.selectedConversationIndexLocal);
         conversationsView.SelectNewConversationInApp(this.$route.params.id);
       }
+
+      if(this.intervalId == null){
+        this.startPolling();
+        conversationsView.startPolling();
+      }
+
     },
     handleUpdateConversation(index, newConversation) {
-      this.myFetchedConversations[index] = newConversation;
+      if(this.myFetchedConversations != null && this.myFetchedConversations.length > index){
+        this.myFetchedConversations[index] = newConversation;
+      }
     },
     async textPerson(profile){
       
@@ -141,20 +172,26 @@ export default {
         }
       }
       
-      this.CreateConversation(profile.Id)
-
+      this.CreateConversation([profile.Id]);
     },
-    async CreateConversation(profileID) {
+    async textGroup(participants)
+    {
+      this.CreateConversation(participants);
+    },
+    async CreateConversation(participants) {
+
+      console.log("participants: ", participants)
+      let formattedProfilePic =  participants.length == 1 ? "" : await this.GetFormattedPicture();
 
       try {
           let response = await this.$axios.post(
           "/create/conversation", 
           // JSON body:
           {
-              ConversationType: "UserType",
-              Participants: [profileID],
-              ConversationName: "",
-              ConversationPicture: "",
+              ConversationType: participants.length == 1 ? "UserType":"GroupType",
+              Participants: participants,
+              ConversationName: participants.length == 1 ? "":"New Group",
+              ConversationPicture: formattedProfilePic,
           },
           // Headers:
           {
@@ -171,7 +208,38 @@ export default {
           
           alert("Texting user attempt failed!")
       }
-    }
+    },
+    async GetFormattedPicture(){
+      let currentProfilePicture = "https://cdn-icons-png.flaticon.com/128/14721/14721998.png";
+      let formattedProfilePic;
+      try{
+          // make sure profile picture is in base 64
+          if(typeof currentProfilePicture === "string"
+              && currentProfilePicture.startsWith("https")) 
+          {
+              const response = await fetch(currentProfilePicture);
+              const blob = await response.blob();
+
+              const reader = new FileReader();
+              formattedProfilePic = await new Promise((resolve, reject) => {
+                  reader.onloadend = () => {
+                      const base64 = reader.result;
+                      resolve(base64.split(",")[1]);
+                  };                        
+                  reader.onerror = reject;
+                  reader.readAsDataURL(blob);
+              });
+          }
+          else
+          {
+              formattedProfilePic = currentProfilePicture;
+          }
+      } catch (e) {
+          console.error("profile picture conversion attempt failed: ", e.toString());
+          // alert("profile pic conversion attempt failed!")
+      }
+      return formattedProfilePic;
+    },
   },
 };
 </script>
@@ -198,6 +266,7 @@ export default {
         :profilePicture="overlayProfilePicture"
         conversationID="0"
         @closeOverlay="closeOverlay"
+        @stopRefreshing="stopRefreshing"
         style="z-index: 1001;"
       />
 
@@ -221,6 +290,7 @@ export default {
       <WasaTextUsersOverlay v-if="overlayMode=='WASA_TEXT_USERS'"
         @closeOverlay="closeOverlay"
         @textPerson="textPerson"
+        @textGroup="textGroup"
         style="z-index: 1001;"
       />
 

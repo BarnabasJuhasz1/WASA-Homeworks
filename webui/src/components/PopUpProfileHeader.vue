@@ -66,7 +66,7 @@ export default {
                   .reduce((data, byte) => data + String.fromCharCode(byte), "")
           );
           this.editableProfilePicture = base64String;
-          console.log("File uploaded as Base64:", this.editableProfilePicture);
+          // console.log("File uploaded as Base64:", this.editableProfilePicture);
         };
 
         reader.onerror = (e) => {

@@ -17,6 +17,17 @@ export default {
 		},
 	},
 	emits: ['SelectNewConversationAtGroupList'],
+	watch:{
+		conversation: {
+			handler(newValue, oldValue) {
+				if(newValue != oldValue){
+					this.getProfile();
+					this.setLastMessageSender();
+				}
+			},
+		},
+		
+	},
 	data() {
 		return {
 			headerName: null,

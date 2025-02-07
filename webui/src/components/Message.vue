@@ -22,6 +22,21 @@ export default {
 			required: true,
 		},
 	},
+	watch: {
+		message: {
+			handler(newValue, oldValue) {
+				//this.message = newValue;
+				//console.error("updated text msgs")
+
+				setTimeout(() => {
+					this.getProfile(this.message.Sender);
+					this.setCheckMarkImg();
+				}, 100);
+					
+			},
+			deep: true,
+		}
+	},
 	methods: {
 		async getProfile(userID) {
 
@@ -67,7 +82,6 @@ export default {
 		OriginMessage,
 	},
 	mounted() {
-		
 		this.getProfile(this.message.Sender);
 		this.setCheckMarkImg();
   	},

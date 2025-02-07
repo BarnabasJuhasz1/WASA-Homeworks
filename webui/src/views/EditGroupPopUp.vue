@@ -62,22 +62,30 @@ export default
             this.currentProfilePicture = value;
         },
         editButtonClicked() {
-            // compare old group name and new group name
-            if(this.currentProfileText != this.inspectingConversation.GroupName)
-            {
-                this.SetConversationName()
-            }
 
-            // compare old group pic and new group pic
-            if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
-            {
-                this.SetConversationPicture()
-            }
+            try {
+                 // compare old group name and new group name
+                if(this.currentProfileText != this.inspectingConversation.GroupName)
+                {
+                    this.SetConversationName()
+                }
 
-            // check if there are any new participants added
-            for (let i = 0; i < this.newParticipantIDs.length; i++)
-            {
-                this.AddUserRequest(this.newParticipantIDs[i])
+                // compare old group pic and new group pic
+                if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
+                {
+                    this.SetConversationPicture()
+                }
+
+                // check if there are any new participants added
+                for (let i = 0; i < this.newParticipantIDs.length; i++)
+                {
+                    this.AddUserRequest(this.newParticipantIDs[i])
+                }
+
+                alert("Conversation edited successfully.")
+
+            } catch (error) {
+                alert("There was an issue with editing the conversation.")
             }
             
         },
@@ -95,9 +103,9 @@ export default
                 });
 
                 // return response.data.ProfilePicture;
-                console.log("response:", response.data)
-                console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
-                console.log("me:", sharedData.UserSession.UserID)
+                // console.log("response:", response.data)
+                // console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
+                // console.log("me:", sharedData.UserSession.UserID)
 
                 this.currentUsernameToAddText = ""
 
@@ -186,7 +194,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
+                // console.log(response.data);
                 // this.inspectingConversation.GroupName = this.currentProfileText;
 
                 // this.$emit('updateGroup', this.inspectingConversation);
@@ -219,7 +227,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
+                // console.log(response.data);
                 // this.inspectingConversation.GroupPicture = formattedProfilePic;
 
                 // this.$emit('updateGroup', this.inspectingConversation)
@@ -250,7 +258,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
+                // console.log(response.data);
                 // this.inspectingConversation.GroupName = this.currentProfileText;
 
                 // this.$emit('updateGroup', this.inspectingConversation);
@@ -275,9 +283,9 @@ export default
                 }
                 );
 
-                console.log(response.data);
+                // console.log(response.data);
                 // this.inspectingConversation.GroupName = this.currentProfileText;
-
+                alert("You left the conversation group.")
                 // this.$emit('updateGroup', this.inspectingConversation);
                 this.$emit('closeOverlay');
 

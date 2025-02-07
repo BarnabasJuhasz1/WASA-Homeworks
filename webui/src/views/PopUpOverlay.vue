@@ -59,6 +59,9 @@ export default
             showConversationType,
         };
     },
+    mounted(){
+        this.$emit('stopRefreshing');
+    },
     data() {
         return {
             // always populated for every PopUp
@@ -81,25 +84,27 @@ export default
             // compare old profile pic and new profile pic
             // compare old username and new username
              
-            if(this.overlayMode == "USER" || this.overlayMode == "GROUP"){
+            if(this.overlayMode == "USER"){
                 
-                if(this.currentProfileText != null)
-                {
-                    this.SetNameOperation(this.currentProfileText)
-                }
-                if(this.currentProfilePicture != null)
-                {
-                    this.SetPictureOperation(this.currentProfilePicture)
+                try {
+                    if(this.currentProfileText != null)
+                    {
+                        this.SetNameOperation(this.currentProfileText)
+                    }
+                    if(this.currentProfilePicture != null)
+                    {
+                        this.SetPictureOperation(this.currentProfilePicture)
+                    }
+                    
+                } catch (error) {
+                    console.error("Error trying to edit user profile: ", error)
+                    // alert("There was an issue with editing the user profile.")
                 }
             } 
-            // else if (this.overlayMode == "CREATE_CONVERSATION")
-            // {
-            //     this.CreateConversation()
-            // }
         },
         async SetNameOperation(newName) {
-            if(this.overlayMode == "USER"){
 
+            try {
                 let response = await this.$axios.put(
                 "/user", 
                 // JSON body:
@@ -113,30 +118,20 @@ export default
                 }
                 );
 
-                console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
+                // console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
                 sharedData.UserSession.Username = response.data;
+
+                this.$nextTick(()=>{
+                    this.$emit('closeOverlay');
+                });
+                alert("User profile edited successfully.")
+
+            } catch (error) {
+                alert("Username is occupied by someone else!")
             }
-            // else if(this.overlayMode == "GROUP"){
-
-            //     let response = await this.$axios.put(
-            //     "/conversation/"+this.conversationID, 
-            //     // JSON body:
-            //     {   GroupName: newName },
-            //     // Headers:
-            //     {
-            //         headers: {
-            //         "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-            //         "Content-Type": "application/json",
-            //         },
-            //     }
-            //     );  
-
-            //     console.log("RESPONSE to change group name: ", response.data);
-            //     sharedData.UserSession.Username = response.data;
-            // }
         },
         async SetPictureOperation(newPicture) {
-            if(this.overlayMode == "USER"){
+            try {
                 let response = await this.$axios.put(
                 "/user/profilePicture", 
                 // JSON body:
@@ -152,8 +147,18 @@ export default
 
                 // console.log(response.data);
                 sharedData.UserSession.ProfilePicture = response.data;
+
+                this.$emit('closeOverlay');
+
+                alert("User profile edited successfully.")
+
             }
-        },
+            catch (error) {
+                console.error("There was an error editing profile picture: ", error)
+                alert("Error editing profile picture!")
+            }
+        }
+            
     },
     computed: {
 

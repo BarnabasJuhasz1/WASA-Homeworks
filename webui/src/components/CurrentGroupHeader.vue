@@ -14,7 +14,6 @@ export default {
     selectedConversation: {
       handler(newValue, oldValue) {
         if(newValue != oldValue){
-          this.groupParticipantNames = [];
           this.getProfile();
         }
       },
@@ -53,7 +52,7 @@ export default {
 					}
 				}
 			}
-			else if (this.groupParticipantNames.length == 0)
+			else //if (this.groupParticipantNames.length == 0)
 			{
 
         // this.groupParticipantNames = [];
@@ -77,6 +76,7 @@ export default {
         let participant = await sharedData.getUserProfile(this.selectedConversation.Participants[i]);
         participantNames.push(participant.Username)
       }
+      this.groupParticipantNames = [];
       return participantNames;
     }
   },

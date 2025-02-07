@@ -3,6 +3,7 @@
 import ParticipantsList from '../components/ParticipantsList.vue';
 import { sharedData } from '../services/sharedData.js';
 import axios from "../services/axios.js"
+import ProfileObject from '../components/ProfileObject.vue';
 
 export default 
 {
@@ -11,16 +12,35 @@ export default
             wasaTextUserIDs: null,
             wasaTextUsers: [],
             currentUsernameToSearch: "",
+
+            selectedUsersToText: [],
         }
     },
     components:{
         ParticipantsList,
+        ProfileObject,
     },
     mounted(){
         this.GetWasaTextUsers();
     },
     methods: {
+        clickedCheckbox(index) {
+            console.log("clicked to: ", index);
+
+            const userIndex = this.selectedUsersToText.indexOf(index);
+            
+            if (userIndex === -1) {
+                this.selectedUsersToText.push(index);
+            } else {
+                this.selectedUsersToText.splice(userIndex, 1);
+            }
+            console.log("Updated forwardToUsers: ", this.selectedUsersToText);
+
+        },
         async FetchAllUserProfiles(){
+            this.wasaTextUsers = [];
+            this.selectedUsersToText = []
+
             for(let i = 0; i < this.wasaTextUserIDs.length; i++){
                 let userProfile = await sharedData.getUserProfile(this.wasaTextUserIDs[i])
                 this.wasaTextUsers.push(userProfile)
@@ -43,10 +63,12 @@ export default
                 );
                 // console.log("all userIDs received: ", response.data)
                 this.wasaTextUsers = []
+                this.selectedUsersToText = []
             
                 if(response.data != null){
                     this.wasaTextUserIDs = response.data
-                    this.FetchAllUserProfiles()
+                    await this.FetchAllUserProfiles()
+                    // console.log("wasatext user count: ", this.wasaTextUserIDs.length)
                 }
             }
             catch (error) {
@@ -56,19 +78,15 @@ export default
         },
         async GetFormattedPicture(){
 
-            console.log("Getting formated prof pic for wasatext")
             if(this.currentProfilePicture == null)
                 return "";
 
             let formattedProfilePic;
             try{
-                console.log("Getting formated prof pic for wasatext 2")
-
                 // make sure profile picture is in base 64
                 if(typeof this.currentProfilePicture === "string"
                     && this.currentProfilePicture.startsWith("https")) 
                 {
-                    console.log("Getting formated prof pic for wasatext 3")
 
                     const response = await fetch(this.currentProfilePicture);
                     const blob = await response.blob();
@@ -85,26 +103,54 @@ export default
                 }
                 else
                 {
-                    console.log("Getting formated prof pic for wasatext 4")
-
                     formattedProfilePic = this.currentProfilePicture;
                 }
             } catch (e) {
                 console.error(e.toString());
                 alert("profile pic conversion attempt failed!")
             }
-            console.log("Getting formated prof pic for wasatext returning: ", formattedProfilePic)
+            // console.log("Getting formated prof pic for wasatext returning: ", formattedProfilePic)
 
             return formattedProfilePic;
         },
-        textPerson(profile){
-             this.$emit('textPerson', profile);
-            // this.CreateConversation(profile.Id)
+        async onTextButtonClicked(){
+
+            if(this.selectedUsersToText.length == 0){
+                this.$emit('closeOverlay')
+            }
+            else if(this.selectedUsersToText.length == 1){
+                let userProfile = await sharedData.getUserProfile(this.wasaTextUserIDs[this.selectedUsersToText[0]])
+                if(userProfile.Id == sharedData.UserSession.UserID){
+                    this.$emit('closeOverlay')
+                    alert("You cannot text yourself.")
+                    return;
+                }
+                this.$emit('textPerson', userProfile);
+            }
+            else{
+                let participants = []
+                for(let i = 0; i < this.selectedUsersToText.length; i++){
+                    if(this.wasaTextUserIDs[this.selectedUsersToText[i]] != sharedData.UserSession.UserID){
+                        participants.push(this.wasaTextUserIDs[this.selectedUsersToText[i]]);
+                    }
+                }
+                this.$emit('textGroup', participants);
+            }
+
         },
-        
     },
     computed: {
-
+        textButtonString(){
+            if(this.selectedUsersToText.length == 0){
+                return "Close"
+            }
+            else if(this.selectedUsersToText.length == 1){
+                return "Text User"
+            }
+            else{
+                return "Text Group"
+            }
+        }
     },
 }
 </script>
@@ -126,18 +172,31 @@ export default
                     @input="GetWasaTextUsers"
                  />
 
-                <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">
-                    <ParticipantsList
+                <div style="display:block; overflow-y: auto; width: 300px;" class="custom-scrollbar">
+                    <!-- <ParticipantsList
                         :participants="this.wasaTextUsers"
                         :buttonForEachElement="true"
                         @textPerson="textPerson"
-                    />
+                    /> -->
+                    <div v-for="(profile, index) in this.wasaTextUsers" :key="index">
+                    
+                        <ProfileObject
+                            v-if="index < this.wasaTextUserIDs.length"
+                            :username="profile.Username"
+                            :profilePicture="profile.ProfilePicture"
+                            :editable="false"
+                            :hasCheckBox="true"
+                            @clickedCheckbox="clickedCheckbox(index)"
+                        />
+
+                    </div>
+                        
 
                 </div>
 
-                <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px;"
-                @click="this.$emit('closeOverlay')">
-                    Close
+                <button id="CreateButton" style="margin-bottom: 5px; margin-top:5px; width: 100px;"
+                @click="onTextButtonClicked">
+                    {{ textButtonString }}
                 </button>
          
             </div>
