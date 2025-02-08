@@ -58,7 +58,7 @@ export default {
   mounted(){
     this.startPolling();
   },
-  beforeDestroy() {
+  beforeUnmount() {
     clearInterval(this.intervalId);
   },
   data() {

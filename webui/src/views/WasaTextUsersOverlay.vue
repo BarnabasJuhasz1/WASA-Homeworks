@@ -1,6 +1,5 @@
 
 <script>
-import ParticipantsList from '../components/ParticipantsList.vue';
 import { sharedData } from '../services/sharedData.js';
 import axios from "../services/axios.js"
 import ProfileObject from '../components/ProfileObject.vue';
@@ -17,7 +16,6 @@ export default
         }
     },
     components:{
-        ParticipantsList,
         ProfileObject,
     },
     mounted(){

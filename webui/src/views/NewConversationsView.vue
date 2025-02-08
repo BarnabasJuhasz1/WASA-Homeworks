@@ -61,7 +61,7 @@ export default
 
         };
     },
-    beforeDestroy() {
+    beforeUnmount() {
       clearInterval(this.intervalId);
     },
     methods: {
@@ -327,6 +327,7 @@ export default
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
+          console.log("conv: ", this.myConversations)
         },
         openOverlayInGroupMode(conversation){
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
