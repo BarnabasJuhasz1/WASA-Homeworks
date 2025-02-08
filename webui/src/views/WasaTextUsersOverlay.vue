@@ -23,7 +23,7 @@ export default
     },
     methods: {
         clickedCheckbox(index) {
-            console.log("clicked to: ", index);
+            //console.log("clicked to: ", index);
 
             const userIndex = this.selectedUsersToText.indexOf(index);
             
@@ -32,7 +32,7 @@ export default
             } else {
                 this.selectedUsersToText.splice(userIndex, 1);
             }
-            console.log("Updated forwardToUsers: ", this.selectedUsersToText);
+            //console.log("Updated forwardToUsers: ", this.selectedUsersToText);
 
         },
         async FetchAllUserProfiles(){

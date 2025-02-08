@@ -73,7 +73,7 @@ export default {
 
     <div id="mainList"
       v-for="(message, index) in messages"
-      :key="`${messages}-${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}-${convType == 'GroupType' && (index == 0 || messages[index-1].Sender != message.Sender)}`"
+      :key="`${messages}-${message.Sender}-${message.Content}-${message.Timestamp}-${message.EmojiReactions}-${message.ReadBy}-${convType == 'GroupType' && (index == 0 || messages[index-1].Sender != message.Sender)}`"
       >
 
       <Message

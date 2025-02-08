@@ -195,8 +195,10 @@ export default
           }
         },
         async getConversation(convID) {
-          if(this.myConversations.length <= convID)
-            return;
+
+          //console.log("myconv length: ", this.myConversations.length, " and trying to get: ", convID)
+          //if(this.myConversations.length < convID)
+            //return;
 
           try {
             let response = await axios.get(
@@ -327,7 +329,7 @@ export default
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
-          console.log("conv: ", this.myConversations)
+          //console.log("conv: ", this.myConversations)
         },
         openOverlayInGroupMode(conversation){
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
