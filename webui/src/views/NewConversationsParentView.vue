@@ -172,26 +172,23 @@ export default {
         }
       }
       
-      this.CreateConversation([profile.Id]);
+      this.CreateOneOnOneConversation([profile.Id]);
     },
     async textGroup(participants)
     {
-      this.CreateConversation(participants);
+      this.CreateGroupConversation(participants);
     },
-    async CreateConversation(participants) {
-
-      console.log("participants: ", participants)
-      let formattedProfilePic =  participants.length == 1 ? "" : await this.GetFormattedPicture();
+    async CreateOneOnOneConversation(participants) {
 
       try {
           let response = await this.$axios.post(
           "/create/conversation", 
           // JSON body:
           {
-              ConversationType: participants.length == 1 ? "UserType":"GroupType",
+              ConversationType: "UserType",
               Participants: participants,
-              ConversationName: participants.length == 1 ? "":"New Group",
-              ConversationPicture: formattedProfilePic,
+              ConversationName: "",
+              ConversationPicture: "",
           },
           // Headers:
           {
@@ -207,6 +204,36 @@ export default {
           console.error(e.toString());
           
           alert("Texting user attempt failed!")
+      }
+    },
+    async CreateGroupConversation(participants) {
+
+      let formattedProfilePic = await this.GetFormattedPicture();
+
+      try {
+        let response = await this.$axios.post(
+        "/create/conversation", 
+        // JSON body:
+        {
+            ConversationType: "GroupType",
+            Participants: participants,
+            ConversationName: "New Group",
+            ConversationPicture: formattedProfilePic,
+        },
+        // Headers:
+        {
+            headers: {
+                "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                "Content-Type": "application/json",
+            },
+        }
+        );
+        this.closeOverlay();
+
+      } catch (e) {
+        console.error(e.toString());
+        
+        alert("Texting user attempt failed!")
       }
     },
     async GetFormattedPicture(){
