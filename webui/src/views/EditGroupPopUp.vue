@@ -61,26 +61,27 @@ export default
         handleProfilePictureUpdate(value) {
             this.currentProfilePicture = value;
         },
-        editButtonClicked() {
+        async editButtonClicked() {
 
             try {
                  // compare old group name and new group name
                 if(this.currentProfileText != this.inspectingConversation.GroupName)
                 {
-                    this.SetConversationName()
+                    await this.SetConversationName()
                 }
 
                 // compare old group pic and new group pic
                 if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
                 {
-                    this.SetConversationPicture()
+                    await this.SetConversationPicture()
                 }
 
                 // check if there are any new participants added
                 for (let i = 0; i < this.newParticipantIDs.length; i++)
                 {
-                    this.AddUserRequest(this.newParticipantIDs[i])
+                    await this.AddUserRequest(this.newParticipantIDs[i])
                 }
+                this.$emit('closeOverlay');
 
                 alert("Conversation edited successfully.")
 
@@ -131,15 +132,23 @@ export default
                 this.currentParticipantIDs.push(response.data.Id)
                 this.newParticipantIDs.push(response.data.Id)
 
+
+                if(response.data.ProfilePicture == null){
+                    let prof =  await sharedData.getUserProfile(response.data.Id)
+                    response.data.ProfilePicture = prof.ProfilePicture
+                }
+
                 this.currentParticipants.push(response.data)
             
                 // actually add the user to the conversation
                 // this.inspectingConversation.Participants.push(response.data.Id)
 
-                if(this.currentConversationType == "UserType"){
-                    this.currentProfileText = response.data.Username
-                    this.currentProfilePicture = response.data.ProfilePicture
-                }
+                // if(this.currentConversationType == "UserType"){
+                //     this.currentProfileText = response.data.Username
+                //     this.currentProfilePicture = response.data.ProfilePicture
+                // }
+
+            
 
             } catch (e) {
                 console.error('User not found!', e);
@@ -198,7 +207,8 @@ export default
                 // this.inspectingConversation.GroupName = this.currentProfileText;
 
                 // this.$emit('updateGroup', this.inspectingConversation);
-                this.$emit('closeOverlay');
+                
+                //this.$emit('closeOverlay');
 
             } catch (e) {
                 console.error(e.toString());         
@@ -231,7 +241,8 @@ export default
                 // this.inspectingConversation.GroupPicture = formattedProfilePic;
 
                 // this.$emit('updateGroup', this.inspectingConversation)
-                this.$emit('closeOverlay')
+                
+                //this.$emit('closeOverlay')
 
             } catch (e) {
                 console.error(e.toString());
@@ -262,7 +273,6 @@ export default
                 // this.inspectingConversation.GroupName = this.currentProfileText;
 
                 // this.$emit('updateGroup', this.inspectingConversation);
-                this.$emit('closeOverlay');
 
             } catch (e) {
                 console.error(e.toString());         
@@ -286,6 +296,7 @@ export default
                 // console.log(response.data);
                 // this.inspectingConversation.GroupName = this.currentProfileText;
                 alert("You left the conversation group.")
+                this.$emit('onLeftConversation', this.inspectingConversation.Id);
                 // this.$emit('updateGroup', this.inspectingConversation);
                 this.$emit('closeOverlay');
 

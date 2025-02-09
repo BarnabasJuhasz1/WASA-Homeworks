@@ -117,9 +117,10 @@ export default {
 
       await this.GetMyConversations();
 
-      if(this.myFetchedConversations == null)
+      if(this.myFetchedConversations == null){
         return;
-
+      }
+      
       const conversationsView = this.$refs.ConversationsViewRef;
 
       // if the overlay is closed because a new conversation was added,
@@ -267,6 +268,18 @@ export default {
       }
       return formattedProfilePic;
     },
+    onLeftConversation(leftConvId){
+      for (let i = 0; i < this.myFetchedConversations.length; i++) 
+      {
+        if (this.myFetchedConversations[i].Id == leftConvId) 
+        {
+          this.myFetchedConversations.splice(i, 1);
+          break;
+        }
+      }
+      const conversationsView = this.$refs.ConversationsViewRef;
+      conversationsView.SelectNewConversationInApp(0);
+    },
   },
 };
 </script>
@@ -303,6 +316,7 @@ export default {
         :profilePicture="overlayProfilePicture"
         :inspectingConversation="inspectingConversation"
         @closeOverlay="closeOverlay"
+        @onLeftConversation="onLeftConversation"
         style="z-index: 1001;"
       />
 

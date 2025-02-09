@@ -12,7 +12,7 @@ export default {
     profilePicture: {
       type: String,
       required: true,
-      default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
+      //default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
     },
     editable: {
       type: Boolean,

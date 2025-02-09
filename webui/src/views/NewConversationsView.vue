@@ -246,6 +246,12 @@ export default
         },
         SelectNewConversationInApp(localConvIndex){
           
+          if(this.myConversations.length == 0)
+          {
+            this.$router.push('/conversations');
+            return;
+          }
+
           // this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
           this.$router.push('/conversation/'+localConvIndex);
 
