@@ -48,20 +48,9 @@ paths:
           content:
             application/json:
               schema:
-                description: "The login identifier"
-                type: object
-                properties:
-                  identifier:
-                    description: "The login identifier"
-                    type: string
-                    example: "Maria"
-                    pattern: "^.*$"
-                    minLength: 1
-                    maxLength: 100
+                $ref: "#/components/schemas/SessionStruct"
                     
   /user:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
     put:
       tags: ["User Management"]
       summary: Set Username
@@ -91,11 +80,9 @@ paths:
               schema: 
                 $ref: "#/components/schemas/User"
         "404": 
-          description: "User not found"
+          description: "Error setting username!"
           
   /user/profilePicture:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
     put:
       tags: ["User Management"]
       summary: Set Profile Picture
@@ -124,11 +111,9 @@ paths:
                 schema: 
                   $ref: "#/components/schemas/User"
         "404": 
-          description: "User not found"
+          description: "Error setting profile picture!"
         
   /user/myConversations:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
     get:
       tags: ["Conversation Management"]
       summary: get all of my conversations
@@ -140,9 +125,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MyConversations"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User not found"
+           description: "Conversations not found"
           
   /conversation/{ConversationID}:
     parameters:
@@ -160,7 +147,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
     post:
       tags: ["Conversation Management"]
       summary: send a message to the conversation
@@ -190,7 +177,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
     put:
       tags: ["Conversation Management"]
       summary: set the group name
@@ -222,7 +209,7 @@ paths:
         "403":
           description: "Forbidden request, cannot set group name of one-on-one conversation"
         "404":
-          description: "User or Conversation not found"
+          description: "Conversation not found"
           
     delete:
       tags: ["Conversation Management"]
@@ -235,9 +222,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MyConversations"
+                $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
    
   /conversation/{ConversationID}/add:
     parameters:
@@ -271,7 +258,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
    
   /conversation/{ConversationID}/message/{MessageID}:
     parameters:
@@ -290,7 +277,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User, Conversation or Message not found"
+           description: "Conversation or Message not found"
   
   /conversation/{ConversationID}/message/{MessageID}/comment:
     parameters:
@@ -324,7 +311,7 @@ paths:
                 schema:
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: "User, Conversation or Message not found"
+          description: "Conversation or Message not found"
     put:
       tags: ["Message Management"]
       summary: React to Message
@@ -366,7 +353,7 @@ paths:
                 schema: 
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: "User, Conversation or Message not found"
+          description: "Conversation or Message not found"
     delete:
       tags: ["Message Management"]
       summary: uncomment message
@@ -380,7 +367,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
         "404":
-           description: "User, Conversation or Message not found"
+           description: "Conversation or Message not found"
   
   
   /conversation/{ConversationID}/groupPicture:
@@ -416,7 +403,7 @@ paths:
         "403":
           description: "Forbidden request, cannot set picture of one-on-one conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
            
   /create/conversation:
     post:
