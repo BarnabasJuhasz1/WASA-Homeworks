@@ -242,13 +242,9 @@ paths:
               description: "The user to add to the group"
               type: object
               properties:
-                UserNameToAdd: 
-                  type: string
-                  description: "User to add to the group"
-                  example: "Maria"
-                  pattern: "^.*$"
-                  minLength: 1
-                  maxLength: 16
+                UserIDToAdd: 
+                  type: integer
+                  description: "UserID to add to the group"
         required: true
       responses:
         "200":
@@ -296,13 +292,9 @@ paths:
               description: "The recipient Username"
               type: object
               properties:
-                RecipientUsername:
-                  description: "The recipient of the message to be forwarded"
-                  type: string
-                  example: "Maria"
-                  pattern: "^.*$"
-                  minLength: 1
-                  maxLength: 16
+                ForwardToConvID:
+                  description: "The conversationID to forward the message to."
+                  type: integer
       responses:
         "200":
             description: "Message forwarded successfully"
@@ -325,7 +317,7 @@ paths:
               description: "The type of reaction and the content of the reaction"
               type: object
               properties:
-                ReactionType:
+                TypeOfReaction:
                   description: "the type of reaction, can be either emoji or message"
                   type: string
                   enum:
@@ -335,7 +327,7 @@ paths:
                   pattern: "^.*$"
                   minLength: 1
                   maxLength: 7
-                Content: 
+                ContentOfReaction: 
                   type: string
                   description: "The content of the reaction; if the reaction is a message |
                                 this is a reply and so the content is the message content; |
@@ -432,14 +424,24 @@ paths:
                   description: "users to create the conversation with"
                   type: array
                   items: 
-                    description: "a list of usernames"
-                    type: string
-                    example: "Maria"
-                    pattern: "^.*$"
-                    minLength: 1
-                    maxLength: 16
+                    description: "a list of userIDs"
+                    type: integer
                   minItems: 1
                   maxItems: 1000
+                ConversationName:
+                  type: string
+                  description: "the name of the conversation"
+                  example: "Maria"
+                  pattern: "^.*$"
+                  minLength: 0
+                  maxLength: 16
+                ConversationPicture:
+                  type: string
+                  description: "the picture of the conversation"
+                  format: binary
+                  minLength: 0
+                  maxLength: 100000
+                
         required: true
       responses:
         "200":
@@ -591,7 +593,7 @@ components:
           type: string
           format: binary
           minLength: 1
-          maxLength: 100
+          maxLength: 100000
         ConversationType:
           description: "type of conversation, either with a single person or a group"
           type: string

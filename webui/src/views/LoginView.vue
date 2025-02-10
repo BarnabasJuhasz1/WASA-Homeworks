@@ -21,7 +21,6 @@ export default
             
             // wait for getting the username confirmation,
             // profile picture, and the IDs of the conversations
-            // UserData = await this.GetUserData();
             try {
                 let response = await this.$axios.post(
                 "/session", 
@@ -58,28 +57,6 @@ export default
                 return e;
             }
         },
-        // async GetMyConversations(){
-        //     try {
-        //         let response = await axios.get(
-        //         "/user/myConversations", 
-        //         // Headers:
-        //         {
-        //             headers: {
-        //             "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-        //             },
-        //         }
-        //         );
-
-        //         console.log("myconversations: ", response.data);
-        //         myFetchedConversations.value = response.data;
-                
-        //         //this.myFetchedConversations2 = response.data;
-        //     }
-        //     catch (error) {
-        //         console.error("Error fetching conversations! ", error);
-        //         alert("Error fetching conversations!")
-        //     }
-        // }
     },
 }
 </script>
