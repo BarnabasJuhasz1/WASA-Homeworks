@@ -470,8 +470,11 @@ components:
       description: "Object representing a User"
       type: object
       properties:
-        Username:
+        ID:
           description: "a unique identifier of the user"
+          type: integer
+        Username:
+          description: "unique username of the user"
           type: string
           example: "Maria"
           pattern: "^.*$"
@@ -503,14 +506,12 @@ components:
           pattern: "^.*$"
           minLength: 1 #the message has to be at least one character
           maxLength: 2000 #limiting the max message length
-          
         Timestamp:
           description: "the timestamp of the message"
           type: string
           format: date-time
           minLength: 1
           maxLength: 100
-          
         Status:
           description: "the status of the message"
           type: string
@@ -529,16 +530,30 @@ components:
             $ref: "#/components/schemas/Reaction" 
           minItems: 0
           maxItems: 10000
-          
+        Origin Message ID:
+          description: "message Id of the origin message"
+          type: integer
+        HasBeenDeleted:
+          description: "flags if the message has been deleted or not"
+          type: boolean
+        WasForwarded:
+          description: "flags if the message was forwarded or not"
+          type: boolean
+        ReadBy:
+          description: "an array of user IDs who read the message"
+          type: array
+          items:
+            type: integer
+          minItems: 0
+          maxItems: 1000
+
     Reaction:
       description: "Object representing a reaction to a message"
       type: object
       properties:
         UserWhoReacted:
           description: "The user who made the reaction"
-          allOf:
-            - $ref: "#/components/schemas/User"
-            - description: "The user who made the reaction"
+          type: integer
         ReactionType:
           description: "the type of reaction, can be either emoji or message"
           type: string
@@ -574,7 +589,7 @@ components:
           description: "users in the group"
           type: array
           items: 
-            $ref: "#/components/schemas/User"
+            type: integer
           minItems: 2
           maxItems: 10000
         Group name:
@@ -607,15 +622,23 @@ components:
             $ref: "#/components/schemas/Message"
           minItems: 1
           maxItems: 10000
-
           
-    MyConversations:
-      description: "Object storing all of my conversations"
-      type: array
-      items:
-        $ref: "#/components/schemas/Conversation"
-      minItems: 0
-      maxItems: 10000
+    SessionStruct:
+      description: "Object representing session info to be communicated to the logged in user"
+      type: object
+      properties:
+        User:
+          description: "the user who was authenticated and logged in"
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - description: "the user who was authenticated and logged in"
+        SessionToken:
+          description: "the token of the user"
+          type: string
+          example: "Maria"
+          pattern: "^.*$"
+          minLength: 1
+          maxLength: 20
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
