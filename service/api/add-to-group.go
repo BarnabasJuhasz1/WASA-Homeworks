@@ -26,7 +26,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// }
 
 	// Conversation, existsConv := AllConversations[conversationID]
-	// //if the conversation does not exist
+	// // if the conversation does not exist
 	// if !existsConv {
 	// 	fmt.Println("Invalid conversationID in path! ", existsConv)
 	// 	w.WriteHeader(http.StatusBadRequest)
