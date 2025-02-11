@@ -41,7 +41,8 @@ export default
 
             for(let i = 0; i < this.wasaTextUserIDs.length; i++){
                 let userProfile = await sharedData.getUserProfile(this.wasaTextUserIDs[i])
-                this.wasaTextUsers.push(userProfile)
+                if(userProfile != null)
+                    this.wasaTextUsers.push(userProfile)
             }
             // console.log("wasa text users: ", this.wasaTextUsers)
         },

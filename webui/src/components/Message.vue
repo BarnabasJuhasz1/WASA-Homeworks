@@ -42,10 +42,14 @@ export default {
 	methods: {
 		async getProfile(userID) {
 
-			const profile = await sharedData.getUserProfile(userID);
-			// console.log("for message content: ", this.content, " the found sender: ", profile.Username)
-			this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
-			this.profilePic = profile.ProfilePicture;
+			try{
+				const profile = await sharedData.getUserProfile(userID);
+				this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
+				this.profilePic = profile.ProfilePicture;
+
+			}catch(error){
+				console.log("Error getting user profile!")
+			}
 		},
 		formattedTimestamp() {
 			// Parse the input string
@@ -76,6 +80,11 @@ export default {
 			for(let i = 0; i < this.message.EmojiReactions.length; i++){
 				
 				let prof = await sharedData.getUserProfile(this.message.EmojiReactions[i].UserWhoReacted)
+				if(prof == null)
+				{
+					break;
+				}
+
 				newReactionList.push(
 				{
 					Username: prof.Username,

@@ -56,6 +56,10 @@ export default {
 					if (participant != sharedData.UserSession.UserID)
 					{
 						const profile = await sharedData.getUserProfile(participant);
+						if(profile == null)
+						{
+							break;
+						}
 						this.headerName = profile.Username;
             			this.profilePic = profile.ProfilePicture;
 					}
@@ -81,7 +85,8 @@ export default {
 			else
 			{
 				const senderProfile = await sharedData.getUserProfile(sender);
-				this.lastMessageSender = senderProfile.Username;
+				if(senderProfile != null)
+					this.lastMessageSender = senderProfile.Username;
 			}
 			//return senderProfile.Username;
 		}

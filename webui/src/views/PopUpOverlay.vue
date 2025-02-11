@@ -41,11 +41,6 @@ export default
             buttonText = "Save";
             showConversationType = false;
         }
-        // else if (props.overlayMode === "CREATE_CONVERSATION") {
-        //     titleText = "Create New Conversation";
-        //     buttonText = "Create";
-        //     showConversationType = true;
-        // }
         else {
             alert("Unsupported operation!");
         }

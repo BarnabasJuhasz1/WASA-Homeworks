@@ -196,10 +196,6 @@ export default
         },
         async getConversation(convID) {
 
-          //console.log("myconv length: ", this.myConversations.length, " and trying to get: ", convID)
-          //if(this.myConversations.length < convID)
-            //return;
-
           try {
             let response = await axios.get(
               "/conversation/"+ convID,
@@ -212,24 +208,9 @@ export default
               }
             );
 
-            // console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
-            // console.log("CONV RECEIVED: ", response.data)
-
             const updatedConversation = response.data;
-            // console.log("COMPARING: ", this.myConversations[this.selectedConversationIndexLocal].Messages.length
-            //   , " with new:", updatedConversation.Messages.length)
-          
-            // let oldMessageCount = this.myConversations[this.selectedConversationIndexLocal].Messages.length
+ 
             this.$emit('update-conversation', this.selectedConversationIndexLocal, updatedConversation);
-            
-            // if(oldMessageCount != updatedConversation.Messages.length){
-            //   console.log("NEW MSG! SCROLL")
-            //   setTimeout(() => {
-            //     this.scrollToBottom();
-            //     this.adjustHeight();
-            //   }, 1000);
-            // }
-            // this.myConversations[this.selectedConversationIndexLocal] = response.data;
           }
           catch (error) {
             console.error("Error getting conversation! ", error);
@@ -266,11 +247,6 @@ export default
             this.selectedConversationIndexLocal = localConvIndex
             this.currentMessage = "";
 
-            // this.$nextTick(()=>
-            // {
-            //   this.adjustHeight();
-            //   this.scrollToBottom();
-            // });
             setTimeout(() => {
               this.scrollToBottom();
               this.adjustHeight();
@@ -283,6 +259,7 @@ export default
           }
 
           if(this.myConversations[this.selectedConversationIndexLocal].Messages == null){
+            console.log("getting conv maybe error here ? ")
             await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
             return;
           }

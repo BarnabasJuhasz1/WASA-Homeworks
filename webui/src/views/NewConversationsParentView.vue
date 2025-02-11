@@ -48,7 +48,7 @@ export default {
     };
 
     // Call the method
-    GetMyConversations();
+    // GetMyConversations();
 
     return {
       myFetchedConversations,
@@ -77,6 +77,11 @@ export default {
   },
   methods: {
     startPolling() {
+      
+      setTimeout(() => {
+        this.GetMyConversations();
+      }, 100);
+
       this.intervalId = setInterval(() => {
         this.GetMyConversations();
       }, 1000);
@@ -179,7 +184,7 @@ export default {
     {
       this.CreateGroupConversation(participants);
     },
-    async CreateOneOnOneConversation(participants) {
+    async CreateOneOnOneConversation(otherUser) {
 
       try {
           let response = await this.$axios.post(
@@ -187,7 +192,7 @@ export default {
           // JSON body:
           {
               ConversationType: "UserType",
-              Participants: participants,
+              Participants: otherUser,
               ConversationName: "",
               ConversationPicture: "",
           },
