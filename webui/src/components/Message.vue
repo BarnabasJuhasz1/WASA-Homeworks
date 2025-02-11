@@ -31,11 +31,13 @@ export default {
 				setTimeout(() => {
 					this.getProfile(this.message.Sender);
 					this.setCheckMarkImg();
+					this.setMessageReactionList();
+
 				}, 100);
 					
 			},
 			deep: true,
-		}
+		},
 	},
 	methods: {
 		async getProfile(userID) {
@@ -65,6 +67,24 @@ export default {
 				this.currentCheckmarkImage =  null;
 			}
 		},
+		async setMessageReactionList(){
+			if(this.message.EmojiReactions == null)
+				return;
+
+			let newReactionList = []
+
+			for(let i = 0; i < this.message.EmojiReactions.length; i++){
+				
+				let prof = await sharedData.getUserProfile(this.message.EmojiReactions[i].UserWhoReacted)
+				newReactionList.push(
+				{
+					Username: prof.Username,
+					Content: this.message.EmojiReactions[i].Content
+				})
+			}
+
+			this.messageReactionList = newReactionList;
+		}
 	},
 	data() {
 		return {
@@ -76,6 +96,9 @@ export default {
 		
 			currentCheckmarkState: this.message.Status,
 			currentCheckmarkImage: null,
+
+			// new list of message reactions to make sure it works for evaluation
+			messageReactionList: [],
 		}
 	},
 	components: {
@@ -84,6 +107,7 @@ export default {
 	mounted() {
 		this.getProfile(this.message.Sender);
 		this.setCheckMarkImg();
+		this.setMessageReactionList();
   	},
 	computed: {
 		TimeStyle(){
@@ -303,28 +327,24 @@ export default {
 				}"
 			style="z-index: 1;"
 			>
-		
-				<!-- <div id = "messageEmoji">
-					{{ mostReactedEmojiOnMessage.mostCommonReaction }} 
+				<div class="custom-scrollbar" style="display: flex; margin-top: 10px; margin-left: 10px; margin-right: -5px; width: 100%; max-height: 100px; overflow-x: none; overflow-y: auto; flex-direction: column;">
+
+					<div
+					v-for="(reaction, i) in this.messageReactionList" :key="`${i}-${reaction.Username}-${reaction.Content}`">
+					{{ reaction.Username }} : {{ reaction.Content }} &nbsp; 
+					</div>
+
 				</div>
-
-				<div id = "emojiCount"
-				v-show="this.mostReactedEmojiOnMessage.count > 1"
-				>
-					{{ mostReactedEmojiOnMessage.count }}
-				</div> -->
-
-				<div style="display: flex; margin-left: 10px; margin-right: -5px;">
-					<div id = "messageEmoji"
+				
+				<!-- 
+				<div id = "messageEmoji"
 					v-for="(value, key) in reactedEmojis.emojis" :key="key">
 						{{ value[0] }}
-					</div>
 				</div>
-
 				<div id = "emojiCount" style="font-weight: 600;"
 					v-show="reactedEmojis.count > 1">
 					{{ reactedEmojis.count }}
-				</div>
+				</div> -->
 			</div>
 
 		</div>

@@ -101,7 +101,7 @@ export default
                 }
                 );
 
-                console.log(response.data)
+                // console.log(response.data)
                 // make sure conversation is reloaded
                 this.$emit('refreshLocalMessage', response.data)
 
