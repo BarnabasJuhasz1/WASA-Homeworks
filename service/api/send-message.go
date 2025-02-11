@@ -65,8 +65,8 @@ func (rt *_router) sendMessage(w http.ResponseWriter, r *http.Request, ps httpro
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
-	if len(requestBody.MessageContent) == 0 || len(requestBody.MessageContent) > 1000000 {
-		ctx.Logger.Debugln("Message too long or too short!")
+	if len(requestBody.MessageContent) == 0 {
+		ctx.Logger.Debugln("Message is too short!")
 
 		w.WriteHeader(http.StatusBadRequest)
 		return
