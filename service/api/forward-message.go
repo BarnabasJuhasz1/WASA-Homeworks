@@ -53,7 +53,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	// make sure the recipient exists in the database as a user
+	// make sure the recipient exists in the database
 	RecipientConversation, dbErr := rt.db.GetConversation(requestBody.ForwardToConvID)
 	if dbErr != nil {
 		ctx.Logger.Debugln("Error trying to retrieve recipient ConversationID!")

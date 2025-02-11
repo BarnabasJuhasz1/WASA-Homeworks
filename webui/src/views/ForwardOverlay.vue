@@ -1,7 +1,6 @@
 
 <script>
 import { sharedData } from '../services/sharedData.js';
-import axios from "../services/axios.js"
 import ProfileObject from '../components/ProfileObject.vue';
 
 export default 
@@ -22,6 +21,8 @@ export default
     },
     data() {
         return {
+            conversationsProfilesSuperset: [],
+
             conversationProfiles: [],
 
             forwardToConversationsLocal: [],
@@ -31,9 +32,68 @@ export default
         ProfileObject,
     },
     mounted(){
-        this.GetConversationNameAndPicture();
+        this.SetConversationsProfilesSuperset();
     },
     methods: {
+        async GetAllUsers(){
+            try {
+                let response = await this.$axios.get(
+                "/user/all?search=",
+                // Headers:
+                {
+                    headers: {
+                        "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                return response.data;
+            }
+            catch (error) {
+                console.error("Error getting wasaText users for forwarding! ", error);
+                alert("Error getting wasaText users for forwarding!")
+            }
+        },
+        async SetConversationsProfilesSuperset(){
+            this.conversationsProfilesSuperset = [];
+
+            // get the "profiles" of the conversations we already have
+            let myConversationProfiles = await this.GetConversationNameAndPicture();
+            this.conversationsProfilesSuperset = myConversationProfiles;
+            
+            let allUsers = await this.GetAllUsers();
+            
+            if(allUsers == null)
+                return;
+
+            // loop through all the users
+            for(let i = 0; i < allUsers.length; i++){
+                
+                // make sure you cannot forward to yourself
+                if(allUsers[i] != sharedData.UserSession.UserID){
+                    // get user profile
+                    let userProfile = await sharedData.getUserProfile(allUsers[i])
+                    // loop through all the conversations we already have in the superset
+                    for(let j = 0; j < this.conversationsProfilesSuperset.length; j++){
+
+                        // if user is already in my conversations, dont add it to the list again
+                        if(userProfile.Username == this.conversationsProfilesSuperset[j].Name)
+                        {
+                            break;
+                        }
+                        else if (j == this.conversationsProfilesSuperset.length-1){
+                            //otherwise, if we checked all conversations, add the user
+                            this.conversationsProfilesSuperset.push({
+                                Name: userProfile.Username,
+                                Picture: userProfile.ProfilePicture,
+                                Id: userProfile.Id,
+                            })
+                        }
+                    }
+                }
+            }
+        },
         clickedCheckbox(index) {
             // console.log("clicked to: ", index);
 
@@ -47,12 +107,58 @@ export default
 
             // console.log("Updated forwardToUsers: ", this.forwardToConversationsLocal);
         },
-        OnForwardButtonClicked(){
+        async OnForwardButtonClicked(){
             // console.log("forward to: ", this.forwardToConversationsLocal);
 
             for(let i = 0; i < this.forwardToConversationsLocal.length; i++){
 
-                this.ForwardRequest(this.myConversations[this.forwardToConversationsLocal[i]].Id);
+                let clickedIndex = this.forwardToConversationsLocal[i];
+                // we have to check if the conversation already exists or not
+                
+                // if yes, forward message
+                if(clickedIndex < this.myConversations.length)
+                {
+                    this.ForwardRequest(this.myConversations[clickedIndex].Id);
+                }
+                // if not, first create a new one-on-one conversation with the recipient
+                // and then forward message
+                else
+                {
+                    let conv = await this.CreateOneOnOneConversation([this.conversationsProfilesSuperset[clickedIndex].Id])
+                    this.ForwardRequest(conv.Id);
+                }
+            }
+
+            this.$emit('closeOverlay');
+            
+        },
+        async CreateOneOnOneConversation(otherUser) {
+
+            try {
+                let response = await this.$axios.post(
+                "/create/conversation", 
+                // JSON body:
+                {
+                    ConversationType: "UserType",
+                    Participants: otherUser,
+                    ConversationName: "",
+                    ConversationPicture: "",
+                },
+                // Headers:
+                {
+                    headers: {
+                        "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
+                        "Content-Type": "application/json",
+                    },
+                }
+                );
+
+                return response.data;
+
+            } catch (e) {
+                console.error(e.toString());
+                
+                alert("Texting user attempt failed!")
             }
         },
         async ForwardRequest(forwardToConvID){
@@ -77,7 +183,6 @@ export default
                 // console.log(response.data)
                 // make sure conversation is reloaded
                 // this.$emit('refreshLocalMessage', response.data)
-                this.$emit('closeOverlay');
 
             } catch (error) {
                 console.error("Error forwarding message! ", error);
@@ -86,11 +191,10 @@ export default
 
         },
         async GetConversationNameAndPicture(){
-            this.conversationProfiles = []
-
+            let conversationProfiles = []
             for(let i = 0; i < this.myConversations.length; i++){
                 if(this.myConversations[i].Type == "GroupType"){
-                    this.conversationProfiles.push({
+                    conversationProfiles.push({
                         Name: this.myConversations[i].GroupName,
                         Picture: this.myConversations[i].GroupPicture
                     })
@@ -99,20 +203,21 @@ export default
                     // if I am the first participant, return the other user
                     if(this.myConversations[i].Participants[0] == sharedData.UserSession.UserID){
                         let prof = await sharedData.getUserProfile(this.myConversations[i].Participants[1])
-                        this.conversationProfiles.push({
+                        conversationProfiles.push({
                             Name: prof.Username,
                             Picture: prof.ProfilePicture 
                         })
                     }
                     else{
                         let prof = await sharedData.getUserProfile(this.myConversations[i].Participants[0])
-                        this.conversationProfiles.push({
+                        conversationProfiles.push({
                             Name: prof.Username,
                             Picture: prof.ProfilePicture 
                         })
                     }
                 }
             }
+            return conversationProfiles
         },
     },
     computed: {
@@ -131,12 +236,12 @@ export default
                 
                 <div style="display:block; overflow-y: auto; width: 300px" class="custom-scrollbar">
                     <div class="custom-scrollbar">
-                        <div id="mainList" v-for="(conv, index) in myConversations" :key="index">
+                        <div id="mainList" v-for="(conv, index) in conversationsProfilesSuperset" :key="index">
                         
                         <ProfileObject   
-                            v-if="conversationProfiles[index] != null"   
-                            :username="conversationProfiles[index].Name"
-                            :profilePicture="conversationProfiles[index].Picture"
+                            v-if="conversationsProfilesSuperset[index] != null"   
+                            :username="conversationsProfilesSuperset[index].Name"
+                            :profilePicture="conversationsProfilesSuperset[index].Picture"
                             :editable="false"
                             :hasCheckBox="true"
                             @clickedCheckbox="clickedCheckbox(index)"
