@@ -109,7 +109,7 @@ export default {
 			const lastMessageTimestamp = new Date(this.getLastMessage.Timestamp);
 			const now = new Date();
 
-			// Check if the dates are the same
+			// check if the dates are the same
 			const isSameDay = 
 				lastMessageTimestamp.getFullYear() === now.getFullYear() &&
 				lastMessageTimestamp.getMonth() === now.getMonth() &&

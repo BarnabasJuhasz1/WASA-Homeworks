@@ -44,29 +44,29 @@ export default {
     };
   },
   methods: {
-    // Trigger the file input click programmatically
+    // trigger the file input click
     openFileExplorer() {
       this.$refs.fileInput.click();
     },
     
-    // Handle file change
+    // handle file change
     handleFileChange(event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
 
-        // Read file as binary string
+        // read file as binary string
         reader.readAsArrayBuffer(file);
 
-        // When the file is loaded
+        // when the file is loaded
         reader.onload = (e) => {
-          const arrayBuffer = e.target.result; // This is an ArrayBuffer
+          const arrayBuffer = e.target.result;
           const base64String = btoa(
               new Uint8Array(arrayBuffer)
                   .reduce((data, byte) => data + String.fromCharCode(byte), "")
           );
           this.editableProfilePicture = base64String;
-          // console.log("File uploaded as Base64:", this.editableProfilePicture);
+          // console.log("file uploaded as base64:", this.editableProfilePicture);
         };
 
         reader.onerror = (e) => {
@@ -77,7 +77,7 @@ export default {
     }
   },
   computed: {
-    // Prepend the Base64 string with the required prefix
+    // add required prefix to base64 string
     formattedProfilePicture() {
 
       if (typeof this.editableProfilePicture === "string"
@@ -87,7 +87,7 @@ export default {
       }
       else
       {
-        return `data:image/png;base64,${this.editableProfilePicture}`; // Return formatted Base64 string
+        return `data:image/png;base64,${this.editableProfilePicture}`;
       }
     },
   }

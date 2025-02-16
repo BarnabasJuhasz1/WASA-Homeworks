@@ -25,7 +25,6 @@ export default {
   methods: {
     SelectNewConversation(index){
       // console.log('select conversation at group list: ', index);
-      /*this.selectedConversationIndex = index*/
       this.$emit("SelectNewConversation", index);
     },
     GetLastMessage(conversation){
@@ -35,7 +34,6 @@ export default {
       }
 
       return conversation.messages[conversation.messages.length-1];
-      // :last-message="conversation.messages[conversation.messages.length-1]"
     }
   }
 
@@ -69,8 +67,7 @@ export default {
 <style>
 
 #MainGroupList {
-  display: block; /* Enable Flexbox */
-  /*justify-content: center; /* Center horizontally */
+  display: block;
   background-color: rgba(0, 0, 0, .25);
   
   border-radius: 5px;

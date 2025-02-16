@@ -59,10 +59,8 @@ export default
     },
     data() {
         return {
-            // always populated for every PopUp
             currentProfileText: null,
             currentProfilePicture: null,
-
         }
     },
     components:{
@@ -75,7 +73,7 @@ export default
         handleProfilePictureUpdate(value) {
             this.currentProfilePicture = value;
         },
-        universalButtonClicked() {
+        async universalButtonClicked() {
             // compare old profile pic and new profile pic
             // compare old username and new username
              
@@ -84,13 +82,24 @@ export default
                 try {
                     if(this.currentProfileText != null)
                     {
-                        this.SetNameOperation(this.currentProfileText)
+                        if(this.currentProfileText.length < 3 || this.currentProfileText.length > 16)
+                        {
+                            alert("Username is too short or too long!")
+                            return;
+                        }
+                        await this.SetNameOperation(this.currentProfileText)
                     }
                     if(this.currentProfilePicture != null)
                     {
-                        this.SetPictureOperation(this.currentProfilePicture)
+                        await this.SetPictureOperation(this.currentProfilePicture)
                     }
-                    
+
+                    this.$nextTick(()=>{
+                        this.$emit('closeOverlay');
+                    });
+
+                    alert("User profile edited successfully.")
+                        
                 } catch (error) {
                     console.error("Error trying to edit user profile: ", error)
                     // alert("There was an issue with editing the user profile.")
@@ -116,11 +125,6 @@ export default
                 // console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
                 sharedData.UserSession.Username = response.data;
 
-                this.$nextTick(()=>{
-                    this.$emit('closeOverlay');
-                });
-                alert("User profile edited successfully.")
-
             } catch (error) {
                 alert("Username is occupied by someone else!")
             }
@@ -142,10 +146,6 @@ export default
 
                 // console.log(response.data);
                 sharedData.UserSession.ProfilePicture = response.data;
-
-                this.$emit('closeOverlay');
-
-                alert("User profile edited successfully.")
 
             }
             catch (error) {

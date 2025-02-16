@@ -7,12 +7,15 @@ import (
 
 // GetConversation gets the conversation with a given ID from the conversation table
 func (db *appdbimpl) GetConversation(id int) (util.Conversation, error) {
+
+	// initialize conversation struct to be returned
 	var returnedConversation util.Conversation
 
-	// Intermediate variables to hold JSON data from the database
+	// intermediate variables to hold JSON data from the database
 	var participantsJson []byte
 	var messagesJson []byte
 
+	// query the row with the given ID
 	err := db.c.QueryRow("SELECT id, type, group_name, group_picture, participants, messages FROM conversations WHERE id = ?", id).Scan(
 		&returnedConversation.Id,
 		&returnedConversation.Type,
@@ -25,12 +28,12 @@ func (db *appdbimpl) GetConversation(id int) (util.Conversation, error) {
 		return returnedConversation, err
 	}
 
-	// Deserialize the []string slice (the participants)
+	// deserialize the []string slice (the participants)
 	if jsonErr := json.Unmarshal(participantsJson, &returnedConversation.Participants); jsonErr != nil {
 		return returnedConversation, jsonErr
 	}
 
-	// Deserialize the []Messages slice (the messages)
+	// deserialize the []Messages slice (the messages)
 	if jsonErr := json.Unmarshal(messagesJson, &returnedConversation.Messages); jsonErr != nil {
 		return returnedConversation, jsonErr
 	}

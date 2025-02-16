@@ -25,8 +25,6 @@ export default {
 	watch: {
 		message: {
 			handler(newValue, oldValue) {
-				//this.message = newValue;
-				//console.error("updated text msgs")
 
 				setTimeout(() => {
 					this.getProfile(this.message.Sender);
@@ -52,14 +50,13 @@ export default {
 			}
 		},
 		formattedTimestamp() {
-			// Parse the input string
+			// parse the input string
 			const date = new Date(this.message.Timestamp);
 
-			// Extract hours and minutes
+			// get hours and minutes
 			const hours = String(date.getHours()).padStart(2, '0');
 			const minutes = String(date.getMinutes()).padStart(2, '0');
 
-			// Return the formatted time
 			return `${hours}:${minutes}`;
 		},
 		setCheckMarkImg() {

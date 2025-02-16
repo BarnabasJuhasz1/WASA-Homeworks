@@ -28,6 +28,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+	// check if you already have that username
 	if LoggedInUser.Username == requestBody.NewUsername {
 		ctx.Logger.Debugln("Your username is already ", LoggedInUser.Username)
 
@@ -35,34 +36,33 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+	// check for username length boundaries
 	if len(requestBody.NewUsername) < 3 || len(requestBody.NewUsername) > 16 {
 		ctx.Logger.Debugln("Username too short or too long ", requestBody.NewUsername)
-
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
+
+	// make a db query to check if user already exists with the new username.
 	_, userExistsError := rt.db.GetUserFromName(requestBody.NewUsername)
 
+	// if user exists already
 	if userExistsError == nil {
 		ctx.Logger.Debugln("Username ", requestBody.NewUsername, " occupied by someone else!")
-
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	} else {
 		oldUserName := LoggedInUser.Username
 		// update the username of the user logged in
-		// Remark: since UserLoggedIn is a pointer, the "AllUsers" map is updated as well
 		LoggedInUser.Username = requestBody.NewUsername
+		// update ctx
 		ctx.UserID = requestBody.NewUsername
+		// update tokenMap
 		updateErr := util.UpdateUsername(oldUserName, requestBody.NewUsername)
 		if updateErr != nil {
 			rt.baseLogger.Errorln("Error updating token of user after name change! ", updateErr)
 		}
-		// add same user with the new name
-		// util.AllUsers[requestBody.NewUsername] = LoggedInUser
-		// delete old entry in users
-		// delete(util.AllUsers, oldUserName)
-
+		// update db
 		dberr := rt.db.UpdateUser(LoggedInUser, oldUserName)
 		if dberr != nil {
 			rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
@@ -71,8 +71,7 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		}
 	}
 
-	ctx.Logger.Debugln("-----Func setUsername Finished-----")
-
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(LoggedInUser.Username)
 
 	if encodeErr != nil {
@@ -80,4 +79,6 @@ func (rt *_router) setUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func setUsername Finished-----")
 }

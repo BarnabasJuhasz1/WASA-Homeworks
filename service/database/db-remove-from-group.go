@@ -10,33 +10,34 @@ func (db *appdbimpl) RemoveConversationIDFromUser(userID int, removeFromConversa
 	var oldConversationIDsJson []byte
 
 	// fmt.Println("trying to remove user: ", username, " from conversation: ", addToConversationId)
-	// get the current conversation IDs
-	// err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
+
+	// make query to get the current conversation IDs of the given user
 	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&oldConversationIDsJson)
 	if err != nil {
 		return err
 	}
 
 	var conversationIDs []int
-	// Deserialize the []int slice (the old conversationIDs)
+	// deserialize the []int slice (the old conversationIDs)
 	if jsonErr := json.Unmarshal(oldConversationIDsJson, &conversationIDs); jsonErr != nil {
 		return jsonErr
 	}
 
 	var newConversationIDs []int
+	// create the new conversationID list without the ID we wanted to remove
 	for _, id := range conversationIDs {
 		if id != removeFromConversationId {
 			newConversationIDs = append(newConversationIDs, id)
 		}
 	}
 
-	// Serialize the []int slice (the newConversationIDs)
+	// serialize the []int slice (the newConversationIDs)
 	conversationIDsJson, jsonErr := json.Marshal(newConversationIDs)
 	if jsonErr != nil {
 		return jsonErr
 	}
 
-	// _, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
+	// make query to update the conversationIDs of the user
 	_, err2 := db.c.Exec("UPDATE users SET conversations = ? WHERE id = ?", conversationIDsJson, userID)
 
 	return err2

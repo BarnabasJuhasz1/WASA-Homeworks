@@ -158,7 +158,7 @@ export default
             } catch (e) {
                 console.error(e.toString());
                 
-                alert("Texting user attempt failed!")
+                alert("Creating conversation attempt failed!")
             }
         },
         async ForwardRequest(forwardToConvID){
@@ -181,8 +181,6 @@ export default
                 );
 
                 // console.log(response.data)
-                // make sure conversation is reloaded
-                // this.$emit('refreshLocalMessage', response.data)
 
             } catch (error) {
                 console.error("Error forwarding message! ", error);

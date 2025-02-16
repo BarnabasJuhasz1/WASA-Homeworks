@@ -289,7 +289,7 @@ paths:
         content:
           application/json:
             schema:
-              description: "The recipient Username"
+              description: "The conversationID to forward the message to."
               type: object
               properties:
                 ForwardToConvID:
@@ -349,7 +349,7 @@ paths:
     delete:
       tags: ["Message Management"]
       summary: uncomment message
-      description: "delete the comment or reaction from the message"
+      description: "delete the reaction from the message"
       operationId: uncommentMessage
       responses:
         "200":
@@ -481,20 +481,18 @@ components:
       type: object
       properties:
         Message ID:
-          description: "message id that is unique in the scope of a conversation"
+          description: "message ID that is unique in the scope of a conversation"
           type: integer
-        Sender:
-          description: "the user of the person who sent the message"
-          allOf:
-            - $ref: "#/components/schemas/User"
-            - description: "the user of the person who sent the message"
+        Sender ID:
+          description: "the user ID of the person who sent the message"
+          type: integer
         Content:
           description: "the content of the message"
           type: string
           example: "Maria"
           pattern: "^.*$"
-          minLength: 1 #the message has to be at least one character
-          maxLength: 2000 #limiting the max message length
+          minLength: 1
+          maxLength: 2000
         Timestamp:
           description: "the timestamp of the message"
           type: string
@@ -507,7 +505,6 @@ components:
           enum:
             - Single
             - Double
-            - Username
           example: "Single"
           pattern: "^.*$"
           minLength: 1

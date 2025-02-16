@@ -1,7 +1,6 @@
 
 <script>
 import Message from './Message.vue';
-// import ContextMenu from './ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
 
@@ -9,7 +8,6 @@ export default {
   props: ['refreshKey', 'textMessages', 'convType'],
   components: {
     Message,
-    // ContextMenu,
   },
   mounted() {
     this.$emit("onPageRefresh");
@@ -19,15 +17,12 @@ export default {
     textMessages: {
       handler(newValue, oldValue) {
         this.messages = newValue;
-        // console.error("updated text msgs")
-        // this.$emit("refreshMessageList");
       },
       deep: true,
     }
   },
   data() {
     return {
-      // contextMenuVisible: false,
       messages: []
     };
   },
@@ -51,17 +46,6 @@ export default {
       return this.messages[message.OriginMessageId]
     },
 
-    // openContextMenu() {
-    //   this.contextMenuVisible = true;
-    //   console.log("contextmenu found? ", this.$refs.contextMenu)
-    //   this.$refs.contextMenu.show(event.clientX, event.clientY);
-    //   document.addEventListener('click', this.closeContextMenu);
-    // },
-    // closeContextMenu() {
-    //   this.contextMenuVisible = false;
-    //   this.$refs.contextMenu.hide();
-    //   document.removeEventListener('click', this.closeContextMenu);
-    // },
   }
 };
 </script>

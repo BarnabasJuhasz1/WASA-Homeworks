@@ -26,11 +26,14 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		http.Error(w, "Invalid JSON payload", http.StatusBadRequest)
 		return
 	}
-	// if len(requestBody.Username) < 1 || len(requestBody.Username) > 16 {
-	// 	w.WriteHeader(http.StatusNotAcceptable)
-	// 	return
-	// }
 
+	// make sure the username respects the length boundaries
+	if len(requestBody.Username) < 3 || len(requestBody.Username) > 16 {
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
+	}
+
+	// generate the random token to give to user
 	_token, _tokenGenError := util.GetRandomToken(32)
 	if _tokenGenError != nil {
 		rt.baseLogger.Errorln("Token generation error!")
@@ -38,8 +41,10 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	// make db query to retrieve user
 	user, userExistsError := rt.db.GetUserFromName(requestBody.Username)
 
+	// if the user does exist
 	if userExistsError == nil {
 
 		util.TokenMap[_token] = user.Username
@@ -66,17 +71,21 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 			return
 		}
 
+		// set the ID of the user struct
 		user.Id = userID
-
+		// add the user to the token map
 		util.TokenMap[_token] = user.Username
+
 		rt.baseLogger.Println("New User ", user.Username, " was created and logged in with token: ", _token)
 	}
 
+	// create the response struct
 	loggedInUserStruct := util.SessionStruct{
 		User:         user,
 		SessionToken: _token,
 	}
 
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(loggedInUserStruct)
 
 	if encodeErr != nil {
@@ -102,7 +111,6 @@ func GetConversationFromPath(rt *_router, w http.ResponseWriter, ps httprouter.P
 	}
 
 	// make sure the conversation exists
-	// ConversationStruct, existsConv := AllConversations[conversationID]
 	ConversationStruct, existsConv := rt.db.GetConversation(conversationID)
 
 	if existsConv != nil {

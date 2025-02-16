@@ -55,14 +55,12 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 		} else if i == len(Conversation.Messages[messageID].EmojiReactions)-1 {
 
 			ctx.Logger.Debugln("There is no emoji reaction placed by user on the specified message!")
-
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 	}
 
-	// update conversations map by reassigning the struct
-	// util.AllConversations[Conversation.Id] = Conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -70,6 +68,7 @@ func (rt *_router) uncommentMessage(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation.Messages[messageID])
 
 	if encodeErr != nil {

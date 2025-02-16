@@ -7,12 +7,10 @@ import CurrentProfile from '../components/CurrentProfile.vue';
 import AddGroup from '../components/AddGroup.vue';
 import OriginMessage from '../components/OriginMessage.vue';
 import axios from "../services/axios.js"
-// import { useRoute } from 'vue-router';
 
 import ContextMenu from '../components/ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
-import { ref } from "vue";
 
 import 'emoji-picker-element';
 import PopUpReactions from '../components/PopUpReactions.vue';
@@ -35,8 +33,7 @@ export default
   watch: {
     // Watch for changes in route parameters
     '$route'(to) {
-      // console.log("Updated ROUTER PARAMS: ", to.params.id);
-      // this.getConversation(to.params.id);
+      // console.log("Updated router parameter ID: ", to.params.id);
       this.SelectNewConversationInApp(to.params.id)
     },
     
@@ -78,54 +75,33 @@ export default
           // console.log("Refreshing stopped at convView!");
         },
         sendMessage(event) {
-            if(event)
-              event.preventDefault();
 
-            if((this.currentMessage).trim() == ""){
-              this.currentMessage = "";
-              return
-            }
+          // prevent adding new line to text area since user pressed enter
+          if(event)
+            event.preventDefault();
 
-            const now = new Date();
-
-            const newID = this.selectedConversation.Messages ? this.selectedConversation.Messages.length : 0
-            // create a new message and push it to the messages
-            const newMessage = {
-              Id: newID,
-              Sender: sharedData.UserSession.UserID,
-              Content: this.currentMessage,
-              Timestamp: now,
-              SentByUser: true,
-              OriginMessageId: this.originMessage == null ? -1 : this.originMessage.Id,
-            }
-            // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
-            // send the message content to backend
-            // console.log("New Message Sent: ", newMessage)
-
-            if (!this.selectedConversation.Messages){
-              this.selectedConversation.Messages = [];
-            }
-
-            this.selectedConversation.Messages.push(newMessage);
-
-            if(this.originMessage == null){
-              this.sendMessageRequest(newID);
-            }
-            else{
-              this.sendMessageReplyRequest(newID);
-            }
-
-            // window.location.reload();
-
-            // reset textArea input
+          if((this.currentMessage).trim() == ""){
             this.currentMessage = "";
-            // stop replying to messages
-            this.originMessage = null;
+            return
+          }
 
-            this.$nextTick(() => {
-              this.scrollToBottom();
-              this.adjustHeight();
-            });
+          const newID = this.selectedConversation.Messages ? this.selectedConversation.Messages.length : 0
+
+          if (!this.selectedConversation.Messages){
+            this.selectedConversation.Messages = [];
+          }
+
+          if(this.originMessage == null){
+            this.sendMessageRequest(newID);
+          }
+          else{
+            this.sendMessageReplyRequest(newID);
+          }
+
+          // reset textArea input
+          this.currentMessage = "";
+          // stop replying to messages
+          this.originMessage = null;  
 
         },
         async sendMessageRequest(newMessageID) {
@@ -149,9 +125,12 @@ export default
             
             // console.log("new message has been received on server: ", response.data)
             setTimeout(() => {
-              this.selectedConversation.Messages[newMessageID] = response.data
+              this.selectedConversation.Messages[newMessageID] = response.data;
+              this.$nextTick(() => {
+                this.scrollToBottom();
+                this.adjustHeight();
+              });
             }, 150)
-            // console.log("message sent with response: ", response.data);
             
           }
           catch (error) {
@@ -180,13 +159,15 @@ export default
               }
             );
 
-            // console.log(response.data)
             // console.log("new reply has been received on server: ", response.data)
 
             setTimeout(() => {
-              this.selectedConversation.Messages[newMessageID] = response.data
+              this.selectedConversation.Messages[newMessageID] = response.data;
+              this.$nextTick(() => {
+                this.scrollToBottom();
+                this.adjustHeight();
+              });
             }, 150)
-            // console.log("message sent with response: ", response.data);
             
           }
           catch (error) {
@@ -233,11 +214,8 @@ export default
             return;
           }
 
-          // this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
           this.$router.push('/conversation/'+localConvIndex);
 
-          // let oldMessageCount = this.myConversations[localConvIndex].Messages.length;
-          // console.log("old message count: ", oldMessageCount)
           this.getConversation(this.myConversations[localConvIndex].Id);
 
           if(this.selectedConversationIndexLocal != localConvIndex)
@@ -259,12 +237,9 @@ export default
           }
 
           if(this.myConversations[this.selectedConversationIndexLocal].Messages == null){
-            console.log("getting conv maybe error here ? ")
             await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
             return;
           }
-
-          // this.$refs.messagesList.refreshMessageList();
 
           let oldMessageCount = this.myConversations[this.selectedConversationIndexLocal].Messages.length;
           
@@ -356,7 +331,7 @@ export default
           // console.log("selecting message: ", messageID)
           this.selectedMessageID = messageID;
           this.popUpReactionsVisible = true;
-          // console.log("WOW-1 ", this.popUpReactionsVisible)
+          // console.log("reactionsVisible: ", this.popUpReactionsVisible)
           this.$refs.reactionsMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
           this.$nextTick(() => {
             setTimeout(() => {

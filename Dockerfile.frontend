@@ -1,17 +1,15 @@
-ARG NODE_VERSION=18.12.1
-FROM node:${NODE_VERSION}-alpine3.17 AS uibuilder
-WORKDIR /webui/
-RUN npm config set update-notifier false
+# Use latest Node LTS to build
+FROM node:lts AS builder
 
 ### Copy actual frontend source code
+WORKDIR /webui/
 COPY webui .
 
-### Compile frontend
+### Build Vue.js into plain HTML/CSS/JS
 RUN npm run build-prod
 
-
-### Create final image
-FROM ${DOCKER_PREFIX}nginx:1.23.3-alpine-slim
+### Create final container
+FROM nginx:stable
 
 # Copy built frontend
-COPY --from=uibuilder /webui/dist/ /usr/share/nginx/html/
+COPY --from=builder /webui/dist/ /usr/share/nginx/html/

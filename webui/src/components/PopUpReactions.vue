@@ -6,18 +6,10 @@ import ProfileObject from './ProfileObject.vue';
 export default 
 {
     props: {
-        // emojiReactions: {
-        //     type: Object,
-        //     required: true,
-        // },
-    },
-    setup(props) {
-        
-        // let showConversationType = false;
 
-        // return {
-        //     showConversationType,
-        // };
+    },
+    setup() {
+
     },
     data() {
         return {
@@ -72,10 +64,10 @@ export default
 
                 const isBottomHalf = this.position.y > viewportHeight / 2;
 
-                const calculatedRight = viewportWidth - this.position.x; // Calculate distance from the right edge
+                const calculatedRight = viewportWidth - this.position.x -10; // Calculate distance from the right edge
                 const verticalPosition = isBottomHalf
-                    ? `bottom: ${viewportHeight - this.position.y}px;`
-                    : `top: ${this.position.y}px;`;
+                    ? `bottom: ${viewportHeight - this.position.y - 50}px;`
+                    : `top: ${this.position.y - 50}px;`;
 
                 return `${verticalPosition} right: ${calculatedRight}px;`;
             } else {
@@ -84,10 +76,10 @@ export default
                 const isBottomHalf = this.position.y > viewportHeight / 2;
 
                 const verticalPosition = isBottomHalf
-                    ? `bottom: ${viewportHeight - this.position.y}px;`
-                    : `top: ${this.position.y}px;`;
+                    ? `bottom: ${viewportHeight - this.position.y - 50}px;`
+                    : `top: ${this.position.y - 50}px;`;
 
-                return `${verticalPosition} left: ${this.position.x}px;`;
+                return `${verticalPosition} left: ${this.position.x - 175}px;`;
             }
         }
     }

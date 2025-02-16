@@ -19,20 +19,8 @@ export default
         conversationID: {
         }
     },
-    setup(props) {
-        
-        // console.log("Overlay Mode:", props.overlayMode);
+    setup() {
 
-        let titleText = "";
-        let buttonText = "";
-
-        titleText = "Create New Conversation";
-        // console.log("Title Text:", titleText);
-        // console.log("Button Text:", buttonText);
-
-        return {
-            titleText,
-        };
     },
     data() {
         return {
@@ -96,11 +84,7 @@ export default
                     },
                 });
 
-                // return response.data.ProfilePicture;
                 // console.log("response:", response.data)
-                // console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
-                // console.log("me:", sharedData.UserSession.UserID)
-
                 this.currentUsernameToAddText = ""
 
                 // check if you were trying to add yourself
@@ -218,7 +202,7 @@ export default
                 fontWeight: this.currentConversationType === myType ? 'bold' : 'normal',
                 color: this.currentConversationType === myType ? 'rgb(255, 209, 0)' : 'var(--font-light)',
             };
-            // console.log('Style:', style); // Debugging output
+            // console.log('Style:', style);
             return style;
         },
     },

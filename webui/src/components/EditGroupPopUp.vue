@@ -103,11 +103,7 @@ export default
                     },
                 });
 
-                // return response.data.ProfilePicture;
                 // console.log("response:", response.data)
-                // console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
-                // console.log("me:", sharedData.UserSession.UserID)
-
                 this.currentUsernameToAddText = ""
 
                 // check if you were trying to add yourself
@@ -139,16 +135,6 @@ export default
                 }
 
                 this.currentParticipants.push(response.data)
-            
-                // actually add the user to the conversation
-                // this.inspectingConversation.Participants.push(response.data.Id)
-
-                // if(this.currentConversationType == "UserType"){
-                //     this.currentProfileText = response.data.Username
-                //     this.currentProfilePicture = response.data.ProfilePicture
-                // }
-
-            
 
             } catch (e) {
                 console.error('User not found!', e);
@@ -204,11 +190,6 @@ export default
                 );
 
                 // console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
-
-                // this.$emit('updateGroup', this.inspectingConversation);
-                
-                //this.$emit('closeOverlay');
 
             } catch (e) {
                 console.error(e.toString());         
@@ -238,11 +219,6 @@ export default
                 );
 
                 // console.log(response.data);
-                // this.inspectingConversation.GroupPicture = formattedProfilePic;
-
-                // this.$emit('updateGroup', this.inspectingConversation)
-                
-                //this.$emit('closeOverlay')
 
             } catch (e) {
                 console.error(e.toString());
@@ -270,9 +246,6 @@ export default
                 );
 
                 // console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
-
-                // this.$emit('updateGroup', this.inspectingConversation);
 
             } catch (e) {
                 console.error(e.toString());         
@@ -294,10 +267,8 @@ export default
                 );
 
                 // console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
                 alert("You left the conversation group.")
                 this.$emit('onLeftConversation', this.inspectingConversation.Id);
-                // this.$emit('updateGroup', this.inspectingConversation);
                 this.$emit('closeOverlay');
 
             } catch (e) {
@@ -356,9 +327,7 @@ export default
                     </button>
 
                 </div>
-     
 
-                
          
             </div>
         </div>

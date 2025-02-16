@@ -18,9 +18,15 @@ export default
                 this.currentLoginUsernameText = "";
                 return
             }
-            
-            // wait for getting the username confirmation,
-            // profile picture, and the IDs of the conversations
+
+            if((this.currentLoginUsernameText).trim().length < 3 || 
+                (this.currentLoginUsernameText).trim().length > 16)
+            {
+                this.currentLoginUsernameText = "";
+                alert("Username is too short or too long!")
+                return
+            }
+
             try {
                 let response = await this.$axios.post(
                 "/session", 
@@ -37,6 +43,7 @@ export default
                 // response.data contains JSON
                 // console.log(response.data);
 
+                // update user sesson
                 sharedData.UserSession.SessionToken = response.data.SessionToken;
                 sharedData.UserSession.UserID = response.data.User.Id;
                 sharedData.UserSession.Username = response.data.User.Username;

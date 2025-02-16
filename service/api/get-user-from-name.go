@@ -13,8 +13,6 @@ func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps ht
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func getUserFromName Called-----")
 
-	// LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
-
 	// Retrieve the "Username" query parameter from the URL
 	username := r.URL.Query().Get("Username")
 	if username == "" {
@@ -22,6 +20,7 @@ func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
+	// make query to retrieve user
 	userToReturn, userExistsError := rt.db.GetUserFromName(username)
 	if userExistsError != nil {
 		ctx.Logger.Debugln("User ", username, " is not in the database!")
@@ -30,8 +29,7 @@ func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func getUserFromName Finished-----")
-
+	// encode reponse
 	encodeErr := json.NewEncoder(w).Encode(userToReturn)
 
 	if encodeErr != nil {
@@ -39,4 +37,6 @@ func (rt *_router) getUserFromName(w http.ResponseWriter, r *http.Request, ps ht
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func getUserFromName Finished-----")
 }

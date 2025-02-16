@@ -17,9 +17,9 @@ function saveUserSessionToLocalStorage(session) {
 }
 
 export const sharedData = reactive({
-  UserSession: loadUserSessionFromLocalStorage(), // Load UserSession from localStorage
+  UserSession: loadUserSessionFromLocalStorage(), // load UserSession from localStorage
 
-  userProfileCache: {}, // Transient cache, not persisted
+  userProfileCache: {}, // transient cache, not persisted
 
   async fetchUserProfile(userID) {
     try {
@@ -34,10 +34,9 @@ export const sharedData = reactive({
       // console.log("user with id: ", userID, "fetched: ", response.data)
 
       if(response.data.ProfilePicture == null){
-        // console.log("has no prof pic: ", response.data)
         response.data.ProfilePicture = await getDefaultImage();
       }
-      // console.log("USER FETCHED: ", response.data)
+
       return response.data;
       
     } catch (e) {
@@ -75,7 +74,7 @@ async function getDefaultImage() {
   });
 }
 
-// Watch for changes to UserSession and persist them to localStorage
+// watch for changes to UserSession and persist them to localStorage
 import { watch } from 'vue';
 
 watch(

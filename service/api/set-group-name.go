@@ -25,14 +25,13 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 	// make sure the logged in user belongs to the conversation
 	if !util.UserBelongsToConversation(Conversation, LoggedInUser) {
 		ctx.Logger.Debugln("User is not in the conversation!")
-
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
+	// make sure user did not try to change the name of a one-on-one conversation
 	if Conversation.Type == util.UserType {
 		ctx.Logger.Debugln("Cannot change name of one-on-one conversations!")
-
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -48,24 +47,23 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
+	// make sure the new group name respects the length boundaries
 	if len(requestBody.GroupName) < 3 || len(requestBody.GroupName) > 16 {
 		ctx.Logger.Debugln("Group name too short or too long ", requestBody.GroupName)
-
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
+	// if then new group name is the same as the old one
 	if Conversation.GroupName == requestBody.GroupName {
 		ctx.Logger.Debugln("New Group name matches old one! ", requestBody.GroupName)
-
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 
 	// modify conversation by changing the group name
 	Conversation.GroupName = requestBody.GroupName
-	// update the allConversations map by reassigning the struct
-	// util.AllConversations[Conversation.Id] = Conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -73,8 +71,7 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
-
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
@@ -82,4 +79,6 @@ func (rt *_router) setGroupName(w http.ResponseWriter, r *http.Request, ps httpr
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func setGroupName Finished-----")
 }

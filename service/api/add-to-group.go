@@ -16,23 +16,6 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
-	// conversationIDString := ps.ByName("ConversationID")
-
-	// conversationID, convErr := strconv.Atoi(conversationIDString)
-	// if convErr != nil || conversationID < 0 {
-	// 	fmt.Println("Invalid conversationID in path! ", convErr)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
-	// Conversation, existsConv := AllConversations[conversationID]
-	// // if the conversation does not exist
-	// if !existsConv {
-	// 	fmt.Println("Invalid conversationID in path! ", existsConv)
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
 	// get the conversation from path
 	Conversation, convErr := GetConversationFromPath(rt, w, ps, ctx)
 	if convErr {
@@ -58,7 +41,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// userToAdd, userExists := util.AllUsers[requestBody.UserNameToAdd]
+	// make query to retrieve user to add and to make sure user exists
 	userToAdd, userExistsError := rt.db.GetUser(requestBody.UserIDToAdd)
 	if userExistsError != nil {
 		ctx.Logger.Debugln("User ", requestBody.UserIDToAdd, " is not in the database!")
@@ -66,15 +49,6 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
-	// check if the person already belongs to the group or not
-	// if isUserFoundInList(Conversation.ConversationGroup.Participants, requestBody.UserNameToAdd) {
-
-	// 	fmt.Println("User ", requestBody.UserNameToAdd, " is already in the group!")
-	// 	w.WriteHeader(http.StatusForbidden)
-	// 	return
-
-	// }
 
 	// make sure user to add does not already belong to the conversation
 	if util.UserBelongsToConversation(Conversation, userToAdd) {
@@ -87,8 +61,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 	// add user to the group (group's perspective)
 	Conversation.Participants = append(Conversation.Participants, userToAdd.Id)
 
-	// add user to the group (user's perspective)
-	// userToAdd.MyConversations = append(userToAdd.MyConversations, Conversation.Id)
+	// make query to add user to the group (user's perspective)
 	dbAddErr := rt.db.AddConversationIDToUser(userToAdd.Id, Conversation.Id)
 	if dbAddErr != nil {
 		ctx.Logger.Errorln("Failed to add user to conversation:", dbAddErr)
@@ -96,11 +69,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// update users map by reassigning the struct
-	// util.AllUsers[requestBody.UserNameToAdd] = userToAdd
-
-	// update conversations map by reassigning the struct
-	// util.AllConversations[Conversation.Id] = Conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -108,7 +77,7 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func addToGroup Finished-----")
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
@@ -117,4 +86,5 @@ func (rt *_router) addToGroup(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
+	ctx.Logger.Debugln("-----Func addToGroup Finished-----")
 }
