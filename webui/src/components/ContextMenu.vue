@@ -2,8 +2,6 @@
 <script>
 import { sharedData } from '../services/sharedData';
 
-// import 'emoji-picker-element';
-
 export default 
 {
     props: {
@@ -52,6 +50,7 @@ export default
         },
         async addEmojiClicked(emoji) {
 
+            // if there is no emoji on the message yet
             if(this.message.EmojiReactions == null || this.message.EmojiReactions.length == 0){
                 this.CommentEmojiRequest(emoji);
                 return;
@@ -65,19 +64,20 @@ export default
                     
                     if(this.message.EmojiReactions[i].Content == emoji){
                         // uncomment old emoji
-                        console.log("about to uncomment old emoji")
+                        // console.log("about to uncomment old emoji")
                         this.UnCommentEmojiRequest();
                         return;
                     }
                     else{
                         // update old emoji with new one
-                        console.log("about to COMMENT new emoji")
+                        // console.log("about to comment new emoji")
                         this.CommentEmojiRequest(emoji);
                         return;
                     }
                 }
             }
 
+            // if you dont have any emoji on the message, make emoji comment
             this.CommentEmojiRequest(emoji);
             
         },
@@ -88,7 +88,7 @@ export default
                 + "/message/"+ this.messageID
                 + "/comment", 
                 // JSON body:
-                {   
+                {
                     TypeOfReaction: "EmojiReaction",
                     ContentOfReaction: emoji
                 },
@@ -101,7 +101,7 @@ export default
                 }
                 );
 
-                console.log(response.data)
+                // console.log(response.data)
                 // make sure conversation is reloaded
                 this.$emit('refreshLocalMessage', response.data)
 
@@ -137,28 +137,6 @@ export default
         selectMessageToReplyTo() {
             this.$emit("setOriginMessage", this.messageID)
         },
-        async ReplyToMessage() {  
-            try{
-                let response = await this.$axios.put(
-                "/user", 
-                // JSON body:
-                { NewUsername: newName },
-                // Headers:
-                {
-                    headers: {
-                    "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-                    "Content-Type": "application/json",
-                    },
-                }
-                );
-
-                console.log(response.data)
-
-            } catch (error) {
-                console.error("Error sending message! ", error);
-                alert("Error sending message!")
-            }
-        },
         DeleteEvent() {
             this.DeleteMessage();
         },
@@ -175,8 +153,8 @@ export default
                     },
                 }
                 );
-                console.log("deleting message: ", this.messageID)
-                console.log(response.data)
+                // console.log("deleting message: ", this.messageID)
+                // console.log(response.data)
                 this.$emit('refreshLocalMessage', response.data)
 
             } catch (error) {
@@ -200,10 +178,10 @@ export default
 
                 const isBottomHalf = this.position.y > viewportHeight / 2;
 
-                const calculatedRight = viewportWidth - this.position.x; // Calculate distance from the right edge
+                const calculatedRight = viewportWidth - this.position.x -10; // Calculate distance from the right edge
                 const verticalPosition = isBottomHalf
-                    ? `bottom: ${viewportHeight - this.position.y}px;`
-                    : `top: ${this.position.y}px;`;
+                    ? `bottom: ${viewportHeight - this.position.y - 50}px;`
+                    : `top: ${this.position.y - 50}px;`;
 
                 return `${verticalPosition} right: ${calculatedRight}px;`;
             } else {
@@ -212,10 +190,10 @@ export default
                 const isBottomHalf = this.position.y > viewportHeight / 2;
 
                 const verticalPosition = isBottomHalf
-                    ? `bottom: ${viewportHeight - this.position.y}px;`
-                    : `top: ${this.position.y}px;`;
+                    ? `bottom: ${viewportHeight - this.position.y - 50}px;`
+                    : `top: ${this.position.y - 50}px;`;
 
-                return `${verticalPosition} left: ${this.position.x}px;`;
+                return `${verticalPosition} left: ${this.position.x - 175}px;`;
             }
         }
     }
@@ -223,7 +201,7 @@ export default
 </script>
 
 <template>
-    <div :style="ContextMenuStyle">
+    <div :style="ContextMenuStyle" style="z-index: 2;">
         <div id="ContextMenuParent" :style="ContextMenuStyle">
             <div id="ContextMenu">
                 

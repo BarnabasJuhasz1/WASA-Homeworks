@@ -41,11 +41,6 @@ export default
             buttonText = "Save";
             showConversationType = false;
         }
-        // else if (props.overlayMode === "CREATE_CONVERSATION") {
-        //     titleText = "Create New Conversation";
-        //     buttonText = "Create";
-        //     showConversationType = true;
-        // }
         else {
             alert("Unsupported operation!");
         }
@@ -59,12 +54,13 @@ export default
             showConversationType,
         };
     },
+    mounted(){
+        this.$emit('stopRefreshing');
+    },
     data() {
         return {
-            // always populated for every PopUp
             currentProfileText: null,
             currentProfilePicture: null,
-
         }
     },
     components:{
@@ -77,29 +73,42 @@ export default
         handleProfilePictureUpdate(value) {
             this.currentProfilePicture = value;
         },
-        universalButtonClicked() {
+        async universalButtonClicked() {
             // compare old profile pic and new profile pic
             // compare old username and new username
              
-            if(this.overlayMode == "USER" || this.overlayMode == "GROUP"){
+            if(this.overlayMode == "USER"){
                 
-                if(this.currentProfileText != null)
-                {
-                    this.SetNameOperation(this.currentProfileText)
-                }
-                if(this.currentProfilePicture != null)
-                {
-                    this.SetPictureOperation(this.currentProfilePicture)
+                try {
+                    if(this.currentProfileText != null)
+                    {
+                        if(this.currentProfileText.length < 3 || this.currentProfileText.length > 16)
+                        {
+                            alert("Username is too short or too long!")
+                            return;
+                        }
+                        await this.SetNameOperation(this.currentProfileText)
+                    }
+                    if(this.currentProfilePicture != null)
+                    {
+                        await this.SetPictureOperation(this.currentProfilePicture)
+                    }
+
+                    this.$nextTick(()=>{
+                        this.$emit('closeOverlay');
+                    });
+
+                    alert("User profile edited successfully.")
+                        
+                } catch (error) {
+                    console.error("Error trying to edit user profile: ", error)
+                    // alert("There was an issue with editing the user profile.")
                 }
             } 
-            // else if (this.overlayMode == "CREATE_CONVERSATION")
-            // {
-            //     this.CreateConversation()
-            // }
         },
         async SetNameOperation(newName) {
-            if(this.overlayMode == "USER"){
 
+            try {
                 let response = await this.$axios.put(
                 "/user", 
                 // JSON body:
@@ -113,30 +122,15 @@ export default
                 }
                 );
 
-                console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
+                // console.log("REQUESTED SET-USERNAME, RESPONSE: ", response.data);
                 sharedData.UserSession.Username = response.data;
+
+            } catch (error) {
+                alert("Username is occupied by someone else!")
             }
-            // else if(this.overlayMode == "GROUP"){
-
-            //     let response = await this.$axios.put(
-            //     "/conversation/"+this.conversationID, 
-            //     // JSON body:
-            //     {   GroupName: newName },
-            //     // Headers:
-            //     {
-            //         headers: {
-            //         "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-            //         "Content-Type": "application/json",
-            //         },
-            //     }
-            //     );  
-
-            //     console.log("RESPONSE to change group name: ", response.data);
-            //     sharedData.UserSession.Username = response.data;
-            // }
         },
         async SetPictureOperation(newPicture) {
-            if(this.overlayMode == "USER"){
+            try {
                 let response = await this.$axios.put(
                 "/user/profilePicture", 
                 // JSON body:
@@ -152,8 +146,14 @@ export default
 
                 // console.log(response.data);
                 sharedData.UserSession.ProfilePicture = response.data;
+
             }
-        },
+            catch (error) {
+                console.error("There was an error editing profile picture: ", error)
+                alert("Error editing profile picture!")
+            }
+        }
+            
     },
     computed: {
 

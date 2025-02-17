@@ -61,23 +61,32 @@ export default
         handleProfilePictureUpdate(value) {
             this.currentProfilePicture = value;
         },
-        editButtonClicked() {
-            // compare old group name and new group name
-            if(this.currentProfileText != this.inspectingConversation.GroupName)
-            {
-                this.SetConversationName()
-            }
+        async editButtonClicked() {
 
-            // compare old group pic and new group pic
-            if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
-            {
-                this.SetConversationPicture()
-            }
+            try {
+                 // compare old group name and new group name
+                if(this.currentProfileText != this.inspectingConversation.GroupName)
+                {
+                    await this.SetConversationName()
+                }
 
-            // check if there are any new participants added
-            for (let i = 0; i < this.newParticipantIDs.length; i++)
-            {
-                this.AddUserRequest(this.newParticipantIDs[i])
+                // compare old group pic and new group pic
+                if(this.currentProfilePicture != this.inspectingConversation.GroupPicture)
+                {
+                    await this.SetConversationPicture()
+                }
+
+                // check if there are any new participants added
+                for (let i = 0; i < this.newParticipantIDs.length; i++)
+                {
+                    await this.AddUserRequest(this.newParticipantIDs[i])
+                }
+                this.$emit('closeOverlay');
+
+                alert("Conversation edited successfully.")
+
+            } catch (error) {
+                alert("There was an issue with editing the conversation.")
             }
             
         },
@@ -94,11 +103,7 @@ export default
                     },
                 });
 
-                // return response.data.ProfilePicture;
-                console.log("response:", response.data)
-                console.log("User added to the conversation: ", response.data.Id, ":", this.currentUsernameToAddText)
-                console.log("me:", sharedData.UserSession.UserID)
-
+                // console.log("response:", response.data)
                 this.currentUsernameToAddText = ""
 
                 // check if you were trying to add yourself
@@ -123,15 +128,13 @@ export default
                 this.currentParticipantIDs.push(response.data.Id)
                 this.newParticipantIDs.push(response.data.Id)
 
-                this.currentParticipants.push(response.data)
-            
-                // actually add the user to the conversation
-                // this.inspectingConversation.Participants.push(response.data.Id)
-
-                if(this.currentConversationType == "UserType"){
-                    this.currentProfileText = response.data.Username
-                    this.currentProfilePicture = response.data.ProfilePicture
+                
+                if(response.data.ProfilePicture == null){
+                    let prof =  await sharedData.getUserProfile(response.data.Id)
+                    response.data.ProfilePicture = prof.ProfilePicture
                 }
+
+                this.currentParticipants.push(response.data)
 
             } catch (e) {
                 console.error('User not found!', e);
@@ -186,11 +189,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
-
-                // this.$emit('updateGroup', this.inspectingConversation);
-                this.$emit('closeOverlay');
+                // console.log(response.data);
 
             } catch (e) {
                 console.error(e.toString());         
@@ -219,11 +218,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
-                // this.inspectingConversation.GroupPicture = formattedProfilePic;
-
-                // this.$emit('updateGroup', this.inspectingConversation)
-                this.$emit('closeOverlay')
+                // console.log(response.data);
 
             } catch (e) {
                 console.error(e.toString());
@@ -250,11 +245,7 @@ export default
                 }
                 );
 
-                console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
-
-                // this.$emit('updateGroup', this.inspectingConversation);
-                this.$emit('closeOverlay');
+                // console.log(response.data);
 
             } catch (e) {
                 console.error(e.toString());         
@@ -275,10 +266,9 @@ export default
                 }
                 );
 
-                console.log(response.data);
-                // this.inspectingConversation.GroupName = this.currentProfileText;
-
-                // this.$emit('updateGroup', this.inspectingConversation);
+                // console.log(response.data);
+                alert("You left the conversation group.")
+                this.$emit('onLeftConversation', this.inspectingConversation.Id);
                 this.$emit('closeOverlay');
 
             } catch (e) {
@@ -337,9 +327,7 @@ export default
                     </button>
 
                 </div>
-     
 
-                
          
             </div>
         </div>

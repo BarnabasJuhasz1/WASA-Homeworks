@@ -25,15 +25,10 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// UserLoggedIn := LoggedInUser
-	// if UserLoggedIn.ProfilePicture == requestBody.ProfilePicture {
-	// 	ctx.Logger.Debugln("Your profile picture is already ", UserLoggedIn.ProfilePicture)
-
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
+	// update profile picture
 	LoggedInUser.ProfilePicture = requestBody.ProfilePicture
+
+	// update db
 	dberr := rt.db.UpdateUser(LoggedInUser, LoggedInUser.Username)
 	if dberr != nil {
 		rt.baseLogger.Errorln("Saving new User into DB error! ", dberr)
@@ -41,10 +36,7 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// util.AllUsers[UserLoggedIn.Username] = UserLoggedIn
-
-	ctx.Logger.Debugln("-----Func setMyPhoto Finished-----")
-
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(LoggedInUser.ProfilePicture)
 
 	if encodeErr != nil {
@@ -52,4 +44,6 @@ func (rt *_router) setMyPhoto(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func setMyPhoto Finished-----")
 }

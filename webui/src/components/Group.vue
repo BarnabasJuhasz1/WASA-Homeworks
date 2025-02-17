@@ -17,6 +17,17 @@ export default {
 		},
 	},
 	emits: ['SelectNewConversationAtGroupList'],
+	watch:{
+		conversation: {
+			handler(newValue, oldValue) {
+				if(newValue != oldValue){
+					this.getProfile();
+					this.setLastMessageSender();
+				}
+			},
+		},
+		
+	},
 	data() {
 		return {
 			headerName: null,
@@ -45,6 +56,10 @@ export default {
 					if (participant != sharedData.UserSession.UserID)
 					{
 						const profile = await sharedData.getUserProfile(participant);
+						if(profile == null)
+						{
+							break;
+						}
 						this.headerName = profile.Username;
             			this.profilePic = profile.ProfilePicture;
 					}
@@ -70,7 +85,8 @@ export default {
 			else
 			{
 				const senderProfile = await sharedData.getUserProfile(sender);
-				this.lastMessageSender = senderProfile.Username;
+				if(senderProfile != null)
+					this.lastMessageSender = senderProfile.Username;
 			}
 			//return senderProfile.Username;
 		}
@@ -93,7 +109,7 @@ export default {
 			const lastMessageTimestamp = new Date(this.getLastMessage.Timestamp);
 			const now = new Date();
 
-			// Check if the dates are the same
+			// check if the dates are the same
 			const isSameDay = 
 				lastMessageTimestamp.getFullYear() === now.getFullYear() &&
 				lastMessageTimestamp.getMonth() === now.getMonth() &&
@@ -150,7 +166,7 @@ export default {
 				</div>
 
 				<div v-if="this.isBase64Image">
-					<img :src="getLastMessage.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 24px;"/>
+					<img :src="getLastMessage.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 24px; max-height: 24px;"/>
 				</div>
 			</div>
 		</div>

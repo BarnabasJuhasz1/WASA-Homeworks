@@ -18,10 +18,15 @@ export default
                 this.currentLoginUsernameText = "";
                 return
             }
-            
-            // wait for getting the username confirmation,
-            // profile picture, and the IDs of the conversations
-            // UserData = await this.GetUserData();
+
+            if((this.currentLoginUsernameText).trim().length < 3 || 
+                (this.currentLoginUsernameText).trim().length > 16)
+            {
+                this.currentLoginUsernameText = "";
+                alert("Username is too short or too long!")
+                return
+            }
+
             try {
                 let response = await this.$axios.post(
                 "/session", 
@@ -36,14 +41,16 @@ export default
                 );
 
                 // response.data contains JSON
-                console.log(response.data);
+                // console.log(response.data);
 
+                // update user sesson
+                sharedData.UserSession.SessionToken = response.data.SessionToken;
                 sharedData.UserSession.UserID = response.data.User.Id;
                 sharedData.UserSession.Username = response.data.User.Username;
-                sharedData.UserSession.ProfilePicture = response.data.User.ProfilePicture;
-                sharedData.UserSession.SessionToken = response.data.SessionToken;
+                const prof = await sharedData.getUserProfile(response.data.User.Id)
+                sharedData.UserSession.ProfilePicture = prof.ProfilePicture;
 
-                console.log("User session updated:", sharedData.UserSession.UserID , ":", sharedData.UserSession.Username);
+                // console.log("User session updated:", sharedData.UserSession.UserID , ":", sharedData.UserSession.Username);
 
                 this.$router.push('/conversations');
 
@@ -57,28 +64,6 @@ export default
                 return e;
             }
         },
-        // async GetMyConversations(){
-        //     try {
-        //         let response = await axios.get(
-        //         "/user/myConversations", 
-        //         // Headers:
-        //         {
-        //             headers: {
-        //             "Authorization": "Bearer "+sharedData.UserSession.SessionToken,
-        //             },
-        //         }
-        //         );
-
-        //         console.log("myconversations: ", response.data);
-        //         myFetchedConversations.value = response.data;
-                
-        //         //this.myFetchedConversations2 = response.data;
-        //     }
-        //     catch (error) {
-        //         console.error("Error fetching conversations! ", error);
-        //         alert("Error fetching conversations!")
-        //     }
-        // }
     },
 }
 </script>

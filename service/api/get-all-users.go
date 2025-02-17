@@ -13,13 +13,17 @@ func (rt *_router) getAllUsers(w http.ResponseWriter, r *http.Request, ps httpro
 	w.Header().Set("content-type", "application/json")
 	ctx.Logger.Debugln("-----Func getAllUsers Called-----")
 
+	// get the search query parameter
 	searchQuery := r.URL.Query().Get("search")
 
+	// make db query based on whether search filter is present or not
 	var userIDs []int
 	var dbErr error
 	if searchQuery == "" {
+		// make db query to retrieve all users
 		userIDs, dbErr = rt.db.GetAllUsers()
 	} else {
+		// make db query to retrieve only subset of users
 		userIDs, dbErr = rt.db.GetUsersFromQuery(searchQuery)
 	}
 
@@ -29,8 +33,9 @@ func (rt *_router) getAllUsers(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	ctx.Logger.Debugln("getUsers query results: ", userIDs)
+	// ctx.Logger.Debugln("getUsers query results: ", userIDs)
 
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(userIDs)
 
 	if encodeErr != nil {

@@ -17,7 +17,7 @@ export default {
     };
   },
   computed: {
-    // Prepend the Base64 string with the required prefix
+    // add required prefix to string
     formattedProfilePicture() {
       if (this.profilePicture) {
         return `data:image/png;base64,${this.profilePicture}`;

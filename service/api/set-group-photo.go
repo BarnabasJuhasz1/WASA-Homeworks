@@ -29,9 +29,9 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
+	// make sure user did not try to change the picture of a one-on-one conversation
 	if Conversation.Type == util.UserType {
 		ctx.Logger.Debugln("Cannot change photo of one-on-one conversations!")
-
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
@@ -47,18 +47,10 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// if Conversation.ConversationGroup.GroupPicture == requestBody.GroupPicture {
-	// 	ctx.Logger.Debugln("The group picture is already set to this picture.")
-
-	// 	w.WriteHeader(http.StatusBadRequest)
-	// 	return
-	// }
-
 	// change the group picture to the payload picture
 	Conversation.GroupPicture = requestBody.GroupPicture
 
-	// update conversations map by reassigning the struct
-	// util.AllConversations[Conversation.Id] = Conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -66,8 +58,7 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func setGroupPhoto Finished-----")
-
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
@@ -75,4 +66,6 @@ func (rt *_router) setGroupPhoto(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func setGroupPhoto Finished-----")
 }

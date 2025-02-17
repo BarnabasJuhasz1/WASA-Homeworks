@@ -1,8 +1,5 @@
 package util
 
-// we should not store info of which conversation a user is part of inside the user struct
-// instead, in a separate map that maps from username (string) to conversationIds ([]int)
-
 type SessionStruct struct {
 	User         User
 	SessionToken string
@@ -12,7 +9,6 @@ type User struct {
 	Id             int
 	Username       string
 	ProfilePicture []byte
-	// MyConversations []int
 }
 
 type MessageStatus string
@@ -42,6 +38,8 @@ type Message struct {
 	OriginMessageId int
 	// flag that is set to true if the message has been deleted
 	HasBeenDeleted bool
+	// flag that is set to true if the message was forwarded
+	WasForwarded bool
 	// list of userIDs that have read the message
 	ReadBy []int
 }
@@ -64,18 +62,3 @@ type Conversation struct {
 	Participants []int
 	Messages     []Message
 }
-
-// type Group struct {
-// 	//Id int
-// 	Participants []User
-// 	GroupName    string
-// 	GroupPicture []byte
-// }
-
-// stores all the conversations of all users. This should only exist in the database...
-// var AllConversations = make(map[int]Conversation) // keys grow incrementally
-
-// stores the IDs of the conversations the user is part of
-// the field maps from username to list of conversation IDs
-// the conversation can be retrieved from the AllConversations field
-var UserToConversationIDs = make(map[string]int)

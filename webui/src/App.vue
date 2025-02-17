@@ -35,13 +35,6 @@ export default {
       </main>
     </div>
 
-    <!-- <div style="display: flex; flex-grow: 1; height: auto; margin-bottom: 0; margin-top: auto;">
-
-    </div> -->
-
-    <!-- <div id="pageFooter" style="display: flex; flex-direction: column;"> 
-     
-    </div> -->
     <footer style="height: 5vh">
       <div id="pageFooter">
         Made by Barnabas Juhasz

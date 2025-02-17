@@ -15,13 +15,13 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 
 	LoggedInUser := rt.db.GetLoggedInUser(w, ctx)
 
-	// get the conversations of a user
+	// make db query to get the conversations of a user
 	myConversations, err := rt.db.GetMyConversations(LoggedInUser.Id)
 	if err != nil {
 		ctx.Logger.Errorln("Failed to retrieve user conversations!", err)
 	}
 
-	ctx.Logger.Debugln("-----Func getMyConversations Finished-----")
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(myConversations)
 
 	if encodeErr != nil {
@@ -30,4 +30,5 @@ func (rt *_router) getMyConversations(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
+	ctx.Logger.Debugln("-----Func getMyConversations Finished-----")
 }

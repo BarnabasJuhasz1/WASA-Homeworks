@@ -22,13 +22,13 @@ export default {
       </div>
     </div>
 
-    <div style="display:flex; flex:1; justify-content: center;">
+    <!-- <div style="display:flex; flex:1; justify-content: center;">
       <div class="image-container2"
         @click="this.$emit('openOverlayInMode', 'CREATE_CONVERSATION')">
         
         <img src="https://cdn-icons-png.flaticon.com/128/7887/7887095.png"/>
       </div>
-    </div>
+    </div> -->
 
     <div style="display:flex; flex:1; justify-content: center;">
       <div class="image-container2"

@@ -64,6 +64,7 @@ func (rt *_router) getConversation(w http.ResponseWriter, r *http.Request, ps ht
 		return
 	}
 
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {

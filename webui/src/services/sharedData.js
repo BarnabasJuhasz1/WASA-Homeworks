@@ -17,9 +17,11 @@ function saveUserSessionToLocalStorage(session) {
 }
 
 export const sharedData = reactive({
-  UserSession: loadUserSessionFromLocalStorage(), // Load UserSession from localStorage
+  // load UserSession from localStorage
+  UserSession: loadUserSessionFromLocalStorage(), 
 
-  userProfileCache: {}, // Transient cache, not persisted
+  // transient cache, not persisted
+  // userProfileCache: {},
 
   async fetchUserProfile(userID) {
     try {
@@ -32,33 +34,49 @@ export const sharedData = reactive({
       });
 
       // console.log("user with id: ", userID, "fetched: ", response.data)
-      // if(response.data.ProfilePicture == null)
-        // response.data.ProfilePicture = "https://cdn-icons-png.flaticon.com/128/668/668709.png";
-      // console.log("USER FETCHED: ", response.data)
+
+      if(response.data.ProfilePicture == null){
+        response.data.ProfilePicture = await getDefaultImage();
+      }
+
       return response.data;
       
     } catch (e) {
       console.error('Error fetching user:', e);
-      alert('Fetching other user attempt failed!');
+      // alert('Fetching other user attempt failed!');
     }
   },
 
   async getUserProfile(userID) {
-    if (this.userProfileCache[userID]) {
-      // console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
-      return this.userProfileCache[userID];
-    }
+    // if (this.userProfileCache[userID]) {
+    //   // console.log('Cache hit for', userID, " GOT: ", this.userProfileCache[userID]);
+    //   return this.userProfileCache[userID];
+    // }
 
     // console.log('Cache miss for', userID);
     const userProfile = await this.fetchUserProfile(userID);
-    if (userProfile) {
-      this.userProfileCache[userID] = userProfile;
-    }
+    // if (userProfile) {
+    //   this.userProfileCache[userID] = userProfile;
+    // }
     return userProfile;
   },
 });
 
-// Watch for changes to UserSession and persist them to localStorage
+async function getDefaultImage() {
+  const response = await fetch('/images/default/basic_user_picture.png');
+  const blob = await response.blob();
+
+  return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result.split(',')[1];  
+        resolve(base64String)
+      };
+      reader.readAsDataURL(blob);
+  });
+}
+
+// watch for changes to UserSession and persist them to localStorage
 import { watch } from 'vue';
 
 watch(

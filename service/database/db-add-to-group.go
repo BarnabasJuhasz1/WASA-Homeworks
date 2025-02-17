@@ -8,10 +8,9 @@ import (
 func (db *appdbimpl) AddConversationIDToUser(userID int, addToConversationId int) error {
 
 	var oldConversationIDsJson []byte
-
 	// fmt.Println("trying to add user: ", username, " to conversation: ", addToConversationId)
+
 	// get the current conversation IDs
-	// err := db.c.QueryRow("SELECT conversations FROM user_to_conversations WHERE username = ?", username).Scan(&oldConversationIDsJson)
 	err := db.c.QueryRow("SELECT conversations FROM users WHERE id = ?", userID).Scan(&oldConversationIDsJson)
 	if err != nil {
 		return err
@@ -31,7 +30,7 @@ func (db *appdbimpl) AddConversationIDToUser(userID int, addToConversationId int
 		return jsonErr
 	}
 
-	// _, err2 := db.c.Exec("UPDATE user_to_conversations SET conversations = ? WHERE username = ?", conversationIDsJson, username)
+	// update the users table
 	_, err2 := db.c.Exec("UPDATE users SET conversations = ? WHERE id = ?", conversationIDsJson, userID)
 
 	return err2

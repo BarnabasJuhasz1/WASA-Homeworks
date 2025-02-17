@@ -7,12 +7,10 @@ import CurrentProfile from '../components/CurrentProfile.vue';
 import AddGroup from '../components/AddGroup.vue';
 import OriginMessage from '../components/OriginMessage.vue';
 import axios from "../services/axios.js"
-// import { useRoute } from 'vue-router';
 
 import ContextMenu from '../components/ContextMenu.vue';
 
 import { sharedData } from '../services/sharedData.js';
-import { ref } from "vue";
 
 import 'emoji-picker-element';
 import PopUpReactions from '../components/PopUpReactions.vue';
@@ -35,13 +33,10 @@ export default
   watch: {
     // Watch for changes in route parameters
     '$route'(to) {
-      // console.log("Updated ROUTER PARAMS: ", to.params.id);
-      // this.getConversation(to.params.id);
+      // console.log("Updated router parameter ID: ", to.params.id);
       this.SelectNewConversationInApp(to.params.id)
     },
-    // '$myconversations'(to){
-    //   // console.log("I GOT MYCONVERSATIONS FINALLY; ", to)
-    // }
+    
   },
   data() {
     return {
@@ -59,58 +54,54 @@ export default
 
         originMessage: null,
 
+        intervalId: null,
+
         };
     },
+    beforeUnmount() {
+      clearInterval(this.intervalId);
+    },
     methods: {
+        startPolling() {
+          this.intervalId = setInterval(() => {
+            // console.log("auto-refresh conv:", this.myConversations)
+            this.RefreshSelectedConversation();
+          }, 1000);
+          // console.log("Polling started with ID:", this.intervalId);
+        },
+        stopRefreshing(){
+          clearInterval(this.intervalId);
+          this.intervalId = null;
+          // console.log("Refreshing stopped at convView!");
+        },
         sendMessage(event) {
-            if(event)
-              event.preventDefault();
 
-            if((this.currentMessage).trim() == ""){
-              this.currentMessage = "";
-              return
-            }
+          // prevent adding new line to text area since user pressed enter
+          if(event)
+            event.preventDefault();
 
-            const now = new Date();
-
-            const newID = this.selectedConversation.Messages ? this.selectedConversation.Messages.length : 0
-            // create a new message and push it to the messages
-            const newMessage = {
-              Id: newID,
-              Sender: sharedData.UserSession.UserID,
-              Content: this.currentMessage,
-              Timestamp: now,
-              SentByUser: true,
-              OriginMessageId: this.originMessage == null ? -1 : this.originMessage.Id,
-            }
-            // console.log("about to send a message (USERID: ), ", sharedData.UserSession.UserID);
-            // send the message content to backend
-            // console.log("New Message Sent: ", newMessage)
-
-            if (!this.selectedConversation.Messages){
-              this.selectedConversation.Messages = [];
-            }
-
-            this.selectedConversation.Messages.push(newMessage);
-
-            if(this.originMessage == null){
-              this.sendMessageRequest(newID);
-            }
-            else{
-              this.sendMessageReplyRequest(newID);
-            }
-
-            // window.location.reload();
-
-            // reset textArea input
+          if((this.currentMessage).trim() == ""){
             this.currentMessage = "";
-            // stop replying to messages
-            this.originMessage = null;
+            return
+          }
 
-            this.$nextTick(() => {
-              this.scrollToBottom();
-              this.adjustHeight();
-            });
+          const newID = this.selectedConversation.Messages ? this.selectedConversation.Messages.length : 0
+
+          if (!this.selectedConversation.Messages){
+            this.selectedConversation.Messages = [];
+          }
+
+          if(this.originMessage == null){
+            this.sendMessageRequest(newID);
+          }
+          else{
+            this.sendMessageReplyRequest(newID);
+          }
+
+          // reset textArea input
+          this.currentMessage = "";
+          // stop replying to messages
+          this.originMessage = null;  
 
         },
         async sendMessageRequest(newMessageID) {
@@ -132,11 +123,14 @@ export default
               }
             );
             
-            console.log("new message has been received on server: ", response.data)
+            // console.log("new message has been received on server: ", response.data)
             setTimeout(() => {
-              this.selectedConversation.Messages[newMessageID] = response.data
+              this.selectedConversation.Messages[newMessageID] = response.data;
+              this.$nextTick(() => {
+                this.scrollToBottom();
+                this.adjustHeight();
+              });
             }, 150)
-            // console.log("message sent with response: ", response.data);
             
           }
           catch (error) {
@@ -165,13 +159,15 @@ export default
               }
             );
 
-            // console.log(response.data)
             // console.log("new reply has been received on server: ", response.data)
 
             setTimeout(() => {
-              this.selectedConversation.Messages[newMessageID] = response.data
+              this.selectedConversation.Messages[newMessageID] = response.data;
+              this.$nextTick(() => {
+                this.scrollToBottom();
+                this.adjustHeight();
+              });
             }, 150)
-            // console.log("message sent with response: ", response.data);
             
           }
           catch (error) {
@@ -180,6 +176,7 @@ export default
           }
         },
         async getConversation(convID) {
+
           try {
             let response = await axios.get(
               "/conversation/"+ convID,
@@ -192,12 +189,9 @@ export default
               }
             );
 
-            // console.log("conv before: ", this.myConversations[this.selectedConversationIndexLocal])
-            // console.log("CONV RECEIVED: ", response.data)
-
-            const updatedConversation = response.data; // Assume this is your new data
+            const updatedConversation = response.data;
+ 
             this.$emit('update-conversation', this.selectedConversationIndexLocal, updatedConversation);
-            // this.myConversations[this.selectedConversationIndexLocal] = response.data;
           }
           catch (error) {
             console.error("Error getting conversation! ", error);
@@ -214,7 +208,12 @@ export default
         },
         SelectNewConversationInApp(localConvIndex){
           
-          // this.$router.push('/conversation/'+this.myConversations[localConvIndex].Id);
+          if(this.myConversations.length == 0)
+          {
+            this.$router.push('/conversations');
+            return;
+          }
+
           this.$router.push('/conversation/'+localConvIndex);
 
           this.getConversation(this.myConversations[localConvIndex].Id);
@@ -226,16 +225,32 @@ export default
             this.selectedConversationIndexLocal = localConvIndex
             this.currentMessage = "";
 
-              this.$nextTick(() => {
-                this.scrollToBottom();
-                this.adjustHeight();
-
-                  // const groupHeader = this.$refs.groupHeaderRef;
-                  // groupHeader.getProfile();
-              });
+            setTimeout(() => {
+              this.scrollToBottom();
+              this.adjustHeight();
+            }, 100);
           }
-          // console.log("LOCAL INVDEX: ", this.selectedConversationIndexLocal)
+        },
+        async RefreshSelectedConversation(){
+          if(this.myConversations == null || this.myConversations[this.selectedConversationIndexLocal] == null){
+            return;
+          }
 
+          if(this.myConversations[this.selectedConversationIndexLocal].Messages == null){
+            await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
+            return;
+          }
+
+          let oldMessageCount = this.myConversations[this.selectedConversationIndexLocal].Messages.length;
+          
+          await this.getConversation(this.myConversations[this.selectedConversationIndexLocal].Id);
+
+          if(oldMessageCount != this.myConversations[this.selectedConversationIndexLocal].Messages.length){
+            setTimeout(() => {
+              this.scrollToBottom();
+              this.adjustHeight();
+            }, 100);
+          }
         },
         adjustHeight() {
 
@@ -272,6 +287,7 @@ export default
         },
         openOverlayInMode(mode, overlayProfileText, overlayProfilePicture) {
           this.$emit("openOverlayInMode", mode, overlayProfileText, overlayProfilePicture);
+          //console.log("conv: ", this.myConversations)
         },
         openOverlayInGroupMode(conversation){
           this.$emit("openOverlayInGroupMode", conversation, this.selectedConversationIndexLocal);
@@ -315,7 +331,7 @@ export default
           // console.log("selecting message: ", messageID)
           this.selectedMessageID = messageID;
           this.popUpReactionsVisible = true;
-          // console.log("WOW-1 ", this.popUpReactionsVisible)
+          // console.log("reactionsVisible: ", this.popUpReactionsVisible)
           this.$refs.reactionsMenu.show(event.clientX, event.clientY, this.selectedConversation.Messages[messageID]);
           this.$nextTick(() => {
             setTimeout(() => {
@@ -346,6 +362,7 @@ export default
         },
         logout(){
           this.$router.push('/');
+          clearInterval(this.intervalId);
         },
         openAttach(){
           this.$refs.fileInput.click();
@@ -377,10 +394,13 @@ export default
             };
           }
         },
+        cancelReply(){
+          this.originMessage=null;
+        },
         
     },
     mounted() {
-
+      this.startPolling();
     },
     components: {
         MessagesList,
@@ -402,6 +422,12 @@ export default
       {
           return this.currentMessage;
       },
+      originMessageBGcolor(){
+        if(this.originMessage.Sender == sharedData.UserSession.UserID)
+          return "backgroundColor: var(--message-own)"
+        else  
+          return "backgroundColor: var(--message-other)"
+      }
     }
   }
 </script>
@@ -431,7 +457,10 @@ export default
             />
         </div>
 
-        <div id="main">
+        <div id="main" style="position: relative;">
+
+            <div id="messageListBackgroundImage">
+            </div>
 
             <CurrentGroupHeader
             id="CurrentGroupHeader"
@@ -442,14 +471,15 @@ export default
 
             <div style="display:flex; margin-bottom:0px; margin-top:auto;">
             </div>
-
+            
             <MessagesList
             id="MessagesList"
             ref="messagesList"
-            v-if="myConversations != null"
+            v-if="myConversations != null && this.selectedConversation != null"
             :textMessages="this.selectedConversation.Messages"
             :convType="this.selectedConversation.Type"
             :refreshKey="this.selectedConversationIndexLocal"
+            @refreshMessageList="refreshMessageList"
             @onPageRefresh="onPageRefresh"
             @openContextMenu="openContextMenu"
             @openReactionsMenu="openReactionsMenu"
@@ -462,12 +492,31 @@ export default
               style="display: block; width: 100%; height: 0px; border-top: 2px solid rgb(206, 215, 240); margin-bottom: 5px;">
               </div>
 
-              <OriginMessage id="OriginMessage" ref="OriginMessage"
+              <div id="OriginMessage" ref="OriginMessage"
+              :style=originMessageBGcolor
+              style="display: flex; flex-direction: row;"
               v-if="this.originMessage != null"
-              :convType="this.selectedConversation.Type"
-              :message="this.originMessage"
-              />
-        
+              >
+
+                <OriginMessage
+                id="OriginMessage"
+                style="flex-grow: 1; margin-left: 0px; margin-right: 0px; border: 0px; background-color: unset;"
+                :convType="this.selectedConversation.Type"
+                :message="this.originMessage"
+                />
+
+                <div style="display: flex; min-width: 55px; justify-content: center; align-items: center;"
+                  @click="cancelReply"
+                >
+                  <img
+                  src="https://cdn-icons-png.flaticon.com/128/190/190406.png"
+                  style="max-width: 25px; max-height: 25px;"
+                  />
+                </div>
+               
+
+              </div>
+
               <div id="TextAndSend" v-if="myConversations != null">
                   
                 <button id="sendButton" @click="openEmojis()" class="sendButtonImageContainer"> 
@@ -507,7 +556,7 @@ export default
 
             <ContextMenu ref="contextMenu"
             v-show="contextMenuVisible"
-            v-if="myConversations != null"
+            v-if="myConversations != null && this.selectedConversation != null"
             :conversationID="this.selectedConversation.Id"
             @click="closeContextMenu"
             @refreshLocalMessage="refreshLocalMessage"
@@ -536,6 +585,8 @@ export default
   width: 20%;
   min-width: 125px;
   height: calc(90vh - 105px);
+  z-index: 1;
+
 }
 
 #groupListParent {
@@ -574,7 +625,6 @@ export default
   height: calc(90vh);
 
   /*flex-grow: 1;*/
-
 }
 
 #CurrentGroupHeader {
@@ -583,9 +633,11 @@ export default
   min-height: 75px;
   max-height: 75px;
 
-  background-color: rgba(0, 0, 0, .25);
   margin-bottom: 5px;
   border-radius: 15px;
+  
+  background-color: var(--main-outline);
+  z-index: 1;
 }
 
 #MessagesList {
@@ -798,6 +850,8 @@ export default
   display: flex;
   flex-direction: column;
 
+  background-color: var(--panel-bg);
+  z-index: 1;
 }
 
 

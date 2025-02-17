@@ -40,10 +40,8 @@ func UpdateUsername(oldUsername string, newUsername string) error {
 		return errors.New("username not found in token map")
 	}
 
-	// msg := "new assoc. for token: " + foundToken + " is now: " + newUsername + "  (old: " + oldUsername + ")"
-
 	// Update the map with the new username while keeping the token unchanged
 	TokenMap[foundToken] = newUsername
 
-	return nil // errors.New(msg)
+	return nil
 }

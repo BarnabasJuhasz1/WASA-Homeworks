@@ -48,20 +48,30 @@ paths:
           content:
             application/json:
               schema:
-                description: "The login identifier"
-                type: object
-                properties:
-                  identifier:
-                    description: "The login identifier"
-                    type: string
-                    example: "Maria"
-                    pattern: "^.*$"
-                    minLength: 1
-                    maxLength: 100
+                $ref: "#/components/schemas/SessionStruct"
                     
   /user:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
+    get:
+      tags: ["User Management"]
+      summary: get user from user ID
+      description: "Get the user struct matching the given user ID"
+      operationId: getUser
+      parameters:
+        - name: UserID
+          in: query
+          required: true
+          description: "The unique ID of the user to retrieve"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "User fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+            description: "User not found"
     put:
       tags: ["User Management"]
       summary: Set Username
@@ -91,11 +101,9 @@ paths:
               schema: 
                 $ref: "#/components/schemas/User"
         "404": 
-          description: "User not found"
+          description: "Error setting username!"
           
   /user/profilePicture:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
     put:
       tags: ["User Management"]
       summary: Set Profile Picture
@@ -118,17 +126,61 @@ paths:
         required: true
       responses:
         "200":
-            description: Profile Picture updated successfully
-            content:
-              application/json:
-                schema: 
-                  $ref: "#/components/schemas/User"
+          description: Profile Picture updated successfully
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
         "404": 
-          description: "User not found"
-        
+          description: "Error setting profile picture!"
+  
+  /user/fromName:
+    get:
+      tags: ["User Management"]
+      summary: get user from username
+      description:  "Get the user struct matching the given username"
+      operationId: getUserFromName
+      parameters:
+      - name: Username
+        in: query
+        required: true
+        description: "The unique username of the user to retrieve"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "User fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+           description: "User not found"
+
+  /user/all:
+    get:
+      tags: ["User Management"]
+      summary: get all users matching the optional username query
+      description:  "get all users matching the optional username query"
+      operationId: getAllUsers
+      parameters:
+      - name: search
+        in: query
+        required: false
+        description: "search specifies what username has to match partially (could be prefix or suffix)"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "Users fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+           description: "No User found matching search"   
+
   /user/myConversations:
-    #parameters:
-    #  - $ref: "#/components/parameters/Username"
     get:
       tags: ["Conversation Management"]
       summary: get all of my conversations
@@ -140,9 +192,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MyConversations"
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User not found"
+           description: "Conversations not found"
           
   /conversation/{ConversationID}:
     parameters:
@@ -160,7 +214,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
     post:
       tags: ["Conversation Management"]
       summary: send a message to the conversation
@@ -190,7 +244,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
     put:
       tags: ["Conversation Management"]
       summary: set the group name
@@ -222,7 +276,7 @@ paths:
         "403":
           description: "Forbidden request, cannot set group name of one-on-one conversation"
         "404":
-          description: "User or Conversation not found"
+          description: "Conversation not found"
           
     delete:
       tags: ["Conversation Management"]
@@ -235,9 +289,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MyConversations"
+                $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
    
   /conversation/{ConversationID}/add:
     parameters:
@@ -255,13 +309,9 @@ paths:
               description: "The user to add to the group"
               type: object
               properties:
-                UserNameToAdd: 
-                  type: string
-                  description: "User to add to the group"
-                  example: "Maria"
-                  pattern: "^.*$"
-                  minLength: 1
-                  maxLength: 16
+                UserIDToAdd: 
+                  type: integer
+                  description: "UserID to add to the group"
         required: true
       responses:
         "200":
@@ -271,7 +321,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
    
   /conversation/{ConversationID}/message/{MessageID}:
     parameters:
@@ -290,7 +340,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Conversation"
         "404":
-           description: "User, Conversation or Message not found"
+           description: "Conversation or Message not found"
   
   /conversation/{ConversationID}/message/{MessageID}/comment:
     parameters:
@@ -306,16 +356,12 @@ paths:
         content:
           application/json:
             schema:
-              description: "The recipient Username"
+              description: "The conversationID to forward the message to."
               type: object
               properties:
-                RecipientUsername:
-                  description: "The recipient of the message to be forwarded"
-                  type: string
-                  example: "Maria"
-                  pattern: "^.*$"
-                  minLength: 1
-                  maxLength: 16
+                ForwardToConvID:
+                  description: "The conversationID to forward the message to."
+                  type: integer
       responses:
         "200":
             description: "Message forwarded successfully"
@@ -324,7 +370,7 @@ paths:
                 schema:
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: "User, Conversation or Message not found"
+          description: "Conversation or Message not found"
     put:
       tags: ["Message Management"]
       summary: React to Message
@@ -338,7 +384,7 @@ paths:
               description: "The type of reaction and the content of the reaction"
               type: object
               properties:
-                ReactionType:
+                TypeOfReaction:
                   description: "the type of reaction, can be either emoji or message"
                   type: string
                   enum:
@@ -348,7 +394,7 @@ paths:
                   pattern: "^.*$"
                   minLength: 1
                   maxLength: 7
-                Content: 
+                ContentOfReaction: 
                   type: string
                   description: "The content of the reaction; if the reaction is a message |
                                 this is a reply and so the content is the message content; |
@@ -366,11 +412,11 @@ paths:
                 schema: 
                   $ref: "#/components/schemas/Message"
         "404": 
-          description: "User, Conversation or Message not found"
+          description: "Conversation or Message not found"
     delete:
       tags: ["Message Management"]
       summary: uncomment message
-      description: "delete the comment or reaction from the message"
+      description: "delete the reaction from the message"
       operationId: uncommentMessage
       responses:
         "200":
@@ -380,7 +426,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
         "404":
-           description: "User, Conversation or Message not found"
+           description: "Conversation or Message not found"
   
   
   /conversation/{ConversationID}/groupPicture:
@@ -416,7 +462,7 @@ paths:
         "403":
           description: "Forbidden request, cannot set picture of one-on-one conversation"
         "404":
-           description: "User or Conversation not found"
+           description: "Conversation not found"
            
   /create/conversation:
     post:
@@ -445,14 +491,24 @@ paths:
                   description: "users to create the conversation with"
                   type: array
                   items: 
-                    description: "a list of usernames"
-                    type: string
-                    example: "Maria"
-                    pattern: "^.*$"
-                    minLength: 1
-                    maxLength: 16
+                    description: "a list of userIDs"
+                    type: integer
                   minItems: 1
                   maxItems: 1000
+                ConversationName:
+                  type: string
+                  description: "the name of the conversation"
+                  example: "Maria"
+                  pattern: "^.*$"
+                  minLength: 0
+                  maxLength: 16
+                ConversationPicture:
+                  type: string
+                  description: "the picture of the conversation"
+                  format: binary
+                  minLength: 0
+                  maxLength: 100000
+                
         required: true
       responses:
         "200":
@@ -470,8 +526,11 @@ components:
       description: "Object representing a User"
       type: object
       properties:
-        Username:
+        ID:
           description: "a unique identifier of the user"
+          type: integer
+        Username:
+          description: "unique username of the user"
           type: string
           example: "Maria"
           pattern: "^.*$"
@@ -489,35 +548,30 @@ components:
       type: object
       properties:
         Message ID:
-          description: "message id that is unique in the scope of a conversation"
+          description: "message ID that is unique in the scope of a conversation"
           type: integer
-        Sender:
-          description: "the user of the person who sent the message"
-          allOf:
-            - $ref: "#/components/schemas/User"
-            - description: "the user of the person who sent the message"
+        Sender ID:
+          description: "the user ID of the person who sent the message"
+          type: integer
         Content:
           description: "the content of the message"
           type: string
           example: "Maria"
           pattern: "^.*$"
-          minLength: 1 #the message has to be at least one character
-          maxLength: 2000 #limiting the max message length
-          
+          minLength: 1
+          maxLength: 2000
         Timestamp:
           description: "the timestamp of the message"
           type: string
           format: date-time
           minLength: 1
           maxLength: 100
-          
         Status:
           description: "the status of the message"
           type: string
           enum:
             - Single
             - Double
-            - Username
           example: "Single"
           pattern: "^.*$"
           minLength: 1
@@ -529,16 +583,30 @@ components:
             $ref: "#/components/schemas/Reaction" 
           minItems: 0
           maxItems: 10000
-          
+        Origin Message ID:
+          description: "message Id of the origin message"
+          type: integer
+        HasBeenDeleted:
+          description: "flags if the message has been deleted or not"
+          type: boolean
+        WasForwarded:
+          description: "flags if the message was forwarded or not"
+          type: boolean
+        ReadBy:
+          description: "an array of user IDs who read the message"
+          type: array
+          items:
+            type: integer
+          minItems: 0
+          maxItems: 1000
+
     Reaction:
       description: "Object representing a reaction to a message"
       type: object
       properties:
         UserWhoReacted:
           description: "The user who made the reaction"
-          allOf:
-            - $ref: "#/components/schemas/User"
-            - description: "The user who made the reaction"
+          type: integer
         ReactionType:
           description: "the type of reaction, can be either emoji or message"
           type: string
@@ -574,7 +642,7 @@ components:
           description: "users in the group"
           type: array
           items: 
-            $ref: "#/components/schemas/User"
+            type: integer
           minItems: 2
           maxItems: 10000
         Group name:
@@ -589,7 +657,7 @@ components:
           type: string
           format: binary
           minLength: 1
-          maxLength: 100
+          maxLength: 100000
         ConversationType:
           description: "type of conversation, either with a single person or a group"
           type: string
@@ -607,15 +675,23 @@ components:
             $ref: "#/components/schemas/Message"
           minItems: 1
           maxItems: 10000
-
           
-    MyConversations:
-      description: "Object storing all of my conversations"
-      type: array
-      items:
-        $ref: "#/components/schemas/Conversation"
-      minItems: 0
-      maxItems: 10000
+    SessionStruct:
+      description: "Object representing session info to be communicated to the logged in user"
+      type: object
+      properties:
+        User:
+          description: "the user who was authenticated and logged in"
+          allOf:
+            - $ref: "#/components/schemas/User"
+            - description: "the user who was authenticated and logged in"
+        SessionToken:
+          description: "the token of the user"
+          type: string
+          example: "Maria"
+          pattern: "^.*$"
+          minLength: 1
+          maxLength: 20
 
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
@@ -649,4 +725,4 @@ components:
       
 security:
   - bearerAuth: []
-                      
+  

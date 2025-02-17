@@ -12,7 +12,7 @@ export default {
     profilePicture: {
       type: String,
       required: true,
-      default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
+      //default: "https://cdn-icons-png.flaticon.com/128/14721/14721998.png",
     },
     editable: {
       type: Boolean,
@@ -30,21 +30,17 @@ export default {
     }
   },
   setup(props) {
-    // console.log("username is ", props.username);
     const editableUsername = ref(props.username);
 
      watch(editableUsername, (newValue) => {
-      // console.log("updated value: ", newValue)
       emit("update:username", newValue);
     });
 
     // console.log("editable username is: ", editableUsername.value)
-    // editableUsername = props.username;
     return { editableUsername };
   },
   data() {
     return {
-      // editableUsername: username,
       checked: false,
     };
   },
@@ -61,9 +57,6 @@ export default {
         return `data:image/png;base64,${this.profilePicture}`; // Return formatted Base64 string
       }
     },
-    // editableUsername() {
-    //   return props.username;
-    // }
   }
 };
 </script>

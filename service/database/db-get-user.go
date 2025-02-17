@@ -9,6 +9,7 @@ func (db *appdbimpl) GetUser(userID int) (util.User, error) {
 
 	var returnedUser util.User
 
+	// make query to retrieve user with the given ID
 	err := db.c.QueryRow("SELECT id, username, profile_picture FROM users WHERE id = ?", userID).Scan(&returnedUser.Id, &returnedUser.Username, &returnedUser.ProfilePicture)
 
 	return returnedUser, err

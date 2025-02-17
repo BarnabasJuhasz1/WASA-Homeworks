@@ -119,12 +119,11 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 			OriginMessageId: messageID,
 		})
 
-		ctx.Logger.Debugln("new REPLY CREATED WITH CONTENT: ", ReactionToMake.Content)
+		ctx.Logger.Debugln("New reply created with content: ", ReactionToMake.Content)
 
 	}
 
-	// update conversations map by reassigning the struct
-	// util.AllConversations[Conversation.Id] = Conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -132,6 +131,7 @@ func (rt *_router) commentMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	// encode response
 	var encodeErr error
 	if ReactionToMake.Type == util.EmojiReaction {
 		encodeErr = json.NewEncoder(w).Encode(Conversation.Messages[messageID])

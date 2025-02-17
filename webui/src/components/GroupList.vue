@@ -17,6 +17,7 @@ export default {
   components: {
     Group,
   },
+
   data() {
     return {
     };
@@ -24,7 +25,6 @@ export default {
   methods: {
     SelectNewConversation(index){
       // console.log('select conversation at group list: ', index);
-      /*this.selectedConversationIndex = index*/
       this.$emit("SelectNewConversation", index);
     },
     GetLastMessage(conversation){
@@ -34,7 +34,6 @@ export default {
       }
 
       return conversation.messages[conversation.messages.length-1];
-      // :last-message="conversation.messages[conversation.messages.length-1]"
     }
   }
 
@@ -46,11 +45,14 @@ export default {
   <div>
     <div>
       <div id="MainGroupList" v-for="(conversation, index) in conversations" :key="`${conversation.GroupName}-${conversation.GroupPicture}-${conversation.Messages}-${index}`">
+        
         <Group
-        :conversation="conversation"
-        :index="index"
-        :isSelected="this.selectedConversationIndexLocal == index"
-        @SelectNewConversationAtGroupList="SelectNewConversation"/>
+          :conversation="conversation"
+          :index="index"
+          :isSelected="this.selectedConversationIndexLocal == index"
+          @SelectNewConversationAtGroupList="SelectNewConversation"
+        />
+
       </div>
     </div>
 
@@ -65,8 +67,7 @@ export default {
 <style>
 
 #MainGroupList {
-  display: block; /* Enable Flexbox */
-  /*justify-content: center; /* Center horizontally */
+  display: block;
   background-color: rgba(0, 0, 0, .25);
   
   border-radius: 5px;

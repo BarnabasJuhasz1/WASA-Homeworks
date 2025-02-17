@@ -29,9 +29,9 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
-	// if this is a one-on-one conversation
+	// check if this is a one-on-one conversation
 	if requestBody.ConvType == util.UserType {
-		// fetch my conversations
+		// make query to fetch my conversations
 		myConversations, fetchMyConvErr := rt.db.GetMyConversations(LoggedInUser.Id)
 		if fetchMyConvErr != nil {
 			ctx.Logger.Errorln("Failed to fetch user conversations: ", fetchMyConvErr)
@@ -70,7 +70,6 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 	}
 
 	var emptyMessages []util.Message
-	// basicPic, _ := util.GetBasicGroupPicture()
 	// create the Conversation with all the users
 	Conversation := util.Conversation{
 		Type:         requestBody.ConvType,
@@ -80,13 +79,13 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		Messages:     emptyMessages,
 	}
 
-	// insert new conversation to database
+	// make query to insert new conversation to database
 	id, insertingErr := rt.db.InsertConversation(Conversation)
 	if insertingErr != nil {
 		ctx.Logger.Errorln("Error inserting new conversation into database! ", insertingErr)
 	}
 
-	// map myself to the conversation
+	// make query to map myself to the conversation
 	dbAddErr := rt.db.AddConversationIDToUser(LoggedInUser.Id, id)
 	if dbAddErr != nil {
 		ctx.Logger.Errorln("Failed to add user to conversation:", dbAddErr)
@@ -94,7 +93,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
-	// map the other users to the conversation
+	// make query to map the other users to the conversation
 	for _, userIDAtI := range requestBody.Participants {
 
 		// ctx.Logger.Debugln("trying to add user: ", userNameAtI, " to conversation ", id)
@@ -106,8 +105,9 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		}
 	}
 
+	// update id of the conversation struct
 	Conversation.Id = id
-	// util.AllConversations[conversation.Id] = conversation
+	// update db
 	dberr := rt.db.UpdateConversation(Conversation.Id, Conversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -115,7 +115,7 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		return
 	}
 
-	ctx.Logger.Debugln("-----Func createConversation Finished-----")
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(Conversation)
 
 	if encodeErr != nil {
@@ -123,4 +123,6 @@ func (rt *_router) createConversation(w http.ResponseWriter, r *http.Request, ps
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	ctx.Logger.Debugln("-----Func createConversation Finished-----")
 }

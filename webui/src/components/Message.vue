@@ -18,25 +18,45 @@ export default {
 		msgStyle: {
 			required: true,
 		},
+		isProfileVisible: {
+			required: true,
+		},
+	},
+	watch: {
+		message: {
+			handler(newValue, oldValue) {
 
+				setTimeout(() => {
+					this.getProfile(this.message.Sender);
+					this.setCheckMarkImg();
+					this.setMessageReactionList();
+
+				}, 100);
+					
+			},
+			deep: true,
+		},
 	},
 	methods: {
 		async getProfile(userID) {
 
-			const profile = await sharedData.getUserProfile(userID);
-			// console.log("for message content: ", this.content, " the found sender: ", profile.Username)
-			this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
-			this.profilePic = profile.ProfilePicture;
+			try{
+				const profile = await sharedData.getUserProfile(userID);
+				this.username = userID == sharedData.UserSession.UserID ? "You" : profile.Username;
+				this.profilePic = profile.ProfilePicture;
+
+			}catch(error){
+				console.log("Error getting user profile!")
+			}
 		},
 		formattedTimestamp() {
-			// Parse the input string
+			// parse the input string
 			const date = new Date(this.message.Timestamp);
 
-			// Extract hours and minutes
+			// get hours and minutes
 			const hours = String(date.getHours()).padStart(2, '0');
 			const minutes = String(date.getMinutes()).padStart(2, '0');
 
-			// Return the formatted time
 			return `${hours}:${minutes}`;
 		},
 		setCheckMarkImg() {
@@ -48,6 +68,29 @@ export default {
 				this.currentCheckmarkImage =  null;
 			}
 		},
+		async setMessageReactionList(){
+			if(this.message.EmojiReactions == null)
+				return;
+
+			let newReactionList = []
+
+			for(let i = 0; i < this.message.EmojiReactions.length; i++){
+				
+				let prof = await sharedData.getUserProfile(this.message.EmojiReactions[i].UserWhoReacted)
+				if(prof == null)
+				{
+					break;
+				}
+
+				newReactionList.push(
+				{
+					Username: prof.Username,
+					Content: this.message.EmojiReactions[i].Content
+				})
+			}
+
+			this.messageReactionList = newReactionList;
+		}
 	},
 	data() {
 		return {
@@ -59,15 +102,18 @@ export default {
 		
 			currentCheckmarkState: this.message.Status,
 			currentCheckmarkImage: null,
+
+			// new list of message reactions to make sure it works for evaluation
+			messageReactionList: [],
 		}
 	},
 	components: {
 		OriginMessage,
 	},
 	mounted() {
-		
 		this.getProfile(this.message.Sender);
 		this.setCheckMarkImg();
+		this.setMessageReactionList();
   	},
 	computed: {
 		TimeStyle(){
@@ -188,11 +234,15 @@ export default {
 <template>
 
 	<div id="MessageParent"
-		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left'}">
-
+		:style="{textAlign: this.msgStyle.wasSentByUser ? 'right' : 'left',
+			marginLeft: this.isProfileVisible ? '0px;' : '50px',
+		}"
+	>
+		
 		<div v-if="!this.msgStyle.wasSentByUser
 					&& this.profilePic != null
-					&& this.convType != 'UserType'"
+					&& this.convType != 'UserType'
+					&& this.isProfileVisible"
 			id="profileImageOfOtherPerson {{content}}" class="image-container">
 
 				<img :src="formattedProfilePicture"/>
@@ -213,8 +263,19 @@ export default {
 					>
 				</OriginMessage>
 
+				
+				<div
+				style="font-style: italic; border-radius: 10px; max-width: 500px;"
+				v-if="this.message.WasForwarded && !this.message.HasBeenDeleted">
+					Forwarded
+				</div>
 
-				<div v-if="!this.msgStyle.wasSentByUser && this.convType != 'UserType'" id="username">
+
+				<div  id="username"
+					v-if="!this.msgStyle.wasSentByUser
+						&& this.convType != 'UserType'
+						&& this.isProfileVisible"
+				>
 						{{ this.username }}
 				</div>
 				
@@ -234,7 +295,7 @@ export default {
 						</div>
 
 						<div v-if="this.isBase64Image">
-							<img :src="this.message.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 200px;"/>
+							<img :src="this.message.Content" style="width: 100%; height: 100%; object-fit: contain; max-width: 250px; max-height: 250px;"/>
 						</div>
 
 					</div>
@@ -270,29 +331,26 @@ export default {
 				marginLeft: msgStyle.wasSentByUser ? '0px' : '10px',
 				marginRight: msgStyle.wasSentByUser ? '10px' : '0px'
 				}"
+			style="z-index: 1;"
 			>
-		
-				<!-- <div id = "messageEmoji">
-					{{ mostReactedEmojiOnMessage.mostCommonReaction }} 
+				<div class="custom-scrollbar" style="display: flex; margin-top: 10px; margin-left: 10px; margin-right: -5px; width: 100%; max-height: 100px; overflow-x: none; overflow-y: auto; flex-direction: column;">
+
+					<div
+					v-for="(reaction, i) in this.messageReactionList" :key="`${i}-${reaction.Username}-${reaction.Content}`">
+					{{ reaction.Username }} : {{ reaction.Content }} &nbsp; 
+					</div>
+
 				</div>
-
-				<div id = "emojiCount"
-				v-show="this.mostReactedEmojiOnMessage.count > 1"
-				>
-					{{ mostReactedEmojiOnMessage.count }}
-				</div> -->
-
-				<div style="display: flex; margin-left: 10px; margin-right: -5px;">
-					<div id = "messageEmoji"
+				
+				<!-- 
+				<div id = "messageEmoji"
 					v-for="(value, key) in reactedEmojis.emojis" :key="key">
 						{{ value[0] }}
-					</div>
 				</div>
-
 				<div id = "emojiCount" style="font-weight: 600;"
 					v-show="reactedEmojis.count > 1">
 					{{ reactedEmojis.count }}
-				</div>
+				</div> -->
 			</div>
 
 		</div>
@@ -315,6 +373,8 @@ export default {
 
 	padding-left: 5vw;
 	padding-right: 5vw;
+
+	z-index:1;
 }
 
 #profileImageOfOtherPerson {
@@ -363,7 +423,7 @@ export default {
 	padding-top: 5px;
 
 	max-width: 75%;
-	
+	z-index:1;
 }
 
 .message {

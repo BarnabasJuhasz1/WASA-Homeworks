@@ -14,7 +14,6 @@ export default {
     selectedConversation: {
       handler(newValue, oldValue) {
         if(newValue != oldValue){
-          this.groupParticipantNames = [];
           this.getProfile();
         }
       },
@@ -30,13 +29,12 @@ export default {
 		}
 	},
 	mounted() {
-    // this.groupParticipantNames = [];
 
   },
   methods: {
     async getProfile()
 		{
-      // console.log("getting header: ", this.selectedConversation)
+      // console.log("getting header for conv: ", this.selectedConversation)
       if(this.selectedConversation == null)
         return;
 
@@ -53,17 +51,11 @@ export default {
 					}
 				}
 			}
-			else if (this.groupParticipantNames.length == 0)
+			else
 			{
-
-        // this.groupParticipantNames = [];
         this.headerName = this.selectedConversation.GroupName;
 				this.profilePic = this.selectedConversation.GroupPicture;
-        // for (let i = 0; i < this.selectedConversation.Participants.length; i++)
-				// {
-				// 	let participant = await sharedData.getUserProfile(this.selectedConversation.Participants[i]);
-				// 	this.groupParticipantNames.push(participant.Username)
-				// }
+
         this.groupParticipantNames = await this.getParticipantNames();
 			}
 		},
@@ -77,12 +69,13 @@ export default {
         let participant = await sharedData.getUserProfile(this.selectedConversation.Participants[i]);
         participantNames.push(participant.Username)
       }
+      this.groupParticipantNames = [];
       return participantNames;
     }
   },
 	computed: {
 		formattedProfilePicture() {
-      return `data:image/png;base64,${this.profilePic}`; // Return formatted Base64 string
+      return `data:image/png;base64,${this.profilePic}`;
     },
   }	
 };

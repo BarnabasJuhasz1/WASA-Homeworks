@@ -53,10 +53,10 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	// make sure the recipient exists in the database as a user
+	// query to get the recipient conversation
 	RecipientConversation, dbErr := rt.db.GetConversation(requestBody.ForwardToConvID)
 	if dbErr != nil {
-		ctx.Logger.Debugln("Error trying to retrieve recipient ConversationID!")
+		ctx.Logger.Debugln("Error trying to retrieve recipient Conversation!")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -71,11 +71,12 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		Timestamp:       time.Now().Format("2006-01-02 15:04:05"),
 		Status:          util.SingleCheckmark,
 		EmojiReactions:  emptyReactions,
+		HasBeenDeleted:  false,
+		WasForwarded:    true,
 		OriginMessageId: -1,
 	})
 
-	// update conversations map by reassigning the struct
-	// util.AllConversations[ConvWithRecipient.Id] = ConvWithRecipient
+	// update db
 	dberr := rt.db.UpdateConversation(RecipientConversation.Id, RecipientConversation)
 	if dberr != nil {
 		ctx.Logger.Errorln("Failed to update conversation:", dberr)
@@ -83,6 +84,7 @@ func (rt *_router) forwardMessage(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	// encode response
 	encodeErr := json.NewEncoder(w).Encode(OriginalConversation.Messages[messageID])
 
 	if encodeErr != nil {

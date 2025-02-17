@@ -89,7 +89,8 @@ export default {
 
 				<div class="message" style="white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis;">
 
-					<div v-if="!this.isBase64Image" style="max-width: 100px;">
+					<div v-if="!this.isBase64Image"
+						style="white-space: nowrap; overflow-x: hidden; overflow-y: hidden; text-overflow: ellipsis; max-width: 100%;">
 							{{ this.message.Content }}
 					</div>
 
