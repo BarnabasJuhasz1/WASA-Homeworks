@@ -51,6 +51,27 @@ paths:
                 $ref: "#/components/schemas/SessionStruct"
                     
   /user:
+    get:
+      tags: ["User Management"]
+      summary: get user from user ID
+      description: "Get the user struct matching the given user ID"
+      operationId: getUser
+      parameters:
+        - name: UserID
+          in: query
+          required: true
+          description: "The unique ID of the user to retrieve"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: "User fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+            description: "User not found"
     put:
       tags: ["User Management"]
       summary: Set Username
@@ -105,14 +126,60 @@ paths:
         required: true
       responses:
         "200":
-            description: Profile Picture updated successfully
-            content:
-              application/json:
-                schema: 
-                  $ref: "#/components/schemas/User"
+          description: Profile Picture updated successfully
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
         "404": 
           description: "Error setting profile picture!"
-        
+  
+  /user/fromName:
+    get:
+      tags: ["User Management"]
+      summary: get user from username
+      description:  "Get the user struct matching the given username"
+      operationId: getUserFromName
+      parameters:
+      - name: Username
+        in: query
+        required: true
+        description: "The unique username of the user to retrieve"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "User fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+           description: "User not found"
+
+  /user/all:
+    get:
+      tags: ["User Management"]
+      summary: get all users matching the optional username query
+      description:  "get all users matching the optional username query"
+      operationId: getAllUsers
+      parameters:
+      - name: search
+        in: query
+        required: false
+        description: "search specifies what username has to match partially (could be prefix or suffix)"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "Users fetched successfully"
+          content:
+            application/json:
+              schema: 
+                $ref: "#/components/schemas/User"
+        "404":
+           description: "No User found matching search"   
+
   /user/myConversations:
     get:
       tags: ["Conversation Management"]
@@ -658,4 +725,4 @@ components:
       
 security:
   - bearerAuth: []
-                      
+  

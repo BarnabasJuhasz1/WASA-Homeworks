@@ -17,9 +17,11 @@ function saveUserSessionToLocalStorage(session) {
 }
 
 export const sharedData = reactive({
-  UserSession: loadUserSessionFromLocalStorage(), // load UserSession from localStorage
+  // load UserSession from localStorage
+  UserSession: loadUserSessionFromLocalStorage(), 
 
-  userProfileCache: {}, // transient cache, not persisted
+  // transient cache, not persisted
+  // userProfileCache: {},
 
   async fetchUserProfile(userID) {
     try {
@@ -53,9 +55,9 @@ export const sharedData = reactive({
 
     // console.log('Cache miss for', userID);
     const userProfile = await this.fetchUserProfile(userID);
-    if (userProfile) {
-      this.userProfileCache[userID] = userProfile;
-    }
+    // if (userProfile) {
+    //   this.userProfileCache[userID] = userProfile;
+    // }
     return userProfile;
   },
 });

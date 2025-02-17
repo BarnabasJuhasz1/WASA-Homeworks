@@ -128,7 +128,7 @@ export default
                 this.currentParticipantIDs.push(response.data.Id)
                 this.newParticipantIDs.push(response.data.Id)
 
-
+                
                 if(response.data.ProfilePicture == null){
                     let prof =  await sharedData.getUserProfile(response.data.Id)
                     response.data.ProfilePicture = prof.ProfilePicture
