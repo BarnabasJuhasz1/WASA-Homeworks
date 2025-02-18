@@ -8,7 +8,7 @@ COPY webui .
 ### Build Vue.js into plain HTML/CSS/JS
 RUN npm run build-prod
 
-### Create final container
+### Create final image
 FROM nginx:stable
 
 # Copy built frontend

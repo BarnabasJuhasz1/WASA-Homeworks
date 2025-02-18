@@ -81,6 +81,7 @@ export default
                 {
                     await this.AddUserRequest(this.newParticipantIDs[i])
                 }
+                
                 this.$emit('closeOverlay');
 
                 alert("Conversation edited successfully.")
